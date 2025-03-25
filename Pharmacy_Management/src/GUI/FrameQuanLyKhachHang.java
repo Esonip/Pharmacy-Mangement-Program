@@ -1,7 +1,5 @@
 package GUI;
 
-import java.awt.EventQueue;
-
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
@@ -17,9 +15,6 @@ import javax.swing.SwingConstants;
 import com.toedter.calendar.JDateChooser;
 
 import DAO.KhachHangDAO;
-import connectDB.ConnectDB;
-import entity.KhachHang;
-
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JScrollPane;
@@ -35,22 +30,16 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import javax.swing.JButton;
-import javax.swing.JFrame;
-
-import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.sql.Connection;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
-import java.awt.event.ActionEvent;
 
 public class FrameQuanLyKhachHang extends JPanel {
 
@@ -68,7 +57,7 @@ public class FrameQuanLyKhachHang extends JPanel {
 	private JTextField txtDienThoaiTim;
 	private JTextField txtDiaChiTim;
 	private DefaultTableModel tableModel;
-	private boolean isEditting = false;
+//	private boolean isEditting = false;
 	private KhachHangDAO khachHangDAO = new KhachHangDAO();
 
 	// Cập nhật dữ liệu vào table
@@ -146,7 +135,7 @@ public class FrameQuanLyKhachHang extends JPanel {
 
 		error = kiemTraNhap.validateID(maKH);
 		if (error != null) {
-			JOptionPane.showMessageDialog(FrameQuanLyKhachHang.this, "Lỗi" + error);
+			JOptionPane.showMessageDialog(FrameQuanLyKhachHang.this, "Lỗi! " + error);
 			txtMaKhachHang.requestFocus();
 			return;
 		}
@@ -327,7 +316,7 @@ public class FrameQuanLyKhachHang extends JPanel {
 		txtDienThoai.setText("");
 		txtEmail.setText("");
 		txtNgaySinh.setDate(new Date());
-		isEditting = false;
+//		isEditting = false;
 	}
 
 	// Xóa dữ liệu trong các ô tìm kiếm
@@ -366,7 +355,7 @@ public class FrameQuanLyKhachHang extends JPanel {
 		    }
 
 		    // Write the output to a file
-		    try (FileOutputStream fileOut = new FileOutputStream("DanhSachKhachHang.xlsx")) {
+		    try (FileOutputStream fileOut = new FileOutputStream("F:\\iuh 22-26\\HK6\\PTUD\\Major Assignment\\BaoCao\\DanhSachKhachHang.xlsx")) {
 		        workbook.write(fileOut);
 		        JOptionPane.showMessageDialog(this, "Xuất file Excel thành công");
 		    } catch (IOException e) {
@@ -417,44 +406,44 @@ public class FrameQuanLyKhachHang extends JPanel {
 
 		JButton btnThem = new JButton("Thêm");
 		btnThem.setBackground(new Color(167, 62, 20));
-		btnThem.setIcon(new ImageIcon("icon\\btnThem.png"));
+		btnThem.setIcon(new ImageIcon("icon\\add.png"));
 		btnThem.setForeground(Color.BLACK);
-		btnThem.setFont(new Font("Tahoma", Font.BOLD, 18));
+		btnThem.setFont(new Font("Segoe UI", Font.BOLD, 18));
 		btnThem.setBounds(71, 20, 156, 45);
 		panel.add(btnThem);
 		btnThem.addActionListener(e -> btnThemAction());
 
 		JButton btnSua = new JButton("Sửa");
-		btnSua.setIcon(new ImageIcon("icon\\btnSua.png"));
+		btnSua.setIcon(new ImageIcon("icon\\edit.png"));
 		btnSua.setForeground(Color.BLACK);
-		btnSua.setFont(new Font("Tahoma", Font.BOLD, 18));
+		btnSua.setFont(new Font("Segoe UI", Font.BOLD, 18));
 		btnSua.setBackground(new Color(167, 62, 20));
 		btnSua.setBounds(356, 20, 156, 45);
 		panel.add(btnSua);
 		btnSua.addActionListener(e -> btnSuaAction());
 
 		JButton btnXoa = new JButton("Xóa");
-		btnXoa.setIcon(new ImageIcon("icon\\btnXoa.png"));
+		btnXoa.setIcon(new ImageIcon("icon\\delete.png"));
 		btnXoa.setForeground(Color.BLACK);
-		btnXoa.setFont(new Font("Tahoma", Font.BOLD, 18));
+		btnXoa.setFont(new Font("Segoe UI", Font.BOLD, 18));
 		btnXoa.setBackground(new Color(167, 62, 20));
 		btnXoa.setBounds(657, 20, 156, 45);
 		panel.add(btnXoa);
 		btnXoa.addActionListener(e -> btnXoaAction());
 
 		JButton btnHuy = new JButton("Hủy");
-		btnHuy.setIcon(new ImageIcon("icon\\btnCancel.png"));
+		btnHuy.setIcon(new ImageIcon("icon\\cancel.png"));
 		btnHuy.setForeground(Color.BLACK);
-		btnHuy.setFont(new Font("Tahoma", Font.BOLD, 18));
+		btnHuy.setFont(new Font("Segoe UI", Font.BOLD, 18));
 		btnHuy.setBackground(new Color(167, 62, 20));
 		btnHuy.setBounds(980, 20, 156, 45);
 		panel.add(btnHuy);
 		btnHuy.addActionListener(e -> btnHuyAction());
 
 		JButton btnIn = new JButton("Xuất File");
-		btnIn.setIcon(new ImageIcon("icon\\btnprint.png"));
+		btnIn.setIcon(new ImageIcon("icon\\print.png"));
 		btnIn.setForeground(Color.BLACK);
-		btnIn.setFont(new Font("Tahoma", Font.BOLD, 18));
+		btnIn.setFont(new Font("Segoe UI", Font.BOLD, 18));
 		btnIn.setBackground(new Color(167, 62, 20));
 		btnIn.setBounds(1287, 20, 156, 45);
 		panel.add(btnIn);
@@ -547,9 +536,11 @@ public class FrameQuanLyKhachHang extends JPanel {
 		table.setModel(new DefaultTableModel(new Object[][] {},
 				new String[] { "Mã Khách Hàng", "Tên Khách Hàng", "Địa Chỉ", "Số Điện Thoại", "Email", "Ngày Sinh" }) {
 			private static final long serialVersionUID = -5324374389820629878L;
+			@SuppressWarnings("rawtypes")
 			Class[] columnTypes = new Class[] { String.class, String.class, String.class, String.class, String.class,
 					String.class };
 
+			@SuppressWarnings({ "unchecked", "rawtypes" })
 			public Class getColumnClass(int columnIndex) {
 				return columnTypes[columnIndex];
 			}
@@ -613,17 +604,19 @@ public class FrameQuanLyKhachHang extends JPanel {
 		pnlTacVu.add(txtDiaChiTim);
 
 		JButton btnTim = new JButton("Tìm");
+		btnTim.setIcon(new ImageIcon("F:\\iuh 22-26\\HK6\\PTUD\\Major Assignment\\Pharmacy_Management\\icon\\find.png"));
 		btnTim.setBackground(new Color(255, 128, 128));
-		btnTim.setForeground(new Color(255, 0, 0));
-		btnTim.setFont(new Font("Tahoma", Font.BOLD, 15));
+		btnTim.setForeground(new Color(0, 0, 0));
+		btnTim.setFont(new Font("Segoe UI", Font.BOLD, 18));
 		btnTim.setBounds(88, 358, 117, 57);
 		pnlTacVu.add(btnTim);
 		btnTim.addActionListener(e -> btnTimAction());
 
 		JButton btnTaiLai = new JButton("Tải lại");
+		btnTaiLai.setIcon(new ImageIcon("F:\\iuh 22-26\\HK6\\PTUD\\Major Assignment\\Pharmacy_Management\\icon\\refresh.png"));
 		btnTaiLai.setBackground(new Color(255, 128, 128));
-		btnTaiLai.setForeground(new Color(255, 0, 0));
-		btnTaiLai.setFont(new Font("Tahoma", Font.BOLD, 15));
+		btnTaiLai.setForeground(new Color(0, 0, 0));
+		btnTaiLai.setFont(new Font("Segoe UI", Font.BOLD, 18));
 		btnTaiLai.setBounds(294, 358, 122, 57);
 		pnlTacVu.add(btnTaiLai);
 		btnTaiLai.addActionListener(e -> btnTaiLaiAction());

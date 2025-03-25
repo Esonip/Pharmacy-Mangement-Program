@@ -172,7 +172,7 @@ public class NhanVienDAO {
             sql.append(" AND CCCD LIKE ?");
             params.add("%" + cccd + "%");
         }
-        if (!gioiTinh.isEmpty()) {
+        if (gioiTinh != null && !gioiTinh.isEmpty()) {
             sql.append(" AND GioiTinh = ?");
             params.add(gioiTinh);
         }

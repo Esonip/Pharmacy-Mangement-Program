@@ -1,9 +1,7 @@
 package GUI;
 
 import java.awt.Color;
-import java.awt.EventQueue;
 
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JLabel;
@@ -18,10 +16,7 @@ import DAO.ChinhSuaNhanVienDAO;
 
 import javax.swing.JButton;
 import javax.swing.ImageIcon;
-import java.awt.event.ActionListener;
-import java.util.Date;
 import java.util.List;
-import java.awt.event.ActionEvent;
 
 public class FrameChinhSuaThongTin extends JPanel {
 
@@ -54,6 +49,7 @@ public class FrameChinhSuaThongTin extends JPanel {
 	/**
 	 * Create the frame.
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public FrameChinhSuaThongTin(String maNV) {
 		setLayout(null);
 
@@ -153,14 +149,14 @@ public class FrameChinhSuaThongTin extends JPanel {
 		
 		JButton btnSua = new JButton("Sửa");
 		btnSua.addActionListener(e -> btnSuaAction());
-		btnSua.setIcon(new ImageIcon("F:\\iuh 22-26\\HK5\\Huong su kien Java\\BTTH\\BTL_QuanLyBanHang\\icon\\btnSua.png"));
+		btnSua.setIcon(new ImageIcon("icon\\edit.png"));
 		btnSua.setFont(new Font("Times New Roman", Font.BOLD, 20));
 		btnSua.setBounds(510, 567, 174, 48);
 		pnlBackGround.add(btnSua);
 		
 		JButton btnLuu = new JButton("Lưu");
 		btnLuu.addActionListener(e -> btnLuuAction());
-		btnLuu.setIcon(new ImageIcon("F:\\iuh 22-26\\HK5\\Huong su kien Java\\BTTH\\BTL_QuanLyBanHang\\icon\\btnLuu.png"));
+		btnLuu.setIcon(new ImageIcon("icon\\save.png"));
 		btnLuu.setFont(new Font("Times New Roman", Font.BOLD, 20));
 		btnLuu.setBounds(871, 567, 174, 48);
 		pnlBackGround.add(btnLuu);
@@ -196,7 +192,9 @@ public class FrameChinhSuaThongTin extends JPanel {
 		txtMatKhau.setEditable(true);
 		dateChooser.setEnabled(true);
 		comboBoxGioiTinh.setEnabled(true);
-		comboBoxChucVu.setEnabled(true);
+//		comboBoxChucVu.setEnabled(true);
+		// Chỉ có Quản lý chỉnh sửa chức vụ trong quản lý nhân viên
+		// Không được tự chỉnh sửa
 	}
 	
 	// Lưu thông tin đã chỉnh sửa

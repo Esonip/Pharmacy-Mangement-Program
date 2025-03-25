@@ -89,6 +89,7 @@ public class FrameDangKy extends JFrame {
     public FrameDangKy() {
         setResizable(false);
         setTitle("Quản lý cửa hàng tiện lợi");
+//        setPreferredSize(getPreferredSize());
         initComponents();
     }
 

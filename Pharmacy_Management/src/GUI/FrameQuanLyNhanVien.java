@@ -57,7 +57,6 @@ public class FrameQuanLyNhanVien extends JPanel {
 	private JComboBox<String> txtGioiTinhTim,txtGioiTinh, txtChucVu;
 	private DefaultTableModel tableModel;
 	private JTextField txtMatKhau;
-	private boolean isEditing = false;
 	private NhanVienDAO nhanVienDAO = new NhanVienDAO();
 
 	// Cập nhật dữ liệu vào table
@@ -352,7 +351,11 @@ public class FrameQuanLyNhanVien extends JPanel {
 	    // Print the selected gender to the console
 	    System.out.println("Selected gender: " + gioiTinh);
 	
-	    List<Object[]> data = nhanVienDAO.searchNhanVien(maNV, hoTen, cccd, gioiTinh);
+	    List<Object[]> data;
+	    if(gioiTinh.equals(""))
+			data = nhanVienDAO.searchNhanVien(maNV, hoTen, cccd, null);
+		else
+			data = nhanVienDAO.searchNhanVien(maNV, hoTen, cccd, gioiTinh);
 	    tableModel.setRowCount(0);
 	    for (Object[] row : data) {
 	        tableModel.addRow(row);
@@ -379,7 +382,6 @@ public class FrameQuanLyNhanVien extends JPanel {
 		txtNgaySinhNhanVien.setDate(new Date());
 		txtGioiTinhTim.setSelectedIndex(0);
 		txtChucVu.setSelectedIndex(0);
-		isEditing = false;
 	}
 
 // Phương thức hỗ trợ xóa trắng form tìm kiếm
@@ -419,7 +421,7 @@ public class FrameQuanLyNhanVien extends JPanel {
 	    }
 
 	    // Write the output to a file
-	    try (FileOutputStream fileOut = new FileOutputStream("DanhSachNhanVien.xlsx")) {
+	    try (FileOutputStream fileOut = new FileOutputStream("F:\\iuh 22-26\\HK6\\PTUD\\Major Assignment\\BaoCao\\DanhSachNhanVien.xlsx")) {
 	        workbook.write(fileOut);
 	        JOptionPane.showMessageDialog(this, "Xuất file Excel thành công");
 	    } catch (IOException e) {
@@ -456,7 +458,7 @@ public class FrameQuanLyNhanVien extends JPanel {
 		setLayout(null);
 
 		pnlBackGround = new JPanel();
-		pnlBackGround.setBounds(0, 0, 1538, 755);
+		pnlBackGround.setBounds(0, 10, 1538, 755);
 		pnlBackGround.setBackground(new Color(254, 222, 192));
 		pnlBackGround.setBorder(new EmptyBorder(5, 5, 5, 5));
 		add(pnlBackGround);
@@ -464,12 +466,12 @@ public class FrameQuanLyNhanVien extends JPanel {
 
 		JPanel panel = new JPanel();
 		panel.setBounds(0, 284, 1538, 74);
-		panel.setBackground(new Color(242, 132, 123));
+		panel.setBackground(new Color(255, 128, 64));
 		pnlBackGround.add(panel);
 		panel.setLayout(null);
 
 		JButton btnSa = new JButton("Sửa");
-		btnSa.setIcon(new ImageIcon("icon\\btnSua.png"));
+		btnSa.setIcon(new ImageIcon("icon\\edit.png"));
 		btnSa.setForeground(new Color(0, 0, 0));
 		btnSa.setFont(new Font("Tahoma", Font.BOLD, 18));
 		btnSa.setBackground(new Color(167, 62, 20));
@@ -477,7 +479,7 @@ public class FrameQuanLyNhanVien extends JPanel {
 		panel.add(btnSa);
 
 		JButton btnXa = new JButton("Xóa");
-		btnXa.setIcon(new ImageIcon("icon\\btnXoa.png"));
+		btnXa.setIcon(new ImageIcon("icon\\delete.png"));
 		btnXa.setForeground(new Color(0, 0, 0));
 		btnXa.setFont(new Font("Tahoma", Font.BOLD, 18));
 		btnXa.setBackground(new Color(167, 62, 20));
@@ -485,16 +487,16 @@ public class FrameQuanLyNhanVien extends JPanel {
 		panel.add(btnXa);
 
 		JButton btnHy = new JButton("Hủy");
-		btnHy.setIcon(new ImageIcon("icon\\btnCancel.png"));
+		btnHy.setIcon(new ImageIcon("icon\\cancel.png"));
 		btnHy.setForeground(new Color(0, 0, 0));
 		btnHy.setFont(new Font("Tahoma", Font.BOLD, 18));
 		btnHy.setBackground(new Color(167, 62, 20));
 		btnHy.setBounds(1001, 13, 177, 50);
 		panel.add(btnHy);
 
-		JButton btnXuat = new JButton("Xuất");
+		JButton btnXuat = new JButton("Xuất File");
 		btnXuat.addActionListener(e -> btnXuatFileAction());
-		btnXuat.setIcon(new ImageIcon("icon\\btnprint.png"));
+		btnXuat.setIcon(new ImageIcon("icon\\print.png"));
 		btnXuat.setForeground(new Color(0, 0, 0));
 		btnXuat.setFont(new Font("Tahoma", Font.BOLD, 18));
 		btnXuat.setBackground(new Color(167, 62, 20));
@@ -504,7 +506,7 @@ public class FrameQuanLyNhanVien extends JPanel {
 		JButton btnLu = new JButton("Thêm");
 		btnLu.setBounds(61, 13, 177, 50);
 		panel.add(btnLu);
-		btnLu.setIcon(new ImageIcon("icon\\btnThem.png"));
+		btnLu.setIcon(new ImageIcon("icon\\add.png"));
 		btnLu.setForeground(new Color(0, 0, 0));
 		btnLu.setFont(new Font("Tahoma", Font.BOLD, 18));
 		btnLu.setBackground(new Color(167, 62, 20));
@@ -551,7 +553,7 @@ public class FrameQuanLyNhanVien extends JPanel {
 		pnlBackGround.add(lblMatKhau);
 
 		txtMaNhanVien = new JTextField();
-		txtMaNhanVien.setFont(new Font("Dialog", Font.PLAIN, 18));
+		txtMaNhanVien.setFont(new Font("Segoe UI", Font.PLAIN, 18));
 		txtMaNhanVien.setBounds(225, 31, 317, 43);
 		pnlBackGround.add(txtMaNhanVien);
 		txtMaNhanVien.setColumns(10);
@@ -566,31 +568,31 @@ public class FrameQuanLyNhanVien extends JPanel {
 		});
 
 		txtTenNhanVien = new JTextField();
-		txtTenNhanVien.setFont(new Font("Dialog", Font.PLAIN, 18));
+		txtTenNhanVien.setFont(new Font("Segoe UI", Font.PLAIN, 18));
 		txtTenNhanVien.setColumns(10);
 		txtTenNhanVien.setBounds(225, 86, 317, 43);
 		pnlBackGround.add(txtTenNhanVien);
 
 		txtCanCuoc = new JTextField();
-		txtCanCuoc.setFont(new Font("Dialog", Font.PLAIN, 18));
+		txtCanCuoc.setFont(new Font("Segoe UI", Font.PLAIN, 18));
 		txtCanCuoc.setColumns(10);
 		txtCanCuoc.setBounds(225, 151, 317, 43);
 		pnlBackGround.add(txtCanCuoc);
 
 		txtEmailNhanVien = new JTextField();
-		txtEmailNhanVien.setFont(new Font("Dialog", Font.PLAIN, 18));
+		txtEmailNhanVien.setFont(new Font("Segoe UI", Font.PLAIN, 18));
 		txtEmailNhanVien.setColumns(10);
 		txtEmailNhanVien.setBounds(800, 90, 259, 43);
 		pnlBackGround.add(txtEmailNhanVien);
 
 		txtChucVu = new JComboBox<>();
 		txtChucVu.setModel(new DefaultComboBoxModel<>(new String[] { "Quản lý", "Nhân viên" }));
-		txtChucVu.setBounds(800, 218, 259, 43);
-		txtChucVu.setFont(new Font("Dialog", Font.PLAIN, 18)); //
+		txtChucVu.setBounds(800, 218, 148, 43);
+		txtChucVu.setFont(new Font("Segoe UI", Font.PLAIN, 18)); //
 		pnlBackGround.add(txtChucVu);
 
 		txtMatKhau = new JTextField();
-		txtMatKhau.setFont(new Font("Dialog", Font.PLAIN, 18));
+		txtMatKhau.setFont(new Font("Segoe UI", Font.PLAIN, 18));
 		txtMatKhau.setColumns(10);
 		txtMatKhau.setBounds(800, 158, 259, 43);
 		pnlBackGround.add(txtMatKhau);
@@ -600,10 +602,16 @@ public class FrameQuanLyNhanVien extends JPanel {
 		txtNgaySinhNhanVien.setBounds(225, 216, 317, 40);
 		pnlBackGround.add(txtNgaySinhNhanVien);
 		txtNgaySinhNhanVien.getDateEditor().getUiComponent().setFont(new Font("Dialog", Font.PLAIN, 18));
+		
+		txtGioiTinh = new JComboBox();
+		txtGioiTinh.setFont(new Font("Segoe UI", Font.PLAIN, 18));
+		txtGioiTinh.setModel(new DefaultComboBoxModel(new String[] { "Nam", "Nữ" }));
+		txtGioiTinh.setBounds(800, 27, 148, 43);
+		pnlBackGround.add(txtGioiTinh);
 
 		JLabel logoMTP = new JLabel("");
-		logoMTP.setIcon(new ImageIcon("image\\logoMTP 1.png"));
-		logoMTP.setBounds(1052, 10, 360, 214);
+		logoMTP.setIcon(new ImageIcon("image\\logoMTP.png"));
+		logoMTP.setBounds(1165, 27, 339, 229);
 		pnlBackGround.add(logoMTP);
 
 		JScrollPane scrollPaneNhanVien = new JScrollPane();
@@ -611,7 +619,7 @@ public class FrameQuanLyNhanVien extends JPanel {
 		pnlBackGround.add(scrollPaneNhanVien);
 
 		tableNhanVien = new JTable();
-		tableNhanVien.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		tableNhanVien.setFont(new Font("Segoe UI", Font.PLAIN, 15));
 		tableNhanVien.setModel(new DefaultTableModel(new Object[][] {}, new String[] { "Mã nhân viên", "Họ tên",
 				"Giới tính", "Email", "Ngày sinh", "CCCD", "Mật khẩu", "Chức vụ" }) {
 			Class[] columnTypes = new Class[] { String.class, String.class, String.class, String.class, String.class,
@@ -624,7 +632,7 @@ public class FrameQuanLyNhanVien extends JPanel {
 		tableNhanVien.getColumnModel().getColumn(2).setPreferredWidth(55);
 
 		JTableHeader header = tableNhanVien.getTableHeader();
-		header.setFont(new Font("Arial", Font.BOLD, 19));
+		header.setFont(new Font("Segoe UI", Font.BOLD, 18));
 		tableNhanVien.setRowHeight(30);
 		scrollPaneNhanVien.setViewportView(tableNhanVien);
 		// Create a custom cell renderer that centers the text
@@ -635,14 +643,9 @@ public class FrameQuanLyNhanVien extends JPanel {
 		for (int i = 0; i < tableNhanVien.getColumnCount(); i++) {
 			tableNhanVien.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
 		}
-		txtGioiTinh = new JComboBox();
-		txtGioiTinh.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		txtGioiTinh.setModel(new DefaultComboBoxModel(new String[] { "Nam", "Nữ" }));
-		txtGioiTinh.setBounds(800, 27, 148, 36);
-		pnlBackGround.add(txtGioiTinh);
 
 		JPanel pnlTacVu = new JPanel();
-		pnlTacVu.setBackground(new Color(242, 132, 123));
+		pnlTacVu.setBackground(new Color(255, 128, 64));
 		pnlTacVu.setBounds(1145, 368, 383, 377);
 		pnlBackGround.add(pnlTacVu);
 		pnlTacVu.setLayout(null);
@@ -651,60 +654,65 @@ public class FrameQuanLyNhanVien extends JPanel {
 		pnlTacVu.setBorder(titledBorder);
 
 		JLabel lblMaNhanVienTim = new JLabel("Mã nhân viên:");
-		lblMaNhanVienTim.setFont(new Font("Tahoma", Font.BOLD, 20));
+		lblMaNhanVienTim.setFont(new Font("Segoe UI", Font.BOLD, 20));
 		lblMaNhanVienTim.setBounds(10, 44, 180, 34);
 		pnlTacVu.add(lblMaNhanVienTim);
 
 		JLabel lblTenNhanVienTim = new JLabel("Tên nhân viên:");
-		lblTenNhanVienTim.setFont(new Font("Tahoma", Font.BOLD, 20));
+		lblTenNhanVienTim.setFont(new Font("Segoe UI", Font.BOLD, 20));
 		lblTenNhanVienTim.setBounds(10, 107, 180, 34);
 		pnlTacVu.add(lblTenNhanVienTim);
 
 		JLabel lblCanCuocTim = new JLabel("Căn cước:");
-		lblCanCuocTim.setFont(new Font("Tahoma", Font.BOLD, 20));
+		lblCanCuocTim.setFont(new Font("Segoe UI", Font.BOLD, 20));
 		lblCanCuocTim.setBounds(10, 166, 180, 34);
 		pnlTacVu.add(lblCanCuocTim);
 
 		JLabel lblGioiTinhTim = new JLabel("Giới tính:");
-		lblGioiTinhTim.setFont(new Font("Tahoma", Font.BOLD, 20));
+		lblGioiTinhTim.setFont(new Font("Segoe UI", Font.BOLD, 20));
 		lblGioiTinhTim.setBounds(10, 226, 180, 34);
 		pnlTacVu.add(lblGioiTinhTim);
 
 		txtMaNhanVienTim = new JTextField();
-		txtMaNhanVienTim.setBounds(168, 50, 198, 31);
+		txtMaNhanVienTim.setFont(new Font("Segoe UI", Font.PLAIN, 18));
+		txtMaNhanVienTim.setBounds(168, 44, 198, 38);
 		pnlTacVu.add(txtMaNhanVienTim);
 		txtMaNhanVienTim.setColumns(10);
 
 		txtTenNhanVienTim = new JTextField();
+		txtTenNhanVienTim.setFont(new Font("Segoe UI", Font.PLAIN, 18));
 		txtTenNhanVienTim.setColumns(10);
-		txtTenNhanVienTim.setBounds(168, 113, 198, 31);
+		txtTenNhanVienTim.setBounds(168, 107, 198, 38);
 		pnlTacVu.add(txtTenNhanVienTim);
 
 		txtCanCuocTim = new JTextField();
+		txtCanCuocTim.setFont(new Font("Segoe UI", Font.PLAIN, 18));
 		txtCanCuocTim.setColumns(10);
-		txtCanCuocTim.setBounds(168, 172, 198, 31);
+		txtCanCuocTim.setBounds(168, 166, 198, 38);
 		pnlTacVu.add(txtCanCuocTim);
 
 		txtGioiTinhTim = new JComboBox();
-		txtGioiTinhTim.setFont(new Font("Tahoma", Font.BOLD, 16));
-		txtGioiTinhTim.setModel(new DefaultComboBoxModel(new String[] { "Nam", "Nữ" }));
-		txtGioiTinhTim.setBounds(168, 228, 115, 34);
+		txtGioiTinhTim.setFont(new Font("Segoe UI", Font.PLAIN, 18));
+		txtGioiTinhTim.setModel(new DefaultComboBoxModel(new String[] {"", "Nam", "Nữ" }));
+		txtGioiTinhTim.setBounds(168, 228, 115, 38);
 		pnlTacVu.add(txtGioiTinhTim);
 
 		JButton btnTim = new JButton("Tìm");
+		btnTim.setIcon(new ImageIcon("icon\\find.png"));
 		btnTim.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 			}
 		});
 		btnTim.setBackground(new Color(255, 128, 128));
-		btnTim.setFont(new Font("Tahoma", Font.BOLD, 15));
-		btnTim.setBounds(54, 287, 115, 40);
+		btnTim.setFont(new Font("Segoe UI", Font.BOLD, 18));
+		btnTim.setBounds(49, 287, 141, 50);
 		pnlTacVu.add(btnTim);
 
 		JButton btnTaiLai_1_1 = new JButton("Tải lại");
+		btnTaiLai_1_1.setIcon(new ImageIcon("icon\\refresh.png"));
 		btnTaiLai_1_1.setBackground(new Color(255, 128, 128));
-		btnTaiLai_1_1.setFont(new Font("Tahoma", Font.BOLD, 15));
-		btnTaiLai_1_1.setBounds(206, 287, 115, 40);
+		btnTaiLai_1_1.setFont(new Font("Segoe UI", Font.BOLD, 18));
+		btnTaiLai_1_1.setBounds(225, 287, 141, 50);
 		pnlTacVu.add(btnTaiLai_1_1);
 
 		btnHy.addActionListener(e -> clearFields());

@@ -1,10 +1,5 @@
 package GUI;
 
-import java.awt.EventQueue;
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
-
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
@@ -18,7 +13,6 @@ import java.awt.Font;
 import javax.swing.JTextField;
 import com.toedter.calendar.JDateChooser;
 
-import DAO.ChiTietHoaDonDAO;
 import DAO.KhachHangDAO;
 import DAO.NhanVienDAO;
 import DAO.SanPhamDAO;
@@ -31,7 +25,6 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
-import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
@@ -52,7 +45,7 @@ import entity.SanPham;
 import java.util.List;
 import java.util.Locale;
 
-public class FrameQuanLyChiTietHoaDon extends JPanel implements ActionListener {
+public class FrameTaoHoaDon extends JPanel implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel pnlBackGround;
@@ -87,33 +80,13 @@ public class FrameQuanLyChiTietHoaDon extends JPanel implements ActionListener {
 //            }
 //        });
 //    }
-	private TableColumn dateColumn;
 	private JTextField txtTimSanPham;
 
 	/**
 	 * Create the frame.
 	 */
-	@SuppressWarnings("serial")
-	public FrameQuanLyChiTietHoaDon() {
-//        setTitle("Quản lí hóa đơn\r\n");
-//        setResizable(true);
-//        setSize(1440, 1024);
-//
-//        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//        setLocationRelativeTo(null);
-//        pnlBackGround = new JPanel();
-//        pnlBackGround.setBackground(new Color(255, 187, 53));
-//        pnlBackGround.setBorder(new EmptyBorder(5, 5, 5, 5));
-//
-//        setContentPane(pnlBackGround);
-//        pnlBackGround.setLayout(null);
-//    	
-//        JPanel panel = new JPanel();
-//        panel.setBounds(0, 245, 1586, 65);
-//        panel.setBackground(new Color(255, 128, 64));
-//        pnlBackGround.add(panel);
-//        panel.setLayout(null);
-
+	@SuppressWarnings({ "serial", "unchecked", "rawtypes" })
+	public FrameTaoHoaDon() {
 		setLayout(null);
 
 		pnlBackGround = new JPanel();
@@ -128,7 +101,7 @@ public class FrameQuanLyChiTietHoaDon extends JPanel implements ActionListener {
 		panel.setBackground(new Color(242, 132, 123));
 		JLabel lblMaHD = new JLabel("Mã hóa đơn :");
 		lblMaHD.setFont(new Font("Tahoma", Font.BOLD, 19));
-		lblMaHD.setBounds(1086, 9, 160, 45);
+		lblMaHD.setBounds(1081, 12, 160, 45);
 		panel.setLayout(null);
 		pnlBackGround.add(panel);
 		panel.add(lblMaHD);
@@ -143,7 +116,7 @@ public class FrameQuanLyChiTietHoaDon extends JPanel implements ActionListener {
 
 		JLabel lblNgayLap = new JLabel("Ngày lập :");
 		lblNgayLap.setFont(new Font("Tahoma", Font.BOLD, 19));
-		lblNgayLap.setBounds(578, 9, 110, 45);
+		lblNgayLap.setBounds(661, 12, 110, 45);
 		panel.add(lblNgayLap);
 
 		JDateChooser dateChooser = new JDateChooser();
@@ -152,7 +125,7 @@ public class FrameQuanLyChiTietHoaDon extends JPanel implements ActionListener {
 		dateChooser.setEnabled(false); // không cho phép chỉnh sửa ngày trên datechooser
 		dateChooser.getDateEditor().getUiComponent().setFont(new Font("Tahoma", Font.PLAIN, 16)); // set font chữ cho
 																									// datechooser
-		dateChooser.setBounds(724, 11, 264, 43);
+		dateChooser.setBounds(792, 11, 264, 43);
 		panel.add(dateChooser);
 		
 		txtTimSanPham = new JTextField();
@@ -162,12 +135,14 @@ public class FrameQuanLyChiTietHoaDon extends JPanel implements ActionListener {
 		txtTimSanPham.setColumns(10);
 		
 		JButton btnTimSanPham = new JButton("Tìm");
+		btnTimSanPham.setIcon(new ImageIcon("icon\\find.png"));
 		btnTimSanPham.addActionListener(e -> btnTimSanPhamAction());
 		btnTimSanPham.setFont(new Font("Times New Roman", Font.BOLD, 20));
-		btnTimSanPham.setBounds(295, 18, 97, 34);
+		btnTimSanPham.setBounds(295, 14, 139, 43);
 		panel.add(btnTimSanPham);
 		
 		JButton btnTaiLaiTimSanPham = new JButton("Tải Lại");
+		btnTaiLaiTimSanPham.setIcon(new ImageIcon("F:\\iuh 22-26\\HK6\\PTUD\\Major Assignment\\Pharmacy_Management\\icon\\refresh.png"));
 		btnTaiLaiTimSanPham.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				txtTimSanPham.setText("");
@@ -175,7 +150,7 @@ public class FrameQuanLyChiTietHoaDon extends JPanel implements ActionListener {
 			}
 		});
 		btnTaiLaiTimSanPham.setFont(new Font("Times New Roman", Font.BOLD, 20));
-		btnTaiLaiTimSanPham.setBounds(422, 17, 97, 37);
+		btnTaiLaiTimSanPham.setBounds(457, 15, 139, 43);
 		panel.add(btnTaiLaiTimSanPham);
 
 		JLabel logoMTP = new JLabel("");
@@ -203,11 +178,9 @@ public class FrameQuanLyChiTietHoaDon extends JPanel implements ActionListener {
 		headerSanPham.setFont(new Font("Arial", Font.BOLD, 16));
 		tableSanPham.setModel(new DefaultTableModel(new Object[][] {},
 				new String[] { "Mã Hàng", "Tên Hàng", "Mô Tả", "Đơn Giá", "Số lượng", "Ngày Sản Xuất" }) {
-			@SuppressWarnings("rawtypes")
 			Class[] columnTypes = new Class[] { String.class, String.class, String.class, Integer.class, Integer.class,
 					String.class };
 
-			@SuppressWarnings({ "unchecked", "rawtypes" })
 			public Class getColumnClass(int columnIndex) {
 				return columnTypes[columnIndex];
 			}
@@ -235,11 +208,10 @@ public class FrameQuanLyChiTietHoaDon extends JPanel implements ActionListener {
 		scrollPaneChiTiet.setViewportView(tableChiTiet);
 		tableChiTiet.setModel(new DefaultTableModel(new Object[][] {},
 				new String[] { "Mã Hàng", "Tên Hàng", "Mô Tả", "Đơn giá", "Số lượng" }) {
-			@SuppressWarnings("rawtypes")
 			Class[] columnTypes = new Class[] { String.class, String.class, String.class, Integer.class,
 					Integer.class };
 
-			@SuppressWarnings({ "rawtypes", "unchecked" })
+			@SuppressWarnings({ })
 			public Class getColumnClass(int columnIndex) {
 				return columnTypes[columnIndex];
 			}
@@ -248,7 +220,7 @@ public class FrameQuanLyChiTietHoaDon extends JPanel implements ActionListener {
 		btnIn = new JButton("In");
 		btnIn.setBounds(506, 348, 122, 42);
 		panel_right.add(btnIn);
-		btnIn.setIcon(new ImageIcon("icon\\btnprint.png"));
+		btnIn.setIcon(new ImageIcon("icon\\print.png"));
 		btnIn.setForeground(new Color(64, 0, 64));
 		btnIn.setFont(new Font("Tahoma", Font.BOLD, 16));
 		btnIn.setBackground(new Color(167, 62, 20));
@@ -256,7 +228,7 @@ public class FrameQuanLyChiTietHoaDon extends JPanel implements ActionListener {
 		btnLuu = new JButton("Lưu");
 		btnLuu.setBounds(347, 348, 122, 42);
 		panel_right.add(btnLuu);
-		btnLuu.setIcon(new ImageIcon("icon\\btnLuu.png"));
+		btnLuu.setIcon(new ImageIcon("icon\\save.png"));
 		btnLuu.setForeground(new Color(64, 0, 64));
 		btnLuu.setFont(new Font("Tahoma", Font.BOLD, 16));
 		btnLuu.setBackground(new Color(167, 62, 20));
@@ -264,7 +236,7 @@ public class FrameQuanLyChiTietHoaDon extends JPanel implements ActionListener {
 		btnXoa = new JButton("Xóa");
 		btnXoa.setBounds(183, 348, 122, 42);
 		panel_right.add(btnXoa);
-		btnXoa.setIcon(new ImageIcon("icon\\btnXoa.png"));
+		btnXoa.setIcon(new ImageIcon("icon\\delete.png"));
 		btnXoa.setForeground(new Color(64, 0, 64));
 		btnXoa.setFont(new Font("Tahoma", Font.BOLD, 16));
 		btnXoa.setBackground(new Color(167, 62, 20));
@@ -281,7 +253,7 @@ public class FrameQuanLyChiTietHoaDon extends JPanel implements ActionListener {
 
 		JButton btnTaoMoi = new JButton("Tạo");
 		btnTaoMoi.addActionListener(e -> btnTaoMoiAction());
-		btnTaoMoi.setIcon(new ImageIcon("icon\\btnThem.png"));
+		btnTaoMoi.setIcon(new ImageIcon("icon\\add.png"));
 		btnTaoMoi.setForeground(new Color(64, 0, 64));
 		btnTaoMoi.setFont(new Font("Tahoma", Font.BOLD, 16));
 		btnTaoMoi.setBackground(new Color(167, 62, 20));

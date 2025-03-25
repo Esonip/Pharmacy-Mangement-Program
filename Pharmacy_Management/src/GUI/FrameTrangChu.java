@@ -4,13 +4,15 @@ import java.awt.*;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 
 public class FrameTrangChu extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	private FrameQuanLyKhachHang frameQLKH;
 	private FrameQuanLySanPham frameQLSP;
-	private FrameQuanLyChiTietHoaDon frameCTHD;
+	private FrameTaoHoaDon frameTHD;
 	private FrameQuanLyNhanVien frameQLNV;
 	private FrameDanhSachHoaDon frameDSHD;
 	private FrameThongTin frameTT;
@@ -39,6 +41,7 @@ public class FrameTrangChu extends JFrame {
 	 * Create the frame.
 	 */
 	public FrameTrangChu(String maNV, String chucVu) {
+		setFont(new Font("Segoe UI Black", Font.BOLD, 13));
 		setIconImage(Toolkit.getDefaultToolkit().getImage("icon\\pharmacy.png"));
 		setTitle("Hệ Thống Quản Lý Hiệu Thuốc Tây");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -48,7 +51,7 @@ public class FrameTrangChu extends JFrame {
 		getContentPane().setLayout(new BorderLayout(0, 0));
 		
 		JLabel btnThongKeSanPham = new JLabel("");
-		btnThongKeSanPham.setIcon(new ImageIcon("image\\BG_Dashboard.png"));
+		btnThongKeSanPham.setIcon(new ImageIcon("image\\BG_Dashboard.jpg"));
 		getContentPane().add(btnThongKeSanPham);
 		
 		JMenuBar menuBar = new JMenuBar();
@@ -56,12 +59,12 @@ public class FrameTrangChu extends JFrame {
 		menuBar.setBackground(new Color(192, 192, 192));
 		
 		JMenu btnHeThong = new JMenu("Hệ Thống");
-		btnHeThong.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+		btnHeThong.setFont(new Font("Segoe UI", Font.BOLD, 13));
 		btnHeThong.setIcon(new ImageIcon("icon\\system.png"));
 		menuBar.add(btnHeThong);
 		
 		JMenuItem btnTrangChu = new JMenuItem("Trang Chủ");
-		btnTrangChu.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+		btnTrangChu.setFont(new Font("Segoe UI", Font.BOLD, 13));
 		btnTrangChu.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				getContentPane().removeAll();
@@ -75,7 +78,7 @@ public class FrameTrangChu extends JFrame {
 		btnHeThong.add(btnTrangChu);
 		
 		JMenuItem btnDangXuat = new JMenuItem("Đăng Xuất");
-		btnDangXuat.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+		btnDangXuat.setFont(new Font("Segoe UI", Font.BOLD, 13));
 		btnDangXuat.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int a = JOptionPane.showConfirmDialog(FrameTrangChu.this, "Bạn có muốn đăng xuất ứng dụng không?", "Lựa chọn", JOptionPane.YES_NO_OPTION);
@@ -91,7 +94,7 @@ public class FrameTrangChu extends JFrame {
 		btnHeThong.add(btnDangXuat);
 		
 		JMenuItem btnThoat = new JMenuItem("Thoát");
-		btnThoat.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+		btnThoat.setFont(new Font("Segoe UI", Font.BOLD, 13));
 		btnThoat.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int a = JOptionPane.showConfirmDialog(FrameTrangChu.this, "Bạn có muốn thoát ứng dụng không?", "Lựa chọn", JOptionPane.YES_NO_OPTION);
@@ -104,12 +107,12 @@ public class FrameTrangChu extends JFrame {
 		btnHeThong.add(btnThoat);
 		
 		JMenu btnDanhMuc = new JMenu("Danh Mục");
-		btnDanhMuc.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+		btnDanhMuc.setFont(new Font("Segoe UI", Font.BOLD, 13));
 		btnDanhMuc.setIcon(new ImageIcon("icon\\catalog.png"));
 		menuBar.add(btnDanhMuc);
 		
 		JMenuItem btnKhachHang = new JMenuItem("Khách Hàng");
-		btnKhachHang.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+		btnKhachHang.setFont(new Font("Segoe UI", Font.BOLD, 13));
 		btnKhachHang.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				frameQLKH = new FrameQuanLyKhachHang();
@@ -121,11 +124,11 @@ public class FrameTrangChu extends JFrame {
 			}
 		});
 		
-		btnKhachHang.setIcon(new ImageIcon("icon\\customer.png"));
+		btnKhachHang.setIcon(new ImageIcon("icon\\QL_customer.png"));
 		btnDanhMuc.add(btnKhachHang);
 		
 		JMenuItem btnNhanVien = new JMenuItem("Nhân Viên");
-		btnNhanVien.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+		btnNhanVien.setFont(new Font("Segoe UI", Font.BOLD, 13));
 		btnNhanVien.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				frameQLNV = new FrameQuanLyNhanVien();
@@ -136,11 +139,11 @@ public class FrameTrangChu extends JFrame {
 				repaint();
 			}
 		});
-		btnNhanVien.setIcon(new ImageIcon("icon\\employee.png"));
+		btnNhanVien.setIcon(new ImageIcon("icon\\QL_employee.png"));
 		btnDanhMuc.add(btnNhanVien);
 		
 		JMenuItem btnSanPham = new JMenuItem("Sản phẩm");
-		btnSanPham.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+		btnSanPham.setFont(new Font("Segoe UI", Font.BOLD, 13));
 		btnSanPham.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				frameQLSP = new FrameQuanLySanPham();
@@ -151,13 +154,11 @@ public class FrameTrangChu extends JFrame {
 				repaint();
 			}
 		});
-		btnSanPham.setIcon(new ImageIcon("icon\\product.png"));
+		btnSanPham.setIcon(new ImageIcon("icon\\QL_product.png"));
 		btnDanhMuc.add(btnSanPham);
 		
 		JMenuItem btnDanhSachHoaDon = new JMenuItem("Hóa Đơn");
-		btnDanhMuc.add(btnDanhSachHoaDon);
-		btnDanhSachHoaDon.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-		btnDanhSachHoaDon.setIcon(new ImageIcon("icon\\list.png"));
+		btnDanhSachHoaDon.setFont(new Font("Segoe UI", Font.BOLD, 13));
 		btnDanhSachHoaDon.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				frameDSHD = new FrameDanhSachHoaDon();
@@ -168,21 +169,23 @@ public class FrameTrangChu extends JFrame {
 				repaint();
 			}
 		});
+		btnDanhSachHoaDon.setIcon(new ImageIcon("icon\\QL_bill.png"));
+		btnDanhMuc.add(btnDanhSachHoaDon);
 		
 		JMenu btnXuLy = new JMenu("Xử Lý");
-		btnXuLy.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+		btnXuLy.setFont(new Font("Segoe UI", Font.BOLD, 13));
 		menuBar.add(btnXuLy);
-		btnXuLy.setIcon(new ImageIcon("icon\\bill.png"));
+		btnXuLy.setIcon(new ImageIcon("icon\\process.png"));
 		
 		JMenuItem btnTaoHoaDon = new JMenuItem("Tạo Hóa Đơn");
-		btnTaoHoaDon.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-		btnTaoHoaDon.setIcon(new ImageIcon("icon\\create.png"));
+		btnTaoHoaDon.setFont(new Font("Segoe UI", Font.BOLD, 13));
+		btnTaoHoaDon.setIcon(new ImageIcon("icon\\XL_bill.png"));
 		btnTaoHoaDon.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				frameCTHD = new FrameQuanLyChiTietHoaDon();
+				frameTHD = new FrameTaoHoaDon();
 				getContentPane().removeAll();
 				getContentPane().add(menuBar, BorderLayout.NORTH);
-				getContentPane().add(frameCTHD, BorderLayout.CENTER);
+				getContentPane().add(frameTHD, BorderLayout.CENTER);
 				revalidate();
 				repaint();
 			}
@@ -190,7 +193,7 @@ public class FrameTrangChu extends JFrame {
 		
 		JMenuItem btnChinhSua = new JMenuItem("Thông Tin Cá Nhân");
 		btnXuLy.add(btnChinhSua);
-		btnChinhSua.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+		btnChinhSua.setFont(new Font("Segoe UI", Font.BOLD, 13));
 		btnChinhSua.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				frameCSTT = new FrameChinhSuaThongTin(maNV);
@@ -201,19 +204,21 @@ public class FrameTrangChu extends JFrame {
 				repaint();
 			}
 		});
-		btnChinhSua.setIcon(new ImageIcon("icon\\editprofile.png"));
+		btnChinhSua.setIcon(new ImageIcon("icon\\XL_personal.png"));
 		btnXuLy.add(btnTaoHoaDon);
 		
 		JMenuItem btnDonDatHang = new JMenuItem("Tạo Đơn Đặt Hàng");
+		btnDonDatHang.setFont(new Font("Segoe UI", Font.BOLD, 13));
+		btnDonDatHang.setIcon(new ImageIcon("icon\\XL_orders.png"));
 		btnXuLy.add(btnDonDatHang);
 		
 		JMenu btnThongKe = new JMenu("Thống Kê");
-		btnThongKe.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+		btnThongKe.setFont(new Font("Segoe UI", Font.BOLD, 13));
 		btnThongKe.setIcon(new ImageIcon("icon\\static.png"));
 		menuBar.add(btnThongKe);
 		
 		JMenuItem btnThongKeDoanhThu = new JMenuItem("Doanh thu");
-		btnThongKeDoanhThu.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+		btnThongKeDoanhThu.setFont(new Font("Segoe UI", Font.BOLD, 13));
 		btnThongKeDoanhThu.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				frameTKDT = new FrameThongKeDoanhThu();
@@ -228,7 +233,7 @@ public class FrameTrangChu extends JFrame {
 		btnThongKe.add(btnThongKeDoanhThu);
 		
 		JMenuItem btnThongKeKhachHang = new JMenuItem("Khách hàng");
-		btnThongKeKhachHang.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+		btnThongKeKhachHang.setFont(new Font("Segoe UI", Font.BOLD, 13));
 		btnThongKeKhachHang.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				frameTKKH = new FrameThongKeKhachHang();
@@ -243,7 +248,7 @@ public class FrameTrangChu extends JFrame {
 		btnThongKe.add(btnThongKeKhachHang);
 		
 		JMenuItem mntmNewMenuItem_8 = new JMenuItem("Sản phẩm");
-		mntmNewMenuItem_8.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+		mntmNewMenuItem_8.setFont(new Font("Segoe UI", Font.BOLD, 13));
 		mntmNewMenuItem_8.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				frameTKSP = new FrameThongKeSanPham();
@@ -258,12 +263,12 @@ public class FrameTrangChu extends JFrame {
 		btnThongKe.add(mntmNewMenuItem_8);
 		
 		JMenu btnInfo = new JMenu("Thông Tin");
-		btnInfo.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+		btnInfo.setFont(new Font("Segoe UI", Font.BOLD, 13));
 		btnInfo.setIcon(new ImageIcon("icon\\info.png"));
 		menuBar.add(btnInfo);
 		
 		JMenuItem btnThongTin = new JMenuItem("Thông tin phần mềm");
-		btnThongTin.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+		btnThongTin.setFont(new Font("Segoe UI", Font.BOLD, 13));
 		btnThongTin.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				frameTT = new FrameThongTin();
@@ -278,7 +283,7 @@ public class FrameTrangChu extends JFrame {
 		btnInfo.add(btnThongTin);
 		
 		JMenuItem btnDuongDan = new JMenuItem("Đường dẫn");
-		btnDuongDan.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+		btnDuongDan.setFont(new Font("Segoe UI", Font.BOLD, 13));
 		btnDuongDan.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
@@ -294,10 +299,12 @@ public class FrameTrangChu extends JFrame {
 		
 		JMenu btnTroGiup = new JMenu("Trợ Giúp");
 		btnTroGiup.setIcon(new ImageIcon("icon\\help.png"));
-		btnTroGiup.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+		btnTroGiup.setFont(new Font("Segoe UI", Font.BOLD, 13));
 		menuBar.add(btnTroGiup);
 		
 		JMenuItem btnHDSD = new JMenuItem("Hướng dẫn sử dụng");
+		btnHDSD.setFont(new Font("Segoe UI", Font.BOLD, 13));
+		btnHDSD.setIcon(new ImageIcon("icon\\guidelines.png"));
 		btnTroGiup.add(btnHDSD);
 		
 		JPanel panel = new JPanel();
@@ -305,16 +312,40 @@ public class FrameTrangChu extends JFrame {
 		menuBar.add(panel);
 		panel.setLayout(null);
 		
-		JLabel lblUsername = new JLabel(chucVu + " " + maNV);
-		lblUsername.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-		lblUsername.setIcon(new ImageIcon("icon\\user.png"));
-		lblUsername.setBounds(821, 0, 152, 39);
+		JLabel lblUsername = new JLabel(chucVu + " | " + maNV);
+		lblUsername.setFont(new Font("Segoe UI", Font.BOLD, 13));
+		if ("Nhân Viên".equals(chucVu))
+			lblUsername.setIcon(new ImageIcon("icon\\employee.png"));
+		else
+			lblUsername.setIcon(new ImageIcon("icon\\manager.png"));
+		lblUsername.setBounds(733, 0, 188, 39);
 		panel.add(lblUsername);
 		
 		if ("Nhân Viên".equals(chucVu)) {
 	        btnNhanVien.setEnabled(false);
 	    }
 		
+		themPhimTatClose();
+		
 		this.setVisible(true);
 	}
+	
+	private void themPhimTatClose() {
+        // Lấy InputMap và ActionMap từ JFrame
+        InputMap inputMap = getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ActionMap actionMap = getRootPane().getActionMap();
+
+        // Định nghĩa phím tắt Ctrl + W
+        KeyStroke ctrlW = KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.CTRL_DOWN_MASK);
+
+        // Gắn phím tắt với một hành động
+        inputMap.put(ctrlW, "close");
+        actionMap.put("close", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Thoát chương trình
+                System.exit(0);
+            }
+        });
+    }
 }

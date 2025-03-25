@@ -264,7 +264,7 @@ public class FrameDanhSachHoaDon extends JPanel {
 	    }
 
 	    // Write the output to a file
-	    try (FileOutputStream fileOut = new FileOutputStream("DanhSachHoaDon.xlsx")) {
+	    try (FileOutputStream fileOut = new FileOutputStream("F:\\iuh 22-26\\HK6\\PTUD\\Major Assignment\\BaoCao\\DanhSachHoaDon.xlsx")) {
 	        workbook.write(fileOut);
 	        JOptionPane.showMessageDialog(this, "Xuất file Excel thành công");
 	    } catch (IOException e) {
