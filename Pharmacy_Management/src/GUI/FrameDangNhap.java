@@ -37,6 +37,7 @@ import javax.swing.WindowConstants;
 
 import connectDB.*;
 
+@SuppressWarnings("serial")
 public class FrameDangNhap extends JFrame {
     private JLabel lblTitle;
     private JLabel lblMaNV;
@@ -130,7 +131,7 @@ public class FrameDangNhap extends JFrame {
 		    }
 		});
         
-        cboChucVu = new JComboBox<>(new String[]{"Nhân Viên", "Quản Lý"});
+        cboChucVu = new JComboBox<>(new String[]{"Quản Lý", "Nhân Viên"});
         Font inputFont = new Font("Arial", Font.PLAIN, 14);
         txtMaNV.setFont(inputFont);
         txtMatKhau.setFont(inputFont);
@@ -189,9 +190,12 @@ public class FrameDangNhap extends JFrame {
     }
 
     private boolean kiemTraDangNhap(String maNV, String matKhau, String chucVu) {
-        String sql = "SELECT CHUCVU FROM TaiKhoanNV WHERE MANV = ? AND RTRIM(MatKhau) = ? AND ChucVu = ?";
+    	String sql = "SELECT nv.maNV, nv.chucVu " +
+                "FROM TaiKhoan tk " +
+                "JOIN NhanVien nv ON tk.maNV = nv.maNV " +
+                "WHERE tk.maNV = ? AND RTRIM(tk.matKhau) = ? AND nv.chucVu = ?";
         
-        try (Connection conn = ConnectDB.getConnection("DB_QLBH");
+        try (Connection conn = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             
             pstmt.setString(1, maNV);
