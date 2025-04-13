@@ -3,7 +3,7 @@
 INSERT INTO dbo.TaiKhoan (maNV, matKhau)
 VALUES
 -- Quản lý
-('NV001', 'admin123'),        
+('NV001', '1'),        
 ('NV002', 'admin123'),
 ('NV003', 'admin123'),
 ('NV004', 'admin123'),

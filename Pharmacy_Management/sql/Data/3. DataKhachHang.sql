@@ -57,3 +57,7 @@ VALUES
 ('KH048', N'Tống Văn Thịnh', '1985-06-30', N'50 Nguyễn Văn Thủ, Q1', '0919000111', 'thinh.tong@gmail.com'),
 ('KH049', N'Đinh Thị Thảo', '1994-03-04', N'11 Hoàng Hoa Thám, Q.Bình Thạnh', '0920111222', 'thao.dinh@gmail.com'),
 ('KH050', N'Châu Thành Nhân', '1988-12-12', N'78 Trần Quốc Hoàn, Q.Tân Bình', '0931222333', 'nhan.chau@gmail.com');
+
+-- Khách hàng vãng lai
+INSERT INTO dbo.KhachHang (maKH, hoTen, ngaySinh, diaChi, soDienThoai, email)
+VALUES ('KHVL', N'Khách vãng lai', NULL, NULL, NULL, NULL);

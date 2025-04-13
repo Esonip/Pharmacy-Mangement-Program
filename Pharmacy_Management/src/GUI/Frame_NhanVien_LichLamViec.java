@@ -1,42 +1,32 @@
 package GUI;
 
+import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-public class Frame_NhanVien_LichLamViec extends JFrame {
+public class Frame_NhanVien_LichLamViec extends JPanel {
 
 	private static final long serialVersionUID = 1L;
-	private JPanel contentPane;
+	private JPanel pnlBackGround;
 
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					Frame_NhanVien_LichLamViec frame = new Frame_NhanVien_LichLamViec();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
 
 	/**
 	 * Create the frame.
 	 */
 	public Frame_NhanVien_LichLamViec() {
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 450, 300);
-		contentPane = new JPanel();
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		setLayout(null);
+		setPreferredSize(new Dimension(1550, 755));
 
-		setContentPane(contentPane);
+		pnlBackGround = new JPanel();
+		pnlBackGround.setBounds(0, 0, 1545, 854);
+		pnlBackGround.setBackground(new Color(254, 222, 192));
+		pnlBackGround.setBorder(new EmptyBorder(5, 5, 5, 5));
+		add(pnlBackGround);
+		pnlBackGround.setLayout(null);
 	}
 
 }

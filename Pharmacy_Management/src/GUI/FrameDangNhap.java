@@ -43,7 +43,7 @@ public class FrameDangNhap extends JFrame {
     private JLabel lblMaNV;
     private JLabel lblMatKhau;
     private JTextField txtMaNV;
-    private JPasswordField txtMatKhau;
+    private JPasswordField txtMatKhau; 
     private JButton btnDangNhap;
     private JButton btnThoat;
     private JComboBox<String> cboChucVu;

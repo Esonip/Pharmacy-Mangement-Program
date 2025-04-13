@@ -661,7 +661,7 @@ public class Frame_NhanVien_DanhSachNhanVien extends JPanel {
 	/**
 	 * Create the frame.
 	 */
-	@SuppressWarnings({ "serial", "rawtypes", "unchecked" })
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Frame_NhanVien_DanhSachNhanVien() {
 		setLayout(null);
 		setPreferredSize(new Dimension(1550, 755));
@@ -843,9 +843,12 @@ public class Frame_NhanVien_DanhSachNhanVien extends JPanel {
 		tableNhanVien.setFont(new Font("Segoe UI", Font.PLAIN, 15));
 		tableNhanVien.setModel(new DefaultTableModel(new Object[][] {}, new String[] { "Mã NV", "Họ tên",
 				 "Ngày sinh", "Giới Tính", "CCCD", "SDT", "Email", "Địa chỉ", "Chức vụ", "Trình độ", "Lương", "Mật khẩu"}) {
-			@SuppressWarnings("unused")
-			Class[] columnTypes = new Class[] { String.class, String.class, String.class, String.class, String.class, String.class,
-					String.class, String.class, String.class, String.class, String.class, String.class };
+			private static final long serialVersionUID = 1L;
+			boolean[] columnEditables = new boolean[] { false, false, false, false, false, false, false, false, false, false, false, false };
+			
+			public boolean isCellEditable(int row, int column) {
+				return columnEditables[column];
+			}
 		});
 		tableNhanVien.getColumnModel().getColumn(2).setPreferredWidth(55);
 

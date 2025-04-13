@@ -90,9 +90,11 @@ public class Frame_Thuoc_DanhMucThuoc extends JPanel {
 				new String[] { "Mã thuốc", "Tên thuốc", "Đơn vị tính", "Đơn giá nhập", "Đơn giá bán", "Hạn sử dụng",
 						"Hàm lượng", "Số lượng tồn", "Số lượng thực tế" }) {
 			private static final long serialVersionUID = 1L;
-			@SuppressWarnings({ "rawtypes", "unused" })
-			Class[] columnTypes = new Class[] { String.class, String.class, String.class, Double.class, Integer.class,
-					String.class };
+			boolean [] columnEditables = new boolean[] { false, false, false, false, false, false, false, false, false };
+			
+			public boolean isCellEditable(int row, int column) {
+				return columnEditables[column];
+			}
 		});
 
 		tableSanPham.getColumnModel().getColumn(2).setPreferredWidth(55);
@@ -193,7 +195,7 @@ public class Frame_Thuoc_DanhMucThuoc extends JPanel {
 		panelXuLy.setLayout(null);
 		panelXuLy.setBorder(new LineBorder(new Color(0, 0, 0)));
 		panelXuLy.setBackground(new Color(242, 132, 123));
-		panelXuLy.setBounds(20, 491, 424, 250);
+		panelXuLy.setBounds(10, 491, 424, 250);
 		TitledBorder xuLyBorder = BorderFactory.createTitledBorder("Tác vụ xử Lý");
 		xuLyBorder.setTitleFont(new Font("Segoe UI", Font.PLAIN, 12));
 		panelXuLy.setBorder(xuLyBorder);

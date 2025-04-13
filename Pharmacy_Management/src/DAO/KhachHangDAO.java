@@ -21,7 +21,7 @@ public class KhachHangDAO {
 		List<Object[]> data = new ArrayList<>();
 		try (Connection conn = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
 				PreparedStatement stmt = conn.prepareStatement(
-						"SELECT maKH, hoTen, ngaySinh, diaChi, soDienThoai, email FROM KhachHang")) {
+						"SELECT maKH, hoTen, ngaySinh, diaChi, soDienThoai, email FROM KhachHang WHERE maKH NOT LIKE 'KHVL%'")) {
 
 			ResultSet rs = stmt.executeQuery();
 			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
@@ -225,7 +225,7 @@ public class KhachHangDAO {
 	}
 	
 	public String getLastMaKH() {
-		String sql = "SELECT MAX(maKH) FROM KhachHang";
+		String sql = "SELECT MAX(maKH) FROM KhachHang WHERE maKH NOT LIKE 'KHVL%'";
 		try (Connection conn = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
 				PreparedStatement pstmt = conn.prepareStatement(sql);
 				ResultSet rs = pstmt.executeQuery()) {
@@ -240,5 +240,41 @@ public class KhachHangDAO {
 			JOptionPane.showMessageDialog(null, "Lỗi khi lấy mã khách hàng cuối cùng: " + e.getMessage());
 		}
 		return "KH000";
+	}
+	
+	public Map<String, String> getThongTinKhachHang(String soDienThoai) {
+		
+		Map<String, String> khachHangData = new HashMap<>();
+		String sql = "SELECT maKH, hoTen FROM KhachHang WHERE soDienThoai = ?";
+		
+		try (Connection conn = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
+				PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.setString(1, soDienThoai);
+			ResultSet rs = pstmt.executeQuery();
+			if (rs.next()) {
+				khachHangData.put("maKH", rs.getString("maKH"));
+				khachHangData.put("hoTen", rs.getString("hoTen"));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return khachHangData;
+	}
+	
+	public List<String> getAllSoDienThoai() {
+	    List<String> dsSDT = new ArrayList<>();
+	    String sql = "SELECT soDienThoai FROM KhachHang WHERE soDienThoai IS NOT NULL";
+	    
+	    try (Connection conn = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
+	         PreparedStatement pstmt = conn.prepareStatement(sql);
+	         ResultSet rs = pstmt.executeQuery()) {
+	         
+	        while (rs.next()) {
+	            dsSDT.add(rs.getString("soDienThoai"));
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+	    return dsSDT;
 	}
 }

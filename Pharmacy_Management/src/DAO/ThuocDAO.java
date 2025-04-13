@@ -148,6 +148,7 @@ public class ThuocDAO {
 		}
 	}
 	
+	// Tìm kiếm thuốc theo mã thuốc, tên thuốc và số lượng tồn
 	public List<Object[]> timKiemThuoc(String maThuoc, String tenThuoc, String soLuongTon) {
 		List<Object[]> data = new ArrayList<Object[]>();
 		StringBuilder sql = new StringBuilder("SELECT * FROM Thuoc WHERE 1=1");
@@ -238,5 +239,162 @@ public class ThuocDAO {
 	        JOptionPane.showMessageDialog(null, "Lỗi khi lấy mã thuốc cuối cùng: " + e.getMessage());
 	    }
 	    return "T000";
+	}
+	
+	public List<Object[]> getDanhSachGia() {
+		List<Object[]> data = new ArrayList<Object[]>();
+
+		try {
+			String sql = "SELECT maThuoc, tenThuoc, donGiaNhap, donGiaBan FROM Thuoc";
+			Connection con = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
+			PreparedStatement stmt = con.prepareStatement(sql);
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()) {
+                String donGiaNhap = String.format("%,.0fđ", rs.getFloat("donGiaNhap"));
+                String donGiaBan = String.format("%,.0fđ", rs.getFloat("donGiaBan"));
+
+                Object[] row = { rs.getString("maThuoc"), rs.getString("tenThuoc"), donGiaNhap, donGiaBan };
+                data.add(row);
+            }
+		} catch (SQLException e) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(null, "Lỗi khi tải dữ liệu: " + e.getMessage());
+		}
+		return data;
+	}
+	
+	public boolean updatePrice(String maThuoc, String donGiaNhap, String donGiaBan) {
+		String sql = "UPDATE Thuoc SET donGiaNhap=?, donGiaBan=? WHERE maThuoc=?";
+		float Nhap = Float.parseFloat(donGiaNhap.replaceAll("[^\\d.]", ""));
+		float Ban = Float.parseFloat(donGiaBan.replaceAll("[^\\d.]", ""));
+		
+		try (Connection con = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
+				PreparedStatement stmt = con.prepareStatement(sql)) {
+
+			stmt.setDouble(1, Nhap);
+			stmt.setDouble(2, Ban);
+			stmt.setString(3, maThuoc);
+			stmt.executeUpdate();
+			JOptionPane.showMessageDialog(null, "Cập nhật giá thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+			return true;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(null, "Lỗi khi cập nhật giá: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
+	}
+
+	
+	// Tìm kiếm thuốc theo mã thuốc hoặc tên thuốc
+	public List<Object[]> timKiemThuoc(String maThuoc, String tenThuoc) {
+		List<Object[]> data = new ArrayList<Object[]>();
+		StringBuilder sql = new StringBuilder("SELECT * FROM Thuoc WHERE 1=1");
+		List<Object> params = new ArrayList<Object>();
+
+		if (!maThuoc.isEmpty()) {
+			sql.append(" AND maThuoc LIKE ?");
+			params.add("%" + maThuoc + "%");
+		}
+		if (!tenThuoc.isEmpty()) {
+			sql.append(" AND tenThuoc LIKE ?");
+			params.add("%" + tenThuoc + "%");
+		}
+		
+		try (Connection con = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
+				PreparedStatement stmt = con.prepareStatement(sql.toString())) {
+
+			for (int i = 0; i < params.size(); i++) {
+				stmt.setObject(i + 1, params.get(i));
+			}
+			ResultSet rs = stmt.executeQuery();
+
+			while (rs.next()) {
+				String formatGiaNhap = String.format("%,.0fđ", rs.getFloat("donGiaNhap"));
+				String formatGiaBan = String.format("%,.0fđ", rs.getFloat("donGiaBan"));
+				
+				Object[] row = { rs.getString("maThuoc"), rs.getString("tenThuoc"), formatGiaNhap, formatGiaBan };
+				data.add(row);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(null, "Lỗi khi tìm kiếm dữ liệu: " + e.getMessage());
+		}
+		return data;
+	}
+	
+	public List<Object[]> getDanhSachKiemKho() {
+		List<Object[]> list = new ArrayList<Object[]>();
+		String sql = "SELECT * FROM Thuoc";
+		try (Connection con = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
+				PreparedStatement stmt = con.prepareStatement(sql)) {
+
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()) {
+				Object[] row = { rs.getString("maThuoc"), rs.getString("tenThuoc"), rs.getString("donViTinh"),
+						rs.getInt("soLuongTon"), rs.getInt("soLuongThucTe"), rs.getInt("soLuongThucTe") - rs.getInt("soLuongTon") };
+				list.add(row);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(null, "Lỗi khi tải dữ liệu: " + e.getMessage());
+		}
+		return list;
+	}
+	
+	
+	public boolean capNhatSoLuong(String maThuoc, int soLuongTon, int soLuongThucTe) {
+		String sql = "UPDATE Thuoc SET soLuongTon=?, soLuongThucTe=? WHERE maThuoc=?";
+		try (Connection con = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
+				PreparedStatement stmt = con.prepareStatement(sql)) {
+
+			stmt.setInt(1, soLuongTon);
+			stmt.setInt(2, soLuongThucTe);
+			stmt.setString(3, maThuoc);
+			stmt.executeUpdate();
+			JOptionPane.showMessageDialog(null, "Cập nhật số lượng thực tế thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+			return true;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(null, "Lỗi khi cập nhật số lượng thực tế: " + e.getMessage());
+			return false;
+		}
+	}
+	
+	public List<Object[]> timKiemChenhLechThuoc(String maThuoc, String tenThuoc, String chechLech) {
+		List<Object[]> data = new ArrayList<Object[]>();
+		StringBuilder sql = new StringBuilder("SELECT * FROM Thuoc WHERE 1=1");
+		List<Object> params = new ArrayList<Object>();
+		
+		if (!maThuoc.isEmpty()) {
+			sql.append(" AND maThuoc LIKE ?");
+			params.add("%" + maThuoc + "%");
+		}
+		if (!tenThuoc.isEmpty()) {
+			sql.append(" AND tenThuoc LIKE ?");
+			params.add("%" + tenThuoc + "%");
+		}
+		
+		if (!chechLech.isEmpty()) {
+			sql.append(" AND soLuongThucTe - soLuongTon = ?");
+			params.add(Integer.parseInt(chechLech));
+		}
+		try (Connection con = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
+				PreparedStatement stmt = con.prepareStatement(sql.toString())) {
+
+			for (int i = 0; i < params.size(); i++) {
+				stmt.setObject(i + 1, params.get(i));
+			}
+			ResultSet rs = stmt.executeQuery();
+
+			while (rs.next()) {
+				Object[] row = { rs.getString("maThuoc"), rs.getString("tenThuoc"), rs.getString("donViTinh"), rs.getInt("soLuongTon"),
+						rs.getInt("soLuongThucTe"), rs.getInt("soLuongThucTe") - rs.getInt("soLuongTon") };
+				data.add(row);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(null, "Lỗi khi tìm kiếm dữ liệu: " + e.getMessage());
+		}
+		return data;
 	}
 }

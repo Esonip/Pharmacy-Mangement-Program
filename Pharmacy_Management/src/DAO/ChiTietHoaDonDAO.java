@@ -8,33 +8,52 @@ import java.util.ArrayList;
 import java.util.List;
 import connectDB.ConnectDB;
 
-import entity.SanPham;
 
 public class ChiTietHoaDonDAO {
 
-	public List<Object[]> getChiTietHoaDon(String maHD) {
-		List<Object[]> chiTietHoaDonDetails = new ArrayList<>();
-		String sql = "SELECT c.MaHang, d.TenHang, c.SoLuongSanPham, c.DonGia " + "FROM ChiTietHD c "
-				+ "JOIN DanhSachSanPham d ON c.MaHang = d.MaHang " + "WHERE c.MaHD = ?";
-
-		try (Connection conn = ConnectDB.getConnection("DB_QLBH");
-				PreparedStatement pstmt = conn.prepareStatement(sql)) {
+	public List<Object[]> getChiTietHoaDon(String maHoaDon) {
+	    List<Object[]> chiTietList = new ArrayList<>();
+	    String sql = "SELECT c.maThuoc, t.tenThuoc, c.soLuong, c.donGiaBan " +
+	                 "FROM ChiTietHoaDon c JOIN Thuoc t ON c.maThuoc = t.maThuoc " +
+	                 "WHERE c.maHD = ?";
+	    
+	    try (Connection con = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
+	         PreparedStatement pstmt = con.prepareStatement(sql)) {
+	        
+	        pstmt.setString(1, maHoaDon);
+	        ResultSet rs = pstmt.executeQuery();
+	        
+	        while (rs.next()) {
+	            String tenThuoc = rs.getString("tenThuoc");
+	            int soLuong = rs.getInt("soLuong");
+	            float donGiaBan = rs.getFloat("donGiaBan");
+	            
+	            String formatGiaBan = String.format("%,.0fđ", donGiaBan);
+	            String formatThanhTien = String.format("%,.0fđ", donGiaBan * soLuong);
+	            
+	            Object[] row = {tenThuoc, soLuong, formatGiaBan, formatThanhTien };
+	            chiTietList.add(row);
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+	    return chiTietList;
+	}
+	
+	public boolean luuChiTietHoaDon(String maHD, String maThuoc, int soLuong, double donGiaBan) {
+		String sql = "INSERT INTO ChiTietHoaDon (maHD, maThuoc, soLuong, donGiaBan) VALUES (?, ?, ?, ?)";
+		try (Connection con = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
+				PreparedStatement pstmt = con.prepareStatement(sql)) {
 			pstmt.setString(1, maHD);
-			try (ResultSet rs = pstmt.executeQuery()) {
-				while (rs.next()) {
-					Object[] details = new Object[4];
-					details[0] = rs.getString("MaHang");
-					details[1] = rs.getString("TenHang");
-					details[2] = rs.getInt("DonGia");
-					details[3] = rs.getInt("SoLuongSanPham");
-					chiTietHoaDonDetails.add(details);
-				}
-			}
+			pstmt.setString(2, maThuoc);
+			pstmt.setInt(3, soLuong);
+			pstmt.setDouble(4, donGiaBan);
+			pstmt.executeUpdate();
+			return true;
 		} catch (SQLException e) {
 			e.printStackTrace();
+			return false;
 		}
-
-		return chiTietHoaDonDetails;
 	}
-
+	
 }

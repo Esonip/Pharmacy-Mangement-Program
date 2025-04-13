@@ -9,30 +9,43 @@ import java.awt.event.KeyEvent;
 
 public class FrameTrangChu extends JFrame {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L; 
+	
+	// Frame Thuốc
 	private Frame_Thuoc_DanhMucThuoc frame_Thuoc_DanhMucThuoc;
 	private Frame_Thuoc_ThietLapGia frame_Thuoc_ThietLapGia;
 	private Frame_Thuoc_KiemKho frame_Thuoc_KiemKho;
+	private Frame_Thuoc_ThongKe frame_Thuoc_ThongKe;
+	// Giao Dịch Thuốc
+	private Frame_Thuoc_GiaoDich_BanThuoc frame_Thuoc_GiaoDich_BanThuoc;
+	private Frame_Thuoc_GiaoDich_NhapThuoc frame_Thuoc_GiaoDich_NhapThuoc;
+	private Frame_Thuoc_GiaoDich_TraNhapThuoc frame_Thuoc_GiaoDich_TraNhapThuoc;
+	private Frame_Thuoc_GiaoDich_TraThuoc frame_Thuoc_GiaoDich_TraThuoc;
+	private Frame_Thuoc_GiaoDich_DatThuoc frame_Thuoc_GiaoDich_DatThuoc;
 	
-	private Frame_GiaoDich_BanThuoc frameTHD;
-	private Frame_GiaoDich_HoaDon frame_GiaoDich_HoaDon;
-	private Frame_GiaoDich_TraThuoc frame_GiaoDich_TraThuoc;
-	private Frame_GiaoDich_NhapThuoc frame_GiaoDich_NhapThuoc;
-	private Frame_GiaoDich_TraNhapThuoc frame_GiaoDich_TraNhapThuoc;
-	
-	private Frame_DoiTac_KhachHang frame_DoiTac_KhachHang;
-	private Frame_DoiTac_NhaCungCap frame_DoiTac_NhaCungCap;
-	
+	// Frame Nhân Viên
 	private Frame_NhanVien_DanhSachNhanVien frame_NhanVien_DanhSachNhanVien;
 	private Frame_NhanVien_LichLamViec frame_NhanVien_LichLamViec;
 	private Frame_NhanVien_ChamCong frame_NhanVien_ChamCong;
 	private Frame_NhanVien_BangLuong frame_NhanVien_BangLuong;
+	private Frame_NhanVien_ThongKe frame_NhanVien_ThongKe;
 	
-	private Frame_ThongKe_SanPham frame_ThongKe_SanPham;
-	private Frame_ThongKe_KhachHang frame_ThongKe_KhachHang;
-	private Frame_ThongKe_DoanhThu frame_ThongKe_DoanhThu;
+	// Frame Khách Hàng
+	private Frame_KhachHang_DanhSachKhachHang frame_KhachHang_DanhSachKhachHang;
+	private Frame_KhachHang_ThongKe frame_KhachHang_ThongKe;
 	
-	private Frame_SoQuy frame_SoQuy;
+	// Frame NCC
+	private Frame_NCC_DanhSachNCC frame_NCC_DanhSachNCC;
+	private Frame_NCC_ThongKe frame_NCC_ThongKe;
+	
+	// Frame Hoá Đơn
+	private Frame_HoaDon_DanhSachHoaDon frame_HoaDon_DanhSachHoaDon;
+	private Frame_HoaDon_ThongKe frame_HoaDon_ThongKe;
+	
+	// Frame Doanh Thu
+	private Frame_TaiChinh_DoanhThu frame_TaiChinh_DoanhThu;
+	private Frame_TaiChinh_LSGD frame_DoanhThu_NganSach;
+	
 	
 	private Frame_PhanMem_TTPM frame_PhanMem_TTPM;
 	
@@ -71,7 +84,7 @@ public class FrameTrangChu extends JFrame {
 		
 		JLabel btnThongKeSanPham = new JLabel("");
 		btnThongKeSanPham.setIcon(new ImageIcon("image\\BG_Dashboard.jpg"));
-		getContentPane().add(btnThongKeSanPham);
+		getContentPane().add(btnThongKeSanPham, BorderLayout.WEST);
 		
 		menuBar = new JMenuBar();
 		getContentPane().add(menuBar, BorderLayout.NORTH);
@@ -113,8 +126,9 @@ public class FrameTrangChu extends JFrame {
 		btnDangXuat.setIcon(new ImageIcon("icon\\signout.png"));
 		btnHeThong.add(btnDangXuat);
 		
-		JMenuItem btnThoat = new JMenuItem("Thoát");
+		JMenuItem btnThoat = new JMenuItem("Thoát", KeyEvent.VK_W);
 		btnThoat.setFont(new Font("Segoe UI", Font.BOLD, 13));
+		btnThoat.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.CTRL_DOWN_MASK));
 		btnThoat.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int a = JOptionPane.showConfirmDialog(FrameTrangChu.this, "Bạn có muốn thoát ứng dụng không?", "Lựa chọn", JOptionPane.YES_NO_OPTION);
@@ -130,6 +144,96 @@ public class FrameTrangChu extends JFrame {
 		btnThuoc.setFont(new Font("Segoe UI", Font.BOLD, 13));
 		btnThuoc.setIcon(new ImageIcon("icon\\medicine.png"));
 		menuBar.add(btnThuoc);
+		
+		JMenu btn_Thuoc_GiaoDich = new JMenu("Giao Dịch");
+		btn_Thuoc_GiaoDich.setFont(new Font("Segoe UI", Font.BOLD, 13));
+		btn_Thuoc_GiaoDich.setIcon(new ImageIcon("icon\\transaction.png"));
+		btnThuoc.add(btn_Thuoc_GiaoDich);
+		
+		JMenuItem btn_Thuoc_GiaoDich_DatThuoc = new JMenuItem("Đặt Thuốc");
+		btn_Thuoc_GiaoDich_DatThuoc.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				resetMenuColors();
+				btnThuoc.setForeground(Color.RED);
+				frame_Thuoc_GiaoDich_DatThuoc = new Frame_Thuoc_GiaoDich_DatThuoc();
+				getContentPane().removeAll();
+				getContentPane().add(menuBar, BorderLayout.NORTH);
+				getContentPane().add(frame_Thuoc_GiaoDich_DatThuoc, BorderLayout.CENTER);
+				revalidate();
+				repaint();
+			}
+		});
+		btn_Thuoc_GiaoDich.add(btn_Thuoc_GiaoDich_DatThuoc);
+		btn_Thuoc_GiaoDich_DatThuoc.setIcon(new ImageIcon("icon\\XL_orders.png"));
+		btn_Thuoc_GiaoDich_DatThuoc.setFont(new Font("Segoe UI", Font.BOLD, 13));
+		
+		JMenuItem btn_Thuoc_GiaoDich_BanThuoc = new JMenuItem("Bán Thuốc");
+		btn_Thuoc_GiaoDich.add(btn_Thuoc_GiaoDich_BanThuoc);
+		btn_Thuoc_GiaoDich_BanThuoc.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				resetMenuColors();
+				btnThuoc.setForeground(Color.RED);
+				frame_Thuoc_GiaoDich_BanThuoc = new Frame_Thuoc_GiaoDich_BanThuoc(maNV);
+				getContentPane().removeAll();
+				getContentPane().add(menuBar, BorderLayout.NORTH);
+				getContentPane().add(frame_Thuoc_GiaoDich_BanThuoc, BorderLayout.CENTER);
+				revalidate();
+				repaint();
+			}
+		});
+		btn_Thuoc_GiaoDich_BanThuoc.setIcon(new ImageIcon("icon\\sell.png"));
+		btn_Thuoc_GiaoDich_BanThuoc.setFont(new Font("Segoe UI", Font.BOLD, 13));
+		
+		JMenuItem btn_Thuoc_GiaoDich_TraThuoc = new JMenuItem("Trả Thuốc");
+		btn_Thuoc_GiaoDich.add(btn_Thuoc_GiaoDich_TraThuoc);
+		btn_Thuoc_GiaoDich_TraThuoc.setFont(new Font("Segoe UI", Font.BOLD, 13));
+		btn_Thuoc_GiaoDich_TraThuoc.setIcon(new ImageIcon("icon\\return.png"));
+		
+		JMenuItem btn_Thuoc_GiaoDich_NhapThuoc = new JMenuItem("Nhập Thuốc");
+		btn_Thuoc_GiaoDich.add(btn_Thuoc_GiaoDich_NhapThuoc);
+		btn_Thuoc_GiaoDich_NhapThuoc.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				resetMenuColors();
+				btnThuoc.setForeground(Color.RED);
+				frame_Thuoc_GiaoDich_NhapThuoc = new Frame_Thuoc_GiaoDich_NhapThuoc();
+				getContentPane().removeAll();
+				getContentPane().add(menuBar, BorderLayout.NORTH);
+				getContentPane().add(frame_Thuoc_GiaoDich_NhapThuoc, BorderLayout.CENTER);
+				revalidate();
+				repaint();
+			}
+		});
+		btn_Thuoc_GiaoDich_NhapThuoc.setFont(new Font("Segoe UI", Font.BOLD, 13));
+		btn_Thuoc_GiaoDich_NhapThuoc.setIcon(new ImageIcon("icon\\import_goods.png"));
+		
+		JMenuItem btn_Thuoc_GiaoDich_TraNhapThuoc = new JMenuItem("Trả Nhập Thuốc");
+		btn_Thuoc_GiaoDich.add(btn_Thuoc_GiaoDich_TraNhapThuoc);
+		btn_Thuoc_GiaoDich_TraNhapThuoc.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				resetMenuColors();
+				btnThuoc.setForeground(Color.RED);
+				frame_Thuoc_GiaoDich_TraNhapThuoc = new Frame_Thuoc_GiaoDich_TraNhapThuoc();
+				getContentPane().removeAll();
+				getContentPane().add(menuBar, BorderLayout.NORTH);
+				getContentPane().add(frame_Thuoc_GiaoDich_TraNhapThuoc, BorderLayout.CENTER);
+				revalidate();
+				repaint();
+			}
+		});
+		btn_Thuoc_GiaoDich_TraNhapThuoc.setIcon(new ImageIcon("icon\\return_goods.png"));
+		btn_Thuoc_GiaoDich_TraNhapThuoc.setFont(new Font("Segoe UI", Font.BOLD, 13));
+		btn_Thuoc_GiaoDich_TraThuoc.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				resetMenuColors();
+				btnThuoc.setForeground(Color.RED);
+				frame_Thuoc_GiaoDich_TraThuoc = new Frame_Thuoc_GiaoDich_TraThuoc();
+				getContentPane().removeAll();
+				getContentPane().add(menuBar, BorderLayout.NORTH);
+				getContentPane().add(frame_Thuoc_GiaoDich_TraThuoc, BorderLayout.CENTER);
+				revalidate();
+				repaint();
+			}
+		});
 		
 		JMenuItem btn_Thuoc_DanhMucThuoc = new JMenuItem("Danh Mục Thuốc");
 		btnThuoc.add(btn_Thuoc_DanhMucThuoc);
@@ -182,140 +286,22 @@ public class FrameTrangChu extends JFrame {
 		btn_Thuoc_KiemKho.setFont(new Font("Segoe UI", Font.BOLD, 13));
 		btnThuoc.add(btn_Thuoc_KiemKho);
 		
-		JMenu btnGiaoDich = new JMenu("Giao Dịch");
-		btnGiaoDich.setFont(new Font("Segoe UI", Font.BOLD, 13));
-		btnGiaoDich.setIcon(new ImageIcon("icon\\transaction.png"));
-		menuBar.add(btnGiaoDich);
-		
-		JMenuItem btn_GiaoDich_HoaDon = new JMenuItem("Hóa Đơn");
-		btn_GiaoDich_HoaDon.setFont(new Font("Segoe UI", Font.BOLD, 13));
-		btn_GiaoDich_HoaDon.addActionListener(new ActionListener() {
+		JMenuItem btn_Thuoc_ThongKe = new JMenuItem("Thống Kê");
+		btn_Thuoc_ThongKe.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				resetMenuColors();
-				btnGiaoDich.setForeground(Color.RED);
-				frame_GiaoDich_HoaDon = new Frame_GiaoDich_HoaDon();
+				btnThuoc.setForeground(Color.RED);
+				frame_Thuoc_ThongKe = new Frame_Thuoc_ThongKe();
 				getContentPane().removeAll();
 				getContentPane().add(menuBar, BorderLayout.NORTH);
-				getContentPane().add(frame_GiaoDich_HoaDon, BorderLayout.CENTER);
+				getContentPane().add(frame_Thuoc_ThongKe, BorderLayout.CENTER);
 				revalidate();
 				repaint();
 			}
 		});
-		
-		JMenuItem btn_GiaoDich_BanThuoc = new JMenuItem("Bán Thuốc");
-		btn_GiaoDich_BanThuoc.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				resetMenuColors();
-				btnGiaoDich.setForeground(Color.RED);
-				frameTHD = new Frame_GiaoDich_BanThuoc();
-				getContentPane().removeAll();
-				getContentPane().add(menuBar, BorderLayout.NORTH);
-				getContentPane().add(frameTHD, BorderLayout.CENTER);
-				revalidate();
-				repaint();
-			}
-		});
-		
-		JMenuItem btnDatThuoc = new JMenuItem("Đặt Thuốc");
-		btnDatThuoc.setIcon(new ImageIcon("icon\\XL_orders.png"));
-		btnDatThuoc.setFont(new Font("Segoe UI", Font.BOLD, 13));
-		btnGiaoDich.add(btnDatThuoc);
-		btn_GiaoDich_BanThuoc.setIcon(new ImageIcon("icon\\sell.png"));
-		btn_GiaoDich_BanThuoc.setFont(new Font("Segoe UI", Font.BOLD, 13));
-		btnGiaoDich.add(btn_GiaoDich_BanThuoc);
-		btn_GiaoDich_HoaDon.setIcon(new ImageIcon("icon\\bill.png"));
-		btnGiaoDich.add(btn_GiaoDich_HoaDon);
-		
-		JMenuItem btn_GiaoDich_TraThuoc = new JMenuItem("Trả Thuốc");
-		btnGiaoDich.add(btn_GiaoDich_TraThuoc);
-		btn_GiaoDich_TraThuoc.setFont(new Font("Segoe UI", Font.BOLD, 13));
-		btn_GiaoDich_TraThuoc.setIcon(new ImageIcon("icon\\return.png"));
-		btn_GiaoDich_TraThuoc.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				resetMenuColors();
-				btnGiaoDich.setForeground(Color.RED);
-				frame_GiaoDich_TraThuoc = new Frame_GiaoDich_TraThuoc();
-				getContentPane().removeAll();
-				getContentPane().add(menuBar, BorderLayout.NORTH);
-				getContentPane().add(frame_GiaoDich_TraThuoc, BorderLayout.CENTER);
-				revalidate();
-				repaint();
-			}
-		});
-		
-		JMenuItem btn_GiaoDich_NhapThuoc = new JMenuItem("Nhập Thuốc");
-		btn_GiaoDich_NhapThuoc.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				resetMenuColors();
-				btnGiaoDich.setForeground(Color.RED);
-				frame_GiaoDich_NhapThuoc = new Frame_GiaoDich_NhapThuoc();
-				getContentPane().removeAll();
-				getContentPane().add(menuBar, BorderLayout.NORTH);
-				getContentPane().add(frame_GiaoDich_NhapThuoc, BorderLayout.CENTER);
-				revalidate();
-				repaint();
-			}
-		});
-		btnGiaoDich.add(btn_GiaoDich_NhapThuoc);
-		btn_GiaoDich_NhapThuoc.setFont(new Font("Segoe UI", Font.BOLD, 13));
-		btn_GiaoDich_NhapThuoc.setIcon(new ImageIcon("icon\\import_goods.png"));
-		
-		JMenuItem btn_GiaoDich_TraNhapThuoc = new JMenuItem("Trả Nhập Thuốc");
-		btn_GiaoDich_TraNhapThuoc.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				resetMenuColors();
-				btnGiaoDich.setForeground(Color.RED);
-				frame_GiaoDich_TraNhapThuoc = new Frame_GiaoDich_TraNhapThuoc();
-				getContentPane().removeAll();
-				getContentPane().add(menuBar, BorderLayout.NORTH);
-				getContentPane().add(frame_GiaoDich_TraNhapThuoc, BorderLayout.CENTER);
-				revalidate();
-				repaint();
-			}
-		});
-		btn_GiaoDich_TraNhapThuoc.setIcon(new ImageIcon("icon\\return_goods.png"));
-		btn_GiaoDich_TraNhapThuoc.setFont(new Font("Segoe UI", Font.BOLD, 13));
-		btnGiaoDich.add(btn_GiaoDich_TraNhapThuoc);
-		
-		JMenu btnDoiTac = new JMenu("Đối Tác");
-		btnDoiTac.setIcon(new ImageIcon("icon\\partner.png"));
-		btnDoiTac.setFont(new Font("Segoe UI", Font.BOLD, 13));
-		menuBar.add(btnDoiTac);
-		
-		JMenuItem btn_DoiTac_KhachHang = new JMenuItem("Khách Hàng");
-		btnDoiTac.add(btn_DoiTac_KhachHang);
-		btn_DoiTac_KhachHang.setFont(new Font("Segoe UI", Font.BOLD, 13));
-		btn_DoiTac_KhachHang.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				resetMenuColors();
-				btnDoiTac.setForeground(Color.RED);
-				frame_DoiTac_KhachHang = new Frame_DoiTac_KhachHang();
-				getContentPane().removeAll();
-				getContentPane().add(menuBar, BorderLayout.NORTH);
-				getContentPane().add(frame_DoiTac_KhachHang, BorderLayout.CENTER);
-				revalidate();
-				repaint();
-			}
-		});
-		
-		btn_DoiTac_KhachHang.setIcon(new ImageIcon("icon\\customer.png"));
-		
-		JMenuItem btn_DoiTac_NCC = new JMenuItem("Nhà Cung Cấp");
-		btn_DoiTac_NCC.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				resetMenuColors();
-				btnDoiTac.setForeground(Color.RED);
-				frame_DoiTac_NhaCungCap = new Frame_DoiTac_NhaCungCap();
-				getContentPane().removeAll();
-				getContentPane().add(menuBar, BorderLayout.NORTH);
-				getContentPane().add(frame_DoiTac_NhaCungCap, BorderLayout.CENTER);
-				revalidate();
-				repaint();
-			}
-		});
-		btn_DoiTac_NCC.setIcon(new ImageIcon("icon\\supplier.png"));
-		btn_DoiTac_NCC.setFont(new Font("Segoe UI", Font.BOLD, 13));
-		btnDoiTac.add(btn_DoiTac_NCC);
+		btn_Thuoc_ThongKe.setIcon(new ImageIcon("icon\\static_product.png"));
+		btn_Thuoc_ThongKe.setFont(new Font("Segoe UI", Font.BOLD, 13));
+		btnThuoc.add(btn_Thuoc_ThongKe);
 		
 		JMenu btnNhanVien = new JMenu("Nhân Viên");
 		btnNhanVien.setIcon(new ImageIcon("icon\\nv.png"));
@@ -390,87 +376,188 @@ public class FrameTrangChu extends JFrame {
 		btn_NV_BangLuong.setFont(new Font("Segoe UI", Font.BOLD, 13));
 		btnNhanVien.add(btn_NV_BangLuong);
 		
-		JMenu btn_SoQuy = new JMenu("Sổ Quỹ");
-		btn_SoQuy.addActionListener(new ActionListener() {
+		JMenuItem btn_NV_ThongKe = new JMenuItem("Thống Kê");
+		btn_NV_ThongKe.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				resetMenuColors();
-				btn_SoQuy.setForeground(Color.RED);
-				frame_SoQuy = new Frame_SoQuy();
+				btnNhanVien.setForeground(Color.RED);
+				frame_NhanVien_ThongKe = new Frame_NhanVien_ThongKe();
 				getContentPane().removeAll();
 				getContentPane().add(menuBar, BorderLayout.NORTH);
-				getContentPane().add(frame_SoQuy, BorderLayout.CENTER);
+				getContentPane().add(frame_NhanVien_ThongKe, BorderLayout.CENTER);
 				revalidate();
 				repaint();
 			}
 		});
-		btn_SoQuy.setFont(new Font("Segoe UI", Font.BOLD, 13));
-		menuBar.add(btn_SoQuy);
-		btn_SoQuy.setIcon(new ImageIcon("icon\\cash_book.png"));
+		btn_NV_ThongKe.setFont(new Font("Segoe UI", Font.BOLD, 13));
+		btn_NV_ThongKe.setIcon(new ImageIcon("icon\\static_employee.png"));
+		btnNhanVien.add(btn_NV_ThongKe);
 		
-		JMenu btnThongKe = new JMenu("Thống Kê");
-		btnThongKe.setFont(new Font("Segoe UI", Font.BOLD, 13));
-		btnThongKe.setIcon(new ImageIcon("icon\\static.png"));
-		menuBar.add(btnThongKe);
+		JMenu btnKhachHang = new JMenu("Khách Hàng");
+		btnKhachHang.setIcon(new ImageIcon("icon\\partner.png"));
+		btnKhachHang.setFont(new Font("Segoe UI", Font.BOLD, 13));
+		menuBar.add(btnKhachHang);
 		
-		JMenuItem btnThongKeDoanhThu = new JMenuItem("Doanh thu");
-		btnThongKeDoanhThu.setFont(new Font("Segoe UI", Font.BOLD, 13));
-		btnThongKeDoanhThu.addActionListener(new ActionListener() {
+		JMenuItem btn_KhachHang_DanhSachKhachHang = new JMenuItem("Khách Hàng");
+		btnKhachHang.add(btn_KhachHang_DanhSachKhachHang);
+		btn_KhachHang_DanhSachKhachHang.setFont(new Font("Segoe UI", Font.BOLD, 13));
+		btn_KhachHang_DanhSachKhachHang.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				resetMenuColors();
-				btnThongKe.setForeground(Color.RED);
-				frame_ThongKe_DoanhThu = new Frame_ThongKe_DoanhThu();
+				btnKhachHang.setForeground(Color.RED);
+				frame_KhachHang_DanhSachKhachHang = new Frame_KhachHang_DanhSachKhachHang();
 				getContentPane().removeAll();
 				getContentPane().add(menuBar, BorderLayout.NORTH);
-				getContentPane().add(frame_ThongKe_DoanhThu, BorderLayout.CENTER);
+				getContentPane().add(frame_KhachHang_DanhSachKhachHang, BorderLayout.CENTER);
 				revalidate();
 				repaint();
 			}
 		});
-		btnThongKeDoanhThu.setIcon(new ImageIcon("icon\\static_revenue.png"));
-		btnThongKe.add(btnThongKeDoanhThu);
 		
-		JMenuItem btnThongKeKhachHang = new JMenuItem("Khách hàng");
-		btnThongKeKhachHang.setFont(new Font("Segoe UI", Font.BOLD, 13));
-		btnThongKeKhachHang.addActionListener(new ActionListener() {
+		btn_KhachHang_DanhSachKhachHang.setIcon(new ImageIcon("icon\\customer.png"));
+		
+		JMenuItem btn_KhachHang_ThongKe = new JMenuItem("Thống Kê");
+		btnKhachHang.add(btn_KhachHang_ThongKe);
+		btn_KhachHang_ThongKe.setFont(new Font("Segoe UI", Font.BOLD, 13));
+		btn_KhachHang_ThongKe.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				resetMenuColors();
-				btnThongKe.setForeground(Color.RED);
-				frame_ThongKe_KhachHang = new Frame_ThongKe_KhachHang();
+				btnKhachHang.setForeground(Color.RED);
+				frame_KhachHang_ThongKe = new Frame_KhachHang_ThongKe();
 				getContentPane().removeAll();
 				getContentPane().add(menuBar, BorderLayout.NORTH);
-				getContentPane().add(frame_ThongKe_KhachHang, BorderLayout.CENTER);
+				getContentPane().add(frame_KhachHang_ThongKe, BorderLayout.CENTER);
 				revalidate();
 				repaint();
 			}
 		});
-		btnThongKeKhachHang.setIcon(new ImageIcon("icon\\static_customer.png"));
-		btnThongKe.add(btnThongKeKhachHang);
+		btn_KhachHang_ThongKe.setIcon(new ImageIcon("icon\\static_customer.png"));
 		
-		JMenuItem mntmNewMenuItem_8 = new JMenuItem("Sản phẩm");
-		mntmNewMenuItem_8.setFont(new Font("Segoe UI", Font.BOLD, 13));
-		mntmNewMenuItem_8.addActionListener(new ActionListener() {
+		JMenu btnNCC = new JMenu("Nhà Cung Cấp");
+		btnNCC.setFont(new Font("Segoe UI", Font.BOLD, 13));
+		btnNCC.setIcon(new ImageIcon("icon\\factory.png"));
+		menuBar.add(btnNCC);
+		
+		JMenuItem btn_NCC_DanhSachNCC = new JMenuItem("Nhà Cung Cấp");
+		btnNCC.add(btn_NCC_DanhSachNCC);
+		btn_NCC_DanhSachNCC.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				resetMenuColors();
-				btnThongKe.setForeground(Color.RED);
-				frame_ThongKe_SanPham = new Frame_ThongKe_SanPham();
+				btnKhachHang.setForeground(Color.RED);
+				frame_NCC_DanhSachNCC = new Frame_NCC_DanhSachNCC();
 				getContentPane().removeAll();
 				getContentPane().add(menuBar, BorderLayout.NORTH);
-				getContentPane().add(frame_ThongKe_SanPham, BorderLayout.CENTER);
+				getContentPane().add(frame_NCC_DanhSachNCC, BorderLayout.CENTER);
 				revalidate();
 				repaint();
 			}
 		});
-		mntmNewMenuItem_8.setIcon(new ImageIcon("icon\\static_product.png"));
-		btnThongKe.add(mntmNewMenuItem_8);
+		btn_NCC_DanhSachNCC.setIcon(new ImageIcon("icon\\supplier.png"));
+		btn_NCC_DanhSachNCC.setFont(new Font("Segoe UI", Font.BOLD, 13));
+		
+		JMenuItem btn_NCC_ThongKe = new JMenuItem("Thống Kê");
+		btn_NCC_ThongKe.setIcon(new ImageIcon("icon\\static_supplier.png"));
+		btn_NCC_ThongKe.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				resetMenuColors();
+				btnNCC.setForeground(Color.RED);
+				frame_NCC_ThongKe = new Frame_NCC_ThongKe();
+				getContentPane().removeAll();
+				getContentPane().add(menuBar, BorderLayout.NORTH);
+				getContentPane().add(frame_NCC_ThongKe, BorderLayout.CENTER);
+				revalidate();
+				repaint();
+			}
+		});
+		btn_NCC_ThongKe.setFont(new Font("Segoe UI", Font.BOLD, 13));
+		btnNCC.add(btn_NCC_ThongKe);
+		
+		JMenu btnHoaDon = new JMenu("Hóa Đơn");
+		btnHoaDon.setFont(new Font("Segoe UI", Font.BOLD, 13));
+		btnHoaDon.setIcon(new ImageIcon("icon\\bill.png"));
+		menuBar.add(btnHoaDon);
+		
+		JMenuItem btn_HoaDon_DanhSachHoaDon = new JMenuItem("Hóa Đơn");
+		btn_HoaDon_DanhSachHoaDon.setFont(new Font("Segoe UI", Font.BOLD, 13));
+		btn_HoaDon_DanhSachHoaDon.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				resetMenuColors();
+				btnHoaDon.setForeground(Color.RED);
+				frame_HoaDon_DanhSachHoaDon = new Frame_HoaDon_DanhSachHoaDon();
+				getContentPane().removeAll();
+				getContentPane().add(menuBar, BorderLayout.NORTH);
+				getContentPane().add(frame_HoaDon_DanhSachHoaDon, BorderLayout.CENTER);
+				revalidate();
+				repaint();
+			}
+		});
+		btn_HoaDon_DanhSachHoaDon.setIcon(new ImageIcon("icon\\bill_list.png"));
+		btnHoaDon.add(btn_HoaDon_DanhSachHoaDon);
+		
+		JMenuItem btn_HoaDon_ThongKe = new JMenuItem("Thống Kê");
+		btn_HoaDon_ThongKe.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				resetMenuColors();
+				btnHoaDon.setForeground(Color.RED);
+				frame_HoaDon_ThongKe = new Frame_HoaDon_ThongKe();
+				getContentPane().removeAll();
+				getContentPane().add(menuBar, BorderLayout.NORTH);
+				getContentPane().add(frame_HoaDon_ThongKe, BorderLayout.CENTER);
+				revalidate();
+				repaint();
+			}
+		});
+		btn_HoaDon_ThongKe.setIcon(new ImageIcon("icon\\static_bill.png"));
+		btn_HoaDon_ThongKe.setFont(new Font("Segoe UI", Font.BOLD, 13));
+		btnHoaDon.add(btn_HoaDon_ThongKe);
+		
+		JMenu btnTaiChinh = new JMenu("Tài Chính");
+		btnTaiChinh.setFont(new Font("Segoe UI", Font.BOLD, 13));
+		btnTaiChinh.setIcon(new ImageIcon("icon\\budget.png"));
+		menuBar.add(btnTaiChinh);
+		
+		JMenuItem btn_TaiChinh_DoanhThu = new JMenuItem("Doanh Thu");
+		btnTaiChinh.add(btn_TaiChinh_DoanhThu);
+		btn_TaiChinh_DoanhThu.setFont(new Font("Segoe UI", Font.BOLD, 13));
+		btn_TaiChinh_DoanhThu.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				resetMenuColors();
+				btnNCC.setForeground(Color.RED);
+				frame_TaiChinh_DoanhThu = new Frame_TaiChinh_DoanhThu();
+				getContentPane().removeAll();
+				getContentPane().add(menuBar, BorderLayout.NORTH);
+				getContentPane().add(frame_TaiChinh_DoanhThu, BorderLayout.CENTER);
+				revalidate();
+				repaint();
+			}
+		});
+		btn_TaiChinh_DoanhThu.setIcon(new ImageIcon("icon\\static_revenue.png"));
+		
+		JMenuItem btn_TaiChinh_LSGD = new JMenuItem("Lịch Sử Giao Dịch");
+		btn_TaiChinh_LSGD.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				resetMenuColors();
+				btnTaiChinh.setForeground(Color.RED);
+				frame_DoanhThu_NganSach = new Frame_TaiChinh_LSGD();
+				getContentPane().removeAll();
+				getContentPane().add(menuBar, BorderLayout.NORTH);
+				getContentPane().add(frame_DoanhThu_NganSach, BorderLayout.CENTER);
+				revalidate();
+				repaint();
+			}
+		});
+		btn_TaiChinh_LSGD.setIcon(new ImageIcon("icon\\history_transaction.png"));
+		btn_TaiChinh_LSGD.setFont(new Font("Segoe UI", Font.BOLD, 13));
+		btnTaiChinh.add(btn_TaiChinh_LSGD);
 		
 		JMenu btnPhanMem = new JMenu("Phần Mềm");
 		btnPhanMem.setFont(new Font("Segoe UI", Font.BOLD, 13));
 		btnPhanMem.setIcon(new ImageIcon("icon\\info.png"));
 		menuBar.add(btnPhanMem);
 		
-		JMenuItem btnThongTin = new JMenuItem("Thông tin phần mềm");
-		btnThongTin.setFont(new Font("Segoe UI", Font.BOLD, 13));
-		btnThongTin.addActionListener(new ActionListener() {
+		JMenuItem btn_PhanMem_ThongTin = new JMenuItem("Thông Tin");
+		btn_PhanMem_ThongTin.setFont(new Font("Segoe UI", Font.BOLD, 13));
+		btn_PhanMem_ThongTin.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				resetMenuColors();
 				btnPhanMem.setForeground(Color.RED);
@@ -482,30 +569,29 @@ public class FrameTrangChu extends JFrame {
 				repaint();
 			}
 		});
-		btnThongTin.setIcon(new ImageIcon("icon\\info_phanmem.png"));
-		btnPhanMem.add(btnThongTin);
+		btn_PhanMem_ThongTin.setIcon(new ImageIcon("icon\\info_phanmem.png"));
+		btnPhanMem.add(btn_PhanMem_ThongTin);
 		
-		JMenuItem btnDuongDan = new JMenuItem("Đường dẫn");
-		btnDuongDan.setFont(new Font("Segoe UI", Font.BOLD, 13));
-		btnDuongDan.addActionListener(new ActionListener() {
+		JMenuItem btn_PhanMem_DuongDan = new JMenuItem("Đường Dẫn");
+		btn_PhanMem_DuongDan.setFont(new Font("Segoe UI", Font.BOLD, 13));
+		btn_PhanMem_DuongDan.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
 					Desktop.getDesktop().browse(java.net.URI.create("https://github.com/Esonip/Pharmacy-Mangement-Program"));
 				} catch (Exception ex) {
-					// TODO: handle exception
 					ex.printStackTrace();
 				}
 			}
 		});
-		btnDuongDan.setIcon(new ImageIcon("icon\\link.png"));
-		btnPhanMem.add(btnDuongDan);
+		btn_PhanMem_DuongDan.setIcon(new ImageIcon("icon\\link.png"));
+		btnPhanMem.add(btn_PhanMem_DuongDan);
 		
 		JMenu btnTroGiup = new JMenu("Trợ Giúp");
-		btnTroGiup.setIcon(new ImageIcon("icon\\help.png"));
+		btnTroGiup.setIcon(new ImageIcon("icon\\technical_support.png"));
 		btnTroGiup.setFont(new Font("Segoe UI", Font.BOLD, 13));
 		menuBar.add(btnTroGiup);
 		
-		JMenuItem btnHDSD = new JMenuItem("Hướng dẫn sử dụng");
+		JMenuItem btnHDSD = new JMenuItem("Hướng Dẫn Sử Dụng");
 		btnHDSD.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				resetMenuColors();
@@ -533,49 +619,36 @@ public class FrameTrangChu extends JFrame {
 			lblUsername.setIcon(new ImageIcon("icon\\employee.png"));
 		else
 			lblUsername.setIcon(new ImageIcon("icon\\manager.png"));
-		lblUsername.setBounds(416, 0, 255, 39);
+		lblUsername.setBounds(356, 0, 262, 39);
 		panel.add(lblUsername);
 		
 		if ("Nhân Viên".equals(chucVu)) {
+			// Thuốc
+			btn_Thuoc_DanhMucThuoc.setEnabled(false);
+			btn_Thuoc_ThietLapGia.setEnabled(false);
+			btn_Thuoc_ThongKe.setEnabled(false);
+			btn_Thuoc_GiaoDich_NhapThuoc.setEnabled(false);
+			btn_Thuoc_GiaoDich_TraNhapThuoc.setEnabled(false);
+			// Nhân Viên
 			btnNhanVien.setEnabled(false);
-			btnThuoc.setEnabled(false);
-			btnThongKe.setEnabled(false);
-			btn_DoiTac_NCC.setEnabled(false);
-			btn_GiaoDich_NhapThuoc.setEnabled(false);
-			btn_GiaoDich_TraNhapThuoc.setEnabled(false);
-			btn_SoQuy.setEnabled(false);
+			// Khách Hàng
+			btn_KhachHang_ThongKe.setEnabled(false);
+			// NCC
+			btnNCC.setEnabled(false);
+			// Hoá Đơn
+			btn_HoaDon_ThongKe.setEnabled(false);
+			// Tài Chính
+			btnTaiChinh.setEnabled(false);
+			
 	    }
 		
-		themPhimTatClose();
 		
 		this.setVisible(true);
 	}
 	
-	@SuppressWarnings("serial")
-	private void themPhimTatClose() {
-        // Lấy InputMap và ActionMap từ JFrame
-        InputMap inputMap = getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
-        ActionMap actionMap = getRootPane().getActionMap();
-
-        // Định nghĩa phím tắt Ctrl + W
-        KeyStroke ctrlW = KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.CTRL_DOWN_MASK);
-
-        // Gắn phím tắt với một hành động
-        inputMap.put(ctrlW, "close");
-        actionMap.put("close", new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Thoát chương trình
-            	int a = JOptionPane.showConfirmDialog(FrameTrangChu.this, "Bạn có muốn thoát ứng dụng không?", "Lựa chọn", JOptionPane.YES_NO_OPTION);
-		        if (a == JOptionPane.YES_OPTION) {
-		        	dispose();
-		        }
-            }
-        });
-    }
+	
 	
 	// Hàm reset màu chữ của menu
-	@SuppressWarnings("unused")
 	private void resetMenuColors() {
 	    Component[] components = menuBar.getComponents();
 	    for (Component comp : components) {
