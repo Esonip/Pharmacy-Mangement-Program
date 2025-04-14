@@ -9,18 +9,18 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.Calendar;
 
-public class Frame_HoaDon_ThongKe extends JPanel {
+public class Frame_ThongKe_TaiChinh extends JPanel {
     private static final long serialVersionUID = 1L;
-    private JTable tableHoaDon;
-    private DefaultTableModel modelHoaDon;
+    private JTable tableTaiChinh;
+    private DefaultTableModel modelTaiChinh;
     private JComboBox<String> cboLoaiThongKe;
     private JComboBox<String> cboNam;
     private JComboBox<String> cboThang;
     private JTextField txtTuNgay;
     private JTextField txtDenNgay;
-    private JTextField txtTongHoaDon;
-    private JTextField txtTongDoanhThu;
-    private JTextField txtTrungBinh;
+    private JTextField txtTongThu;
+    private JTextField txtTongChi;
+    private JTextField txtLoiNhuan;
 
     // Define colors from Frame_GiaoDich_NhapThuoc
     private final Color MAIN_COLOR = new Color(254, 222, 192);
@@ -32,7 +32,7 @@ public class Frame_HoaDon_ThongKe extends JPanel {
     private final Color TABLE_HEADER_COLOR = new Color(251, 203, 150);
     private final Color SELECTED_COLOR = new Color(255, 239, 213);
 
-    public Frame_HoaDon_ThongKe() {
+    public Frame_ThongKe_TaiChinh() {
         setBackground(MAIN_COLOR);
         setLayout(new BorderLayout(0, 0));
         setBorder(new EmptyBorder(15, 15, 15, 15));
@@ -43,7 +43,7 @@ public class Frame_HoaDon_ThongKe extends JPanel {
         pnlTitle.setBackground(HEADER_COLOR);
         add(pnlTitle, BorderLayout.NORTH);
 
-        JLabel lblTitle = new JLabel("THỐNG KÊ HÓA ĐƠN");
+        JLabel lblTitle = new JLabel("THỐNG KÊ TÀI CHÍNH");
         lblTitle.setHorizontalAlignment(SwingConstants.CENTER);
         lblTitle.setFont(new Font("Arial", Font.BOLD, 28));
         lblTitle.setForeground(TEXT_COLOR);
@@ -57,7 +57,7 @@ public class Frame_HoaDon_ThongKe extends JPanel {
 
         // Filter Panel
         JPanel pnlFilter = new JPanel();
-        pnlFilter.setBounds(0, 0, 492, 200);
+        pnlFilter.setBounds(0, 0, 492, 236);
         pnlFilter.setBackground(MAIN_COLOR);
         pnlFilter.setBorder(new TitledBorder(new LineBorder(PANEL_BORDER_COLOR, 1),
                 "Điều kiện thống kê", TitledBorder.LEFT, TitledBorder.TOP,
@@ -162,23 +162,23 @@ public class Frame_HoaDon_ThongKe extends JPanel {
 
         // Table Panel
         JPanel pnlTable = new JPanel();
-        pnlTable.setBounds(502, 0, 590, 410);
+        pnlTable.setBounds(502, 0, 655, 410);
         pnlTable.setBackground(MAIN_COLOR);
         pnlTable.setBorder(new TitledBorder(new LineBorder(PANEL_BORDER_COLOR, 1),
-                "Bảng thống kê hóa đơn", TitledBorder.LEFT, TitledBorder.TOP,
+                "Bảng thống kê tài chính", TitledBorder.LEFT, TitledBorder.TOP,
                 new Font("Arial", Font.BOLD, 16), TEXT_COLOR));
         pnlContent.add(pnlTable);
         pnlTable.setLayout(null);
 
-        modelHoaDon = new DefaultTableModel(
+        modelTaiChinh = new DefaultTableModel(
                 new Object[][] {
-                        {1, "HD001", "01/04/2025", "Nguyễn Văn A", "650,000 VNĐ"},
-                        {2, "HD002", "02/04/2025", "Trần Thị B", "780,000 VNĐ"},
-                        {3, "HD003", "03/04/2025", "Lê Văn C", "460,000 VNĐ"},
-                        {4, "HD004", "04/04/2025", "Phạm Thị D", "900,000 VNĐ"},
-                        {5, "HD005", "05/04/2025", "Hoàng Văn E", "580,000 VNĐ"},
+                        {1, "01/04/2025", "Thu", "Bán hàng", "1,500,000 VNĐ", "Doanh thu bán thuốc"},
+                        {2, "02/04/2025", "Chi", "Nhập hàng", "-800,000 VNĐ", "Nhập thuốc từ NCC ABC"},
+                        {3, "03/04/2025", "Thu", "Bán hàng", "1,200,000 VNĐ", "Doanh thu bán thuốc"},
+                        {4, "04/04/2025", "Chi", "Chi phí khác", "-300,000 VNĐ", "Chi phí vận hành"},
+                        {5, "05/04/2025", "Thu", "Bán hàng", "900,000 VNĐ", "Doanh thu bán thuốc"},
                 },
-                new String[] {"STT", "Mã hóa đơn", "Ngày lập", "Khách hàng", "Tổng tiền"}
+                new String[] {"STT", "Ngày", "Loại", "Nội dung", "Số tiền", "Ghi chú"}
         ) {
             private static final long serialVersionUID = 1L;
             @Override
@@ -187,23 +187,24 @@ public class Frame_HoaDon_ThongKe extends JPanel {
             }
         };
 
-        tableHoaDon = new JTable(modelHoaDon);
-        tableHoaDon.getTableHeader().setFont(new Font("Arial", Font.BOLD, 14));
-        tableHoaDon.getTableHeader().setBackground(TABLE_HEADER_COLOR);
-        tableHoaDon.getTableHeader().setForeground(TEXT_COLOR);
-        tableHoaDon.setBackground(Color.WHITE);
-        tableHoaDon.setForeground(TEXT_COLOR);
-        tableHoaDon.setSelectionBackground(SELECTED_COLOR);
-        tableHoaDon.setRowHeight(30);
-        tableHoaDon.setFont(new Font("Arial", Font.PLAIN, 14));
-        tableHoaDon.getColumnModel().getColumn(0).setPreferredWidth(50);
-        tableHoaDon.getColumnModel().getColumn(1).setPreferredWidth(100);
-        tableHoaDon.getColumnModel().getColumn(2).setPreferredWidth(100);
-        tableHoaDon.getColumnModel().getColumn(3).setPreferredWidth(150);
-        tableHoaDon.getColumnModel().getColumn(4).setPreferredWidth(150);
+        tableTaiChinh = new JTable(modelTaiChinh);
+        tableTaiChinh.getTableHeader().setFont(new Font("Arial", Font.BOLD, 14));
+        tableTaiChinh.getTableHeader().setBackground(TABLE_HEADER_COLOR);
+        tableTaiChinh.getTableHeader().setForeground(TEXT_COLOR);
+        tableTaiChinh.setBackground(Color.WHITE);
+        tableTaiChinh.setForeground(TEXT_COLOR);
+        tableTaiChinh.setSelectionBackground(SELECTED_COLOR);
+        tableTaiChinh.setRowHeight(30);
+        tableTaiChinh.setFont(new Font("Arial", Font.PLAIN, 14));
+        tableTaiChinh.getColumnModel().getColumn(0).setPreferredWidth(50);
+        tableTaiChinh.getColumnModel().getColumn(1).setPreferredWidth(100);
+        tableTaiChinh.getColumnModel().getColumn(2).setPreferredWidth(80);
+        tableTaiChinh.getColumnModel().getColumn(3).setPreferredWidth(120);
+        tableTaiChinh.getColumnModel().getColumn(4).setPreferredWidth(120);
+        tableTaiChinh.getColumnModel().getColumn(5).setPreferredWidth(150);
 
-        JScrollPane scrollPane = new JScrollPane(tableHoaDon);
-        scrollPane.setBounds(5, 21, 580, 384);
+        JScrollPane scrollPane = new JScrollPane(tableTaiChinh);
+        scrollPane.setBounds(5, 21, 638, 429);
         pnlTable.add(scrollPane);
 
         // Summary Panel
@@ -216,50 +217,50 @@ public class Frame_HoaDon_ThongKe extends JPanel {
         pnlContent.add(pnlThongTin);
         pnlThongTin.setLayout(null);
 
-        JLabel lblTongHoaDon = new JLabel("Tổng hóa đơn:");
-        lblTongHoaDon.setForeground(TEXT_COLOR);
-        lblTongHoaDon.setFont(new Font("Arial", Font.BOLD, 16));
-        lblTongHoaDon.setBounds(10, 30, 150, 30);
-        pnlThongTin.add(lblTongHoaDon);
+        JLabel lblTongThu = new JLabel("Tổng thu:");
+        lblTongThu.setForeground(TEXT_COLOR);
+        lblTongThu.setFont(new Font("Arial", Font.BOLD, 16));
+        lblTongThu.setBounds(10, 30, 150, 30);
+        pnlThongTin.add(lblTongThu);
 
-        txtTongHoaDon = new JTextField("5");
-        txtTongHoaDon.setHorizontalAlignment(SwingConstants.RIGHT);
-        txtTongHoaDon.setEditable(false);
-        txtTongHoaDon.setFont(new Font("Arial", Font.BOLD, 16));
-        txtTongHoaDon.setForeground(new Color(165, 42, 42));
-        txtTongHoaDon.setBackground(new Color(253, 245, 230));
-        txtTongHoaDon.setBounds(160, 30, 400, 30);
-        pnlThongTin.add(txtTongHoaDon);
+        txtTongThu = new JTextField("3,600,000 VNĐ");
+        txtTongThu.setHorizontalAlignment(SwingConstants.RIGHT);
+        txtTongThu.setEditable(false);
+        txtTongThu.setFont(new Font("Arial", Font.BOLD, 16));
+        txtTongThu.setForeground(new Color(165, 42, 42));
+        txtTongThu.setBackground(new Color(253, 245, 230));
+        txtTongThu.setBounds(160, 30, 400, 30);
+        pnlThongTin.add(txtTongThu);
 
-        JLabel lblTongDoanhThu = new JLabel("Tổng doanh thu:");
-        lblTongDoanhThu.setForeground(TEXT_COLOR);
-        lblTongDoanhThu.setFont(new Font("Arial", Font.BOLD, 16));
-        lblTongDoanhThu.setBounds(10, 70, 150, 30);
-        pnlThongTin.add(lblTongDoanhThu);
+        JLabel lblTongChi = new JLabel("Tổng chi:");
+        lblTongChi.setForeground(TEXT_COLOR);
+        lblTongChi.setFont(new Font("Arial", Font.BOLD, 16));
+        lblTongChi.setBounds(10, 70, 150, 30);
+        pnlThongTin.add(lblTongChi);
 
-        txtTongDoanhThu = new JTextField("3,370,000 VNĐ");
-        txtTongDoanhThu.setHorizontalAlignment(SwingConstants.RIGHT);
-        txtTongDoanhThu.setEditable(false);
-        txtTongDoanhThu.setFont(new Font("Arial", Font.BOLD, 16));
-        txtTongDoanhThu.setForeground(new Color(165, 42, 42));
-        txtTongDoanhThu.setBackground(new Color(253, 245, 230));
-        txtTongDoanhThu.setBounds(160, 70, 400, 30);
-        pnlThongTin.add(txtTongDoanhThu);
+        txtTongChi = new JTextField("1,100,000 VNĐ");
+        txtTongChi.setHorizontalAlignment(SwingConstants.RIGHT);
+        txtTongChi.setEditable(false);
+        txtTongChi.setFont(new Font("Arial", Font.BOLD, 16));
+        txtTongChi.setForeground(new Color(165, 42, 42));
+        txtTongChi.setBackground(new Color(253, 245, 230));
+        txtTongChi.setBounds(160, 70, 400, 30);
+        pnlThongTin.add(txtTongChi);
 
-        JLabel lblTrungBinh = new JLabel("Trung bình:");
-        lblTrungBinh.setForeground(TEXT_COLOR);
-        lblTrungBinh.setFont(new Font("Arial", Font.BOLD, 16));
-        lblTrungBinh.setBounds(10, 110, 150, 30);
-        pnlThongTin.add(lblTrungBinh);
+        JLabel lblLoiNhuan = new JLabel("Lợi nhuận:");
+        lblLoiNhuan.setForeground(TEXT_COLOR);
+        lblLoiNhuan.setFont(new Font("Arial", Font.BOLD, 16));
+        lblLoiNhuan.setBounds(10, 110, 150, 30);
+        pnlThongTin.add(lblLoiNhuan);
 
-        txtTrungBinh = new JTextField("674,000 VNĐ");
-        txtTrungBinh.setHorizontalAlignment(SwingConstants.RIGHT);
-        txtTrungBinh.setEditable(false);
-        txtTrungBinh.setFont(new Font("Arial", Font.BOLD, 16));
-        txtTrungBinh.setForeground(new Color(165, 42, 42));
-        txtTrungBinh.setBackground(new Color(253, 245, 230));
-        txtTrungBinh.setBounds(160, 110, 400, 30);
-        pnlThongTin.add(txtTrungBinh);
+        txtLoiNhuan = new JTextField("2,500,000 VNĐ");
+        txtLoiNhuan.setHorizontalAlignment(SwingConstants.RIGHT);
+        txtLoiNhuan.setEditable(false);
+        txtLoiNhuan.setFont(new Font("Arial", Font.BOLD, 16));
+        txtLoiNhuan.setForeground(new Color(165, 42, 42));
+        txtLoiNhuan.setBackground(new Color(253, 245, 230));
+        txtLoiNhuan.setBounds(160, 110, 400, 30);
+        pnlThongTin.add(txtLoiNhuan);
 
         // Event for cboLoaiThongKe
         cboLoaiThongKe.addActionListener(e -> {
@@ -322,17 +323,17 @@ public class Frame_HoaDon_ThongKe extends JPanel {
         txtDenNgay.setVisible(true);
 
         // Button events
-        btnThongKe.addActionListener(e -> JOptionPane.showMessageDialog(this, "Chức năng thống kê hóa đơn"));
+        btnThongKe.addActionListener(e -> JOptionPane.showMessageDialog(this, "Chức năng thống kê tài chính"));
         btnXuatBaoCao.addActionListener(e -> JOptionPane.showMessageDialog(this, "Chức năng xuất báo cáo"));
     }
 
     public static void main(String[] args) {
         EventQueue.invokeLater(() -> {
             try {
-                JFrame frame = new JFrame("Thống Kê Hóa Đơn");
+                JFrame frame = new JFrame("Thống Kê Tài Chính");
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 frame.setSize(1100, 700);
-                frame.setContentPane(new Frame_HoaDon_ThongKe());
+                frame.setContentPane(new Frame_ThongKe_TaiChinh());
                 frame.setLocationRelativeTo(null);
                 frame.setVisible(true);
             } catch (Exception e) {
