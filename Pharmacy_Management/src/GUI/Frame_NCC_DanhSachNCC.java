@@ -253,7 +253,7 @@ public class Frame_NCC_DanhSachNCC extends JPanel {
 		}
 		// Sự kiện nút Sửa
 		private void btnSuaActionPerformed() {
-//			unlockFields();
+			unlockFields();
 			
 			int selectedRow = tableNhaCungCap.getSelectedRow();
 			if (selectedRow == -1) {
@@ -320,7 +320,7 @@ public class Frame_NCC_DanhSachNCC extends JPanel {
 			nhaCungCapDAO.saveNhaCungCap(true,maNCC, tenNCC,diaChi,sdt,email);
 			loadDataToTable();
 			clearFields();
-//			lockFields();
+			lockFields();
 			generateNextMaNCCAgain();
 		}
 		// Sự kiện nút ngừng hợp tác
@@ -339,7 +339,7 @@ public class Frame_NCC_DanhSachNCC extends JPanel {
 				nhaCungCapDAO.ngungHopTac(maNCC);
 				loadDataToTable();
 				clearFields();
-//				lockFields();
+				lockFields();
 				generateNextMaNCCAgain();
 			}
 		}
@@ -359,7 +359,7 @@ public class Frame_NCC_DanhSachNCC extends JPanel {
 				nhaCungCapDAO.quayLaiHopTac(maNCC);
 				loadDataToTable();
 				clearFields();
-//				lockFields();
+				lockFields();
 				generateNextMaNCCAgain();
 			}
 		}
@@ -418,7 +418,7 @@ public class Frame_NCC_DanhSachNCC extends JPanel {
 		private void btnHuyActionPerformed() {
 			clearFields();
 			generateNextMaNCCAgain();
-			btnThem.setEnabled(true);
+			btnThem.setEnabled(false);
 		}
 		// Sự kiện nút Xuất file
 		private void btnXuatFileAction() {
@@ -561,6 +561,7 @@ public class Frame_NCC_DanhSachNCC extends JPanel {
 		btnSua.addActionListener(e -> btnSuaActionPerformed());
 		
 		btnLuu = new JButton("Lưu");
+		btnLuu.setEnabled(false);
 		btnLuu.setIcon(new ImageIcon("icon\\save.png"));
 		btnLuu.addActionListener(e -> {
 			try {
@@ -594,6 +595,7 @@ public class Frame_NCC_DanhSachNCC extends JPanel {
 		btnXuat.addActionListener(e -> btnXuatFileAction());
 		
 		btnThem = new JButton("Thêm");
+		btnThem.setEnabled(false);
 		btnThem.setIcon(new ImageIcon("icon\\add.png"));
 		btnThem.setBounds(32, 23, 130, 50);
 		pnlThaoTac.add(btnThem);
@@ -710,10 +712,11 @@ public class Frame_NCC_DanhSachNCC extends JPanel {
 		pnlTacVu.add(radioHopTac);
 		
 		JScrollPane scrollPaneNhaCungCap = new JScrollPane();
-		scrollPaneNhaCungCap.setBounds(21, 384, 1498, 311);
+		scrollPaneNhaCungCap.setBounds(21, 358, 1498, 311);
 		pnlBackGround.add(scrollPaneNhaCungCap);
 		
 		tableNhaCungCap = new JTable();
+		tableNhaCungCap.setFont(new Font("Segoe UI", Font.PLAIN, 15));
 		tableNhaCungCap.setModel(new DefaultTableModel(
 			new Object[][] {
 				{null, null, null, null, null},
@@ -729,7 +732,16 @@ public class Frame_NCC_DanhSachNCC extends JPanel {
 		JTableHeader header = tableNhaCungCap.getTableHeader();
 		header.setFont(new Font("Segoe UI", Font.BOLD, 18));
 		tableNhaCungCap.setRowHeight(30);
+	
 		scrollPaneNhaCungCap.setViewportView(tableNhaCungCap);
+		// Create a custom cell renderer that centers the text
+				DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+				centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+
+				// Apply the renderer to each column of the table
+				for (int i = 0; i < tableNhaCungCap.getColumnCount(); i++) {
+					tableNhaCungCap.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+				}
 		
 		// Auto uppercase MaNCC
 		txtMaNCC.addKeyListener(new KeyAdapter() {
@@ -743,12 +755,18 @@ public class Frame_NCC_DanhSachNCC extends JPanel {
 		tableNhaCungCap.addMouseListener(new java.awt.event.MouseAdapter() {
 			public void mouseClicked(java.awt.event.MouseEvent evt) {
 				int selectedRow = tableNhaCungCap.getSelectedRow();
-				if (selectedRow != -1) {
+				if (selectedRow >= 0) {
 					txtMaNCC.setText(tableModel.getValueAt(selectedRow, 0).toString());
 					txtTenNCC.setText(tableModel.getValueAt(selectedRow, 1).toString());
 					txtDiaChi.setText(tableModel.getValueAt(selectedRow, 2).toString());
 					txtSoDienThoai.setText(tableModel.getValueAt(selectedRow, 3).toString());
 					txtEmail.setText(tableModel.getValueAt(selectedRow, 4).toString());
+					
+					trangThai = nhaCungCapDAO.getTrangThaiNhaCungCap(txtMaNCC.getText());
+					btnNgungHopTac.setVisible(trangThai);
+					btnThem.setEnabled(false);
+					btnLuu.setEnabled(true);
+					
 				}
 			}
 		});
