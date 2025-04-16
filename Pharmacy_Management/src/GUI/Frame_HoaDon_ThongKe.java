@@ -5,17 +5,19 @@ import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
-import com.toedter.calendar.JDateChooser;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.data.general.DefaultPieDataset;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.category.DefaultCategoryDataset;
 
 import DAO.HoaDonDAO;
 
@@ -25,15 +27,16 @@ public class Frame_HoaDon_ThongKe extends JPanel {
     private DefaultTableModel modelHoaDon;
     private JComboBox<String> cboLoaiThongKe;
     private JComboBox<String> cboNam;
+    private JComboBox<String> cboTuNam;
+    private JComboBox<String> cboDenNam;
     private JComboBox<String> cboThang;
     private JComboBox<String> cboTuan;
-    private JDateChooser dateChooserTuNgay;
-    private JDateChooser dateChooserDenNgay;
     private JTextField txtTongHoaDon;
     private JTextField txtTongDoanhThu;
     private HoaDonDAO hoaDonDAO = new HoaDonDAO();
-    private ChartPanel chartPanelTrangThai;
-    private ChartPanel chartPanelPhuongThuc;
+    private ChartPanel chartPanelSoLuong;
+    private ChartPanel chartPanelDoanhThu;
+    private DecimalFormat df;
 
     // Define colors from Frame_GiaoDich_NhapThuoc
     private final Color MAIN_COLOR = new Color(254, 222, 192);
@@ -46,6 +49,12 @@ public class Frame_HoaDon_ThongKe extends JPanel {
     private final Color SELECTED_COLOR = new Color(255, 239, 213);
 
     public Frame_HoaDon_ThongKe() {
+        // Set up DecimalFormat for Vietnamese locale
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols(new Locale("vi", "VN"));
+        symbols.setGroupingSeparator(',');
+        symbols.setDecimalSeparator('.');
+        df = new DecimalFormat("#,### VNĐ", symbols);
+
         setBackground(MAIN_COLOR);
         setLayout(null);
         setPreferredSize(new Dimension(1550, 878));
@@ -80,11 +89,11 @@ public class Frame_HoaDon_ThongKe extends JPanel {
         lblLoaiThongKe.setBounds(10, 30, 150, 30);
         pnlFilter.add(lblLoaiThongKe);
 
-        cboLoaiThongKe = new JComboBox<>(new String[] {"Ngày", "Tuần", "Tháng", "Quý", "Năm"});
+        cboLoaiThongKe = new JComboBox<>(new String[] {"Tuần", "Tháng", "Quý", "Năm"});
         cboLoaiThongKe.setBackground(Color.WHITE);
         cboLoaiThongKe.setForeground(TEXT_COLOR);
         cboLoaiThongKe.setFont(new Font("Arial", Font.PLAIN, 16));
-        cboLoaiThongKe.setBounds(160, 30, 322, 30);
+        cboLoaiThongKe.setBounds(119, 30, 370, 30);
         pnlFilter.add(cboLoaiThongKe);
 
         JLabel lblNam = new JLabel("Năm:");
@@ -95,15 +104,49 @@ public class Frame_HoaDon_ThongKe extends JPanel {
 
         cboNam = new JComboBox<>();
         int currentYear = Calendar.getInstance().get(Calendar.YEAR);
-        for (int i = currentYear - 5; i <= currentYear + 1; i++) {
+        for (int i = currentYear - 10; i <= currentYear + 1; i++) {
             cboNam.addItem(String.valueOf(i));
         }
         cboNam.setSelectedItem(String.valueOf(currentYear));
         cboNam.setBackground(Color.WHITE);
         cboNam.setForeground(TEXT_COLOR);
         cboNam.setFont(new Font("Arial", Font.PLAIN, 16));
-        cboNam.setBounds(160, 70, 322, 30);
+        cboNam.setBounds(119, 70, 370, 30);
         pnlFilter.add(cboNam);
+
+        JLabel lblTuNam = new JLabel("Từ năm:");
+        lblTuNam.setForeground(TEXT_COLOR);
+        lblTuNam.setFont(new Font("Arial", Font.PLAIN, 16));
+        lblTuNam.setBounds(10, 70, 150, 30);
+        pnlFilter.add(lblTuNam);
+
+        cboTuNam = new JComboBox<>();
+        for (int i = currentYear - 10; i <= currentYear + 1; i++) {
+            cboTuNam.addItem(String.valueOf(i));
+        }
+        cboTuNam.setSelectedItem(String.valueOf(currentYear - 5));
+        cboTuNam.setBackground(Color.WHITE);
+        cboTuNam.setForeground(TEXT_COLOR);
+        cboTuNam.setFont(new Font("Arial", Font.PLAIN, 16));
+        cboTuNam.setBounds(119, 70, 185, 30);
+        pnlFilter.add(cboTuNam);
+
+        JLabel lblDenNam = new JLabel("Đến năm:");
+        lblDenNam.setForeground(TEXT_COLOR);
+        lblDenNam.setFont(new Font("Arial", Font.PLAIN, 16));
+        lblDenNam.setBounds(304, 70, 80, 30);
+        pnlFilter.add(lblDenNam);
+
+        cboDenNam = new JComboBox<>();
+        for (int i = currentYear - 10; i <= currentYear + 1; i++) {
+            cboDenNam.addItem(String.valueOf(i));
+        }
+        cboDenNam.setSelectedItem(String.valueOf(currentYear));
+        cboDenNam.setBackground(Color.WHITE);
+        cboDenNam.setForeground(TEXT_COLOR);
+        cboDenNam.setFont(new Font("Arial", Font.PLAIN, 16));
+        cboDenNam.setBounds(384, 70, 105, 30);
+        pnlFilter.add(cboDenNam);
 
         JLabel lblThang = new JLabel("Tháng:");
         lblThang.setForeground(TEXT_COLOR);
@@ -119,7 +162,7 @@ public class Frame_HoaDon_ThongKe extends JPanel {
         cboThang.setBackground(Color.WHITE);
         cboThang.setForeground(TEXT_COLOR);
         cboThang.setFont(new Font("Arial", Font.PLAIN, 16));
-        cboThang.setBounds(160, 110, 322, 30);
+        cboThang.setBounds(119, 110, 370, 30);
         pnlFilter.add(cboThang);
 
         JLabel lblTuan = new JLabel("Tuần:");
@@ -128,39 +171,12 @@ public class Frame_HoaDon_ThongKe extends JPanel {
         lblTuan.setBounds(10, 150, 150, 30);
         pnlFilter.add(lblTuan);
 
-        cboTuan = new JComboBox<>(new String[] {"1", "2", "3", "4", "5"});
+        cboTuan = new JComboBox<>(new String[] {"1", "2", "3", "4"}); // Bỏ tuần 5
         cboTuan.setBackground(Color.WHITE);
         cboTuan.setForeground(TEXT_COLOR);
         cboTuan.setFont(new Font("Arial", Font.PLAIN, 16));
-        cboTuan.setBounds(160, 150, 322, 30);
+        cboTuan.setBounds(119, 150, 370, 30);
         pnlFilter.add(cboTuan);
-
-        // Filter Row 2
-        JLabel lblTuNgay = new JLabel("Từ ngày:");
-        lblTuNgay.setForeground(TEXT_COLOR);
-        lblTuNgay.setFont(new Font("Arial", Font.PLAIN, 16));
-        lblTuNgay.setBounds(10, 190, 150, 30);
-        pnlFilter.add(lblTuNgay);
-
-        dateChooserTuNgay = new JDateChooser();
-        dateChooserTuNgay.setDateFormatString("dd/MM/yyyy");
-        dateChooserTuNgay.setFont(new Font("Arial", Font.PLAIN, 16));
-        dateChooserTuNgay.setBounds(160, 190, 150, 30);
-        dateChooserTuNgay.setDate(new Date());
-        pnlFilter.add(dateChooserTuNgay);
-
-        JLabel lblDenNgay = new JLabel("Đến ngày:");
-        lblDenNgay.setForeground(TEXT_COLOR);
-        lblDenNgay.setFont(new Font("Arial", Font.PLAIN, 16));
-        lblDenNgay.setBounds(320, 190, 80, 30);
-        pnlFilter.add(lblDenNgay);
-
-        dateChooserDenNgay = new JDateChooser();
-        dateChooserDenNgay.setDateFormatString("dd/MM/yyyy");
-        dateChooserDenNgay.setFont(new Font("Arial", Font.PLAIN, 16));
-        dateChooserDenNgay.setBounds(400, 190, 150, 30);
-        dateChooserDenNgay.setDate(new Date());
-        pnlFilter.add(dateChooserDenNgay);
 
         // Buttons
         JPanel pnlButtons = new JPanel();
@@ -244,7 +260,7 @@ public class Frame_HoaDon_ThongKe extends JPanel {
         txtTongHoaDon.setFont(new Font("Arial", Font.BOLD, 18));
         txtTongHoaDon.setForeground(new Color(165, 42, 42));
         txtTongHoaDon.setBackground(new Color(253, 245, 230));
-        txtTongHoaDon.setBounds(171, 30, 343, 30);
+        txtTongHoaDon.setBounds(171, 30, 328, 30);
         pnlThongTin.add(txtTongHoaDon);
 
         JLabel lblTongDoanhThu = new JLabel("Tổng doanh thu:");
@@ -259,66 +275,67 @@ public class Frame_HoaDon_ThongKe extends JPanel {
         txtTongDoanhThu.setFont(new Font("Arial", Font.BOLD, 18));
         txtTongDoanhThu.setForeground(new Color(165, 42, 42));
         txtTongDoanhThu.setBackground(new Color(253, 245, 230));
-        txtTongDoanhThu.setBounds(171, 70, 343, 30);
+        txtTongDoanhThu.setBounds(171, 70, 328, 30);
         pnlThongTin.add(txtTongDoanhThu);
 
-        // Chart Panel for trạng thái hóa đơn
-        chartPanelTrangThai = new ChartPanel(null);
-        chartPanelTrangThai.setBounds(539, 422, 450, 300);
-        chartPanelTrangThai.setBorder(new TitledBorder(new LineBorder(PANEL_BORDER_COLOR, 1),
-                "Biểu đồ theo trạng thái hóa đơn", TitledBorder.LEFT, TitledBorder.TOP,
+        // Chart Panels for số lượng hóa đơn và doanh thu
+        chartPanelSoLuong = new ChartPanel(null);
+        chartPanelSoLuong.setBounds(539, 422, 500, 300);
+        chartPanelSoLuong.setBorder(new TitledBorder(new LineBorder(PANEL_BORDER_COLOR, 1),
+                "Biểu đồ số lượng hóa đơn", TitledBorder.LEFT, TitledBorder.TOP,
                 new Font("Arial", Font.BOLD, 12), TEXT_COLOR));
-        add(chartPanelTrangThai);
+        add(chartPanelSoLuong);
 
-        // Chart Panel for phương thức thanh toán
-        chartPanelPhuongThuc = new ChartPanel(null);
-        chartPanelPhuongThuc.setBounds(1030, 422, 450, 300);
-        chartPanelPhuongThuc.setBorder(new TitledBorder(new LineBorder(PANEL_BORDER_COLOR, 1),
-                "Biểu đồ theo phương thức thanh toán", TitledBorder.LEFT, TitledBorder.TOP,
+        chartPanelDoanhThu = new ChartPanel(null);
+        chartPanelDoanhThu.setBounds(1055, 422, 500, 300);
+        chartPanelDoanhThu.setBorder(new TitledBorder(new LineBorder(PANEL_BORDER_COLOR, 1),
+                "Biểu đồ doanh thu", TitledBorder.LEFT, TitledBorder.TOP,
                 new Font("Arial", Font.BOLD, 12), TEXT_COLOR));
-        add(chartPanelPhuongThuc);
+        add(chartPanelDoanhThu);
 
         // Event for cboLoaiThongKe
         cboLoaiThongKe.addActionListener(e -> {
             String selectedOption = cboLoaiThongKe.getSelectedItem().toString();
             switch (selectedOption) {
-                case "Ngày":
-                    lblNam.setVisible(true);
-                    cboNam.setVisible(true);
-                    lblThang.setVisible(false);
-                    cboThang.setVisible(false);
-                    lblTuan.setVisible(false);
-                    cboTuan.setVisible(false);
-                    lblTuNgay.setVisible(true);
-                    dateChooserTuNgay.setVisible(true);
-                    lblDenNgay.setVisible(false);
-                    dateChooserDenNgay.setVisible(false);
-                    break;
                 case "Tuần":
                     lblNam.setVisible(true);
                     cboNam.setVisible(true);
+                    lblTuNam.setVisible(false);
+                    cboTuNam.setVisible(false);
+                    lblDenNam.setVisible(false);
+                    cboDenNam.setVisible(false);
                     lblThang.setVisible(true);
                     cboThang.setVisible(true);
                     lblTuan.setVisible(true);
                     cboTuan.setVisible(true);
-                    lblTuNgay.setVisible(false);
-                    dateChooserTuNgay.setVisible(false);
-                    lblDenNgay.setVisible(false);
-                    dateChooserDenNgay.setVisible(false);
+                    modelHoaDon.setColumnIdentifiers(new String[] {"Mã hóa đơn", "Ngày lập", "Mã khách hàng", "Tổng tiền"});
                     break;
                 case "Tháng":
                 case "Quý":
-                case "Năm":
                     lblNam.setVisible(true);
                     cboNam.setVisible(true);
+                    lblTuNam.setVisible(false);
+                    cboTuNam.setVisible(false);
+                    lblDenNam.setVisible(false);
+                    cboDenNam.setVisible(false);
                     lblThang.setVisible(false);
                     cboThang.setVisible(false);
                     lblTuan.setVisible(false);
                     cboTuan.setVisible(false);
-                    lblTuNgay.setVisible(false);
-                    dateChooserTuNgay.setVisible(false);
-                    lblDenNgay.setVisible(false);
-                    dateChooserDenNgay.setVisible(false);
+                    modelHoaDon.setColumnIdentifiers(new String[] {"Tháng/Quý", "Số hóa đơn", "Tổng doanh thu"});
+                    break;
+                case "Năm":
+                    lblNam.setVisible(false);
+                    cboNam.setVisible(false);
+                    lblTuNam.setVisible(true);
+                    cboTuNam.setVisible(true);
+                    lblDenNam.setVisible(true);
+                    cboDenNam.setVisible(true);
+                    lblThang.setVisible(false);
+                    cboThang.setVisible(false);
+                    lblTuan.setVisible(false);
+                    cboTuan.setVisible(false);
+                    modelHoaDon.setColumnIdentifiers(new String[] {"Năm", "Số hóa đơn", "Tổng doanh thu"});
                     break;
             }
             pnlFilter.revalidate();
@@ -326,7 +343,7 @@ public class Frame_HoaDon_ThongKe extends JPanel {
         });
 
         // Initialize default state
-        cboLoaiThongKe.setSelectedIndex(0); // Set default to "Ngày"
+        cboLoaiThongKe.setSelectedIndex(0); // Set default to "Tuần"
 
         // Button events
         btnThongKe.addActionListener(e -> thongKeHoaDon());
@@ -343,21 +360,13 @@ public class Frame_HoaDon_ThongKe extends JPanel {
         int tongHoaDon = 0;
         double tongDoanhThu = 0;
 
-        SimpleDateFormat sdfSQL = new SimpleDateFormat("yyyy-MM-dd");
         try {
             switch (loaiThongKe) {
-                case "Ngày":
-                    if (dateChooserTuNgay.getDate() == null) {
-                        JOptionPane.showMessageDialog(this, "Vui lòng chọn ngày!");
-                        return;
-                    }
-                    String ngaySQL = sdfSQL.format(dateChooserTuNgay.getDate());
-                    data = hoaDonDAO.thongKeTheoNgay(ngaySQL);
-                    break;
                 case "Tuần":
                     int namTuan = Integer.parseInt(cboNam.getSelectedItem().toString());
                     int thangTuan = Integer.parseInt(cboThang.getSelectedItem().toString());
                     int tuan = Integer.parseInt(cboTuan.getSelectedItem().toString());
+                    modelHoaDon.setColumnIdentifiers(new String[] {"Mã hóa đơn", "Ngày lập", "Mã khách hàng", "Tổng tiền"});
                     data = hoaDonDAO.thongKeTheoTuan(namTuan, thangTuan, tuan);
                     break;
                 case "Tháng":
@@ -371,33 +380,46 @@ public class Frame_HoaDon_ThongKe extends JPanel {
                     data = hoaDonDAO.thongKeTheoQuy(namQuy);
                     break;
                 case "Năm":
+                    int tuNam = Integer.parseInt(cboTuNam.getSelectedItem().toString());
+                    int denNam = Integer.parseInt(cboDenNam.getSelectedItem().toString());
+                    if (tuNam > denNam) {
+                        JOptionPane.showMessageDialog(this, "Năm bắt đầu phải nhỏ hơn hoặc bằng năm kết thúc!");
+                        return;
+                    }
                     modelHoaDon.setColumnIdentifiers(new String[] {"Năm", "Số hóa đơn", "Tổng doanh thu"});
-                    data = hoaDonDAO.thongKeTheoNam();
+                    data = hoaDonDAO.thongKeTheoNam(tuNam, denNam);
                     break;
             }
 
             // Update table and calculate totals
-            if (data != null) {
+            if (data != null && !data.isEmpty()) {
                 for (Object[] row : data) {
                     modelHoaDon.addRow(row);
-                    if (loaiThongKe.equals("Ngày") || loaiThongKe.equals("Tuần")) {
-                        tongHoaDon++;
-                        String tongTienStr = row[3].toString();
-                        double tongTien = Double.parseDouble(tongTienStr.replaceAll("[^\\d.]", ""));
-                        tongDoanhThu += tongTien;
-                    } else {
-                        int soHoaDon = Integer.parseInt(row[1].toString());
-                        String tongDoanhThuStr = row[2].toString();
-                        double doanhThu = Double.parseDouble(tongDoanhThuStr.replaceAll("[^\\d.]", ""));
-                        tongHoaDon += soHoaDon;
-                        tongDoanhThu += doanhThu;
+                    try {
+                        if (loaiThongKe.equals("Tuần")) {
+                            tongHoaDon++;
+                            String tongTienStr = row[3].toString().replaceAll("[^0-9]", ""); // Remove all non-digits
+                            double tongTien = Double.parseDouble(tongTienStr);
+                            tongDoanhThu += tongTien;
+                        } else {
+                            int soHoaDon = Integer.parseInt(row[1].toString());
+                            String tongDoanhThuStr = row[2].toString().replaceAll("[^0-9]", ""); // Remove all non-digits
+                            double doanhThu = Double.parseDouble(tongDoanhThuStr);
+                            tongHoaDon += soHoaDon;
+                            tongDoanhThu += doanhThu;
+                        }
+                    } catch (NumberFormatException ex) {
+                        System.err.println("Lỗi định dạng số: " + ex.getMessage() + " - Dữ liệu: " + (loaiThongKe.equals("Tuần") ? row[3] : row[2]));
+                        continue;
                     }
                 }
+            } else {
+                JOptionPane.showMessageDialog(this, "Không có dữ liệu để thống kê!");
             }
 
-            // Update summary
+            // Update summary with proper formatting
             txtTongHoaDon.setText(String.valueOf(tongHoaDon));
-            txtTongDoanhThu.setText(String.format("%,.0f VNĐ", tongDoanhThu));
+            txtTongDoanhThu.setText(df.format(tongDoanhThu));
 
             // Update charts
             updateCharts();
@@ -415,13 +437,7 @@ public class Frame_HoaDon_ThongKe extends JPanel {
 
         try {
             String loaiThongKe = cboLoaiThongKe.getSelectedItem().toString();
-            if (loaiThongKe.equals("Ngày")) {
-                if (dateChooserTuNgay.getDate() != null) {
-                    tuNgay = sdfSQL.format(dateChooserTuNgay.getDate());
-                    denNgay = tuNgay;
-                    System.out.println("Khoảng thời gian (theo ngày): " + tuNgay + " đến " + denNgay);
-                }
-            } else if (loaiThongKe.equals("Tuần")) {
+            if (loaiThongKe.equals("Tuần")) {
                 int nam = Integer.parseInt(cboNam.getSelectedItem().toString());
                 int thang = Integer.parseInt(cboThang.getSelectedItem().toString());
                 int tuan = Integer.parseInt(cboTuan.getSelectedItem().toString());
@@ -443,54 +459,114 @@ public class Frame_HoaDon_ThongKe extends JPanel {
                         ngayBatDau = 22;
                         ngayKetThuc = 28;
                         break;
-                    case 5:
-                        ngayBatDau = 29;
-                        ngayKetThuc = 31;
-                        break;
                     default:
                         ngayBatDau = 1;
-                        ngayKetThuc = 31;
+                        ngayKetThuc = 28;
                         break;
                 }
                 tuNgay = String.format("%d-%02d-%02d", nam, thang, ngayBatDau);
                 denNgay = String.format("%d-%02d-%02d", nam, thang, ngayKetThuc);
-                System.out.println("Khoảng thời gian (theo tuần): " + tuNgay + " đến " + denNgay);
             } else if (loaiThongKe.equals("Tháng") || loaiThongKe.equals("Quý")) {
                 int nam = Integer.parseInt(cboNam.getSelectedItem().toString());
                 tuNgay = nam + "-01-01";
                 denNgay = nam + "-12-31";
-                System.out.println("Khoảng thời gian (theo tháng/quý): " + tuNgay + " đến " + denNgay);
             } else if (loaiThongKe.equals("Năm")) {
-                tuNgay = "2000-01-01";
-                denNgay = "2100-12-31";
-                System.out.println("Khoảng thời gian (theo năm): " + tuNgay + " đến " + denNgay);
+                int tuNam = Integer.parseInt(cboTuNam.getSelectedItem().toString());
+                int denNam = Integer.parseInt(cboDenNam.getSelectedItem().toString());
+                tuNgay = tuNam + "-01-01";
+                denNgay = denNam + "-12-31";
             }
 
-            // Chart Biểu đồ theo trạng thái hóa đơn
-            Map<String, Double> trangThaiData = hoaDonDAO.thongKeTrangThai(tuNgay, denNgay);
-            DefaultPieDataset trangThaiDataset = new DefaultPieDataset();
-            if (trangThaiData.isEmpty()) {
-                trangThaiDataset.setValue("Không có dữ liệu", 100.0);
+            // Tạo biểu đồ cột
+            if (loaiThongKe.equals("Tháng")) {
+                int nam = Integer.parseInt(cboNam.getSelectedItem().toString());
+                List<Object[]> data = hoaDonDAO.thongKeTheoThang(nam);
+
+                DefaultCategoryDataset soLuongDataset = new DefaultCategoryDataset();
+                DefaultCategoryDataset doanhThuDataset = new DefaultCategoryDataset();
+
+                for (Object[] row : data) {
+                    String thang = row[0].toString();
+                    int soHoaDon = Integer.parseInt(row[1].toString());
+                    double doanhThu = Double.parseDouble(row[2].toString().replaceAll("[^0-9]", ""));
+                    soLuongDataset.addValue(soHoaDon, "Số hóa đơn", thang);
+                    doanhThuDataset.addValue(doanhThu, "Doanh thu (VNĐ)", thang);
+                }
+
+                JFreeChart soLuongChart = ChartFactory.createBarChart(
+                        "",
+                        "Tháng",
+                        "Số lượng hóa đơn",
+                        soLuongDataset,
+                        PlotOrientation.VERTICAL,
+                        true, true, false);
+                chartPanelSoLuong.setChart(soLuongChart);
+
+                JFreeChart doanhThuChart = ChartFactory.createBarChart(
+                        "",
+                        "Tháng",
+                        "Doanh thu (VNĐ)",
+                        doanhThuDataset,
+                        PlotOrientation.VERTICAL,
+                        true, true, false);
+                chartPanelDoanhThu.setChart(doanhThuChart);
+            } else if (loaiThongKe.equals("Năm")) {
+                int tuNam = Integer.parseInt(cboTuNam.getSelectedItem().toString());
+                int denNam = Integer.parseInt(cboDenNam.getSelectedItem().toString());
+                List<Object[]> data = hoaDonDAO.thongKeTheoNam(tuNam, denNam);
+
+                DefaultCategoryDataset soLuongDataset = new DefaultCategoryDataset();
+                for (Object[] row : data) {
+                    String nam = row[0].toString();
+                    int soHoaDon = Integer.parseInt(row[1].toString());
+                    soLuongDataset.addValue(soHoaDon, "Số hóa đơn", nam);
+                }
+
+                JFreeChart soLuongChart = ChartFactory.createBarChart(
+                        "",
+                        "Năm",
+                        "Số lượng hóa đơn",
+                        soLuongDataset,
+                        PlotOrientation.VERTICAL,
+                        true, true, false);
+                chartPanelSoLuong.setChart(soLuongChart);
+
+                chartPanelDoanhThu.setChart(null);
             } else {
+                // Biểu đồ trạng thái và phương thức thanh toán (cho Tuần, Quý)
+                Map<String, Double> trangThaiData = hoaDonDAO.thongKeTrangThai(tuNgay, denNgay);
+                Map<String, Double> phuongThucData = hoaDonDAO.thongKePhuongThucThanhToan(tuNgay, denNgay);
+
+                DefaultCategoryDataset trangThaiDataset = new DefaultCategoryDataset();
+                DefaultCategoryDataset phuongThucDataset = new DefaultCategoryDataset();
+
+                // Add data to datasets with duplicate check
                 for (Map.Entry<String, Double> entry : trangThaiData.entrySet()) {
-                    trangThaiDataset.setValue(entry.getKey() + " (" + String.format("%.1f%%", entry.getValue()) + ")", entry.getValue());
+                    trangThaiDataset.addValue(entry.getValue(), "Tỷ lệ (%)", entry.getKey());
                 }
-            }
-            JFreeChart trangThaiChart = ChartFactory.createPieChart("", trangThaiDataset, true, true, false);
-            chartPanelTrangThai.setChart(trangThaiChart);
 
-            // Chart Biểu đồ theo phương thức thanh toán
-            Map<String, Double> phuongThucData = hoaDonDAO.thongKePhuongThucThanhToan(tuNgay, denNgay);
-            DefaultPieDataset phuongThucDataset = new DefaultPieDataset();
-            if (phuongThucData.isEmpty()) {
-                phuongThucDataset.setValue("Không có dữ liệu", 100.0);
-            } else {
                 for (Map.Entry<String, Double> entry : phuongThucData.entrySet()) {
-                    phuongThucDataset.setValue(entry.getKey() + " (" + String.format("%.1f%%", entry.getValue()) + ")", entry.getValue());
+                    phuongThucDataset.addValue(entry.getValue(), "Tỷ lệ (%)", entry.getKey());
                 }
+
+                JFreeChart trangThaiChart = ChartFactory.createBarChart(
+                        "",
+                        "Trạng thái",
+                        "Tỷ lệ (%)",
+                        trangThaiDataset,
+                        PlotOrientation.VERTICAL,
+                        true, true, false);
+                chartPanelSoLuong.setChart(trangThaiChart);
+
+                JFreeChart phuongThucChart = ChartFactory.createBarChart(
+                        "",
+                        "Phương thức",
+                        "Tỷ lệ (%)",
+                        phuongThucDataset,
+                        PlotOrientation.VERTICAL,
+                        true, true, false);
+                chartPanelDoanhThu.setChart(phuongThucChart);
             }
-            JFreeChart phuongThucChart = ChartFactory.createPieChart("", phuongThucDataset, true, true, false);
-            chartPanelPhuongThuc.setChart(phuongThucChart);
 
         } catch (Exception e) {
             e.printStackTrace();
