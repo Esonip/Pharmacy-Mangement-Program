@@ -38,7 +38,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.ParseException;
 
-public class Frame_Thuoc_DanhMucThuoc extends JPanel {
+public class Frame_Thuoc_DanhSachThuoc extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel pnlBackGround;
@@ -69,7 +69,7 @@ public class Frame_Thuoc_DanhMucThuoc extends JPanel {
 	/**
 	 * Create the frame.
 	 */
-	public Frame_Thuoc_DanhMucThuoc() {
+	public Frame_Thuoc_DanhSachThuoc() {
 		setLayout(null);
 		setPreferredSize(new Dimension(1550, 755));
 
