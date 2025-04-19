@@ -237,7 +237,7 @@ public class FrameTrangChu extends JFrame {
 			}
 		});
 		
-		JMenuItem btn_Thuoc_DSThuoc = new JMenuItem("Thuốc");
+		JMenuItem btn_Thuoc_DSThuoc = new JMenuItem("Danh Sách");
 		btnThuoc.add(btn_Thuoc_DSThuoc);
 		btn_Thuoc_DSThuoc.setFont(new Font("Segoe UI", Font.BOLD, 13));
 		btn_Thuoc_DSThuoc.addActionListener(new ActionListener() {
@@ -310,7 +310,7 @@ public class FrameTrangChu extends JFrame {
 		btnNhanVien.setFont(new Font("Segoe UI", Font.BOLD, 13));
 		menuBar.add(btnNhanVien);
 		
-		JMenuItem btn_NV_DSNV = new JMenuItem("Nhân Viên");
+		JMenuItem btn_NV_DSNV = new JMenuItem("Danh Sách");
 		btnNhanVien.add(btn_NV_DSNV);
 		btn_NV_DSNV.setFont(new Font("Segoe UI", Font.BOLD, 13));
 		btn_NV_DSNV.addActionListener(new ActionListener() {
@@ -400,7 +400,7 @@ public class FrameTrangChu extends JFrame {
 		btnKhachHang.setFont(new Font("Segoe UI", Font.BOLD, 13));
 		menuBar.add(btnKhachHang);
 		
-		JMenuItem btn_KhachHang_DanhSachKhachHang = new JMenuItem("Khách Hàng");
+		JMenuItem btn_KhachHang_DanhSachKhachHang = new JMenuItem("Danh Sách");
 		btnKhachHang.add(btn_KhachHang_DanhSachKhachHang);
 		btn_KhachHang_DanhSachKhachHang.setFont(new Font("Segoe UI", Font.BOLD, 13));
 		btn_KhachHang_DanhSachKhachHang.addActionListener(new ActionListener() {
@@ -440,7 +440,7 @@ public class FrameTrangChu extends JFrame {
 		btnNCC.setIcon(new ImageIcon("icon\\factory.png"));
 		menuBar.add(btnNCC);
 		
-		JMenuItem btn_NCC_DanhSachNCC = new JMenuItem("Nhà Cung Cấp");
+		JMenuItem btn_NCC_DanhSachNCC = new JMenuItem("Danh Sách");
 		btnNCC.add(btn_NCC_DanhSachNCC);
 		btn_NCC_DanhSachNCC.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
