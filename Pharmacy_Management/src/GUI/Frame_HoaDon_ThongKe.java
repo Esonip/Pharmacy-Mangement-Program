@@ -287,7 +287,7 @@ public class Frame_HoaDon_ThongKe extends JPanel {
         add(chartPanelSoLuong);
 
         chartPanelDoanhThu = new ChartPanel(null);
-        chartPanelDoanhThu.setBounds(1055, 422, 485, 300);
+        chartPanelDoanhThu.setBounds(1055, 422, 500, 300);
         chartPanelDoanhThu.setBorder(new TitledBorder(new LineBorder(PANEL_BORDER_COLOR, 1),
                 "Biểu đồ doanh thu", TitledBorder.LEFT, TitledBorder.TOP,
                 new Font("Arial", Font.BOLD, 12), TEXT_COLOR));

@@ -467,11 +467,11 @@ public class Frame_NCC_DanhSachNCC extends JPanel {
 	 */
 	public Frame_NCC_DanhSachNCC() {
 		setLayout(null);
-		setPreferredSize(new Dimension(1550, 755));
+		setPreferredSize(new Dimension(1550, 797));
 		
 		JPanel pnlBackGround = new JPanel();
 		pnlBackGround.setBackground(new Color(254, 222, 192));
-		pnlBackGround.setBounds(0, 0, 1540, 755);
+		pnlBackGround.setBounds(0, 0, 1540, 797);
 		add(pnlBackGround);
 		pnlBackGround.setLayout(null);
 		
@@ -712,7 +712,7 @@ public class Frame_NCC_DanhSachNCC extends JPanel {
 		pnlTacVu.add(radioHopTac);
 		
 		JScrollPane scrollPaneNhaCungCap = new JScrollPane();
-		scrollPaneNhaCungCap.setBounds(21, 358, 1498, 311);
+		scrollPaneNhaCungCap.setBounds(21, 358, 1498, 429);
 		pnlBackGround.add(scrollPaneNhaCungCap);
 		
 		tableNhaCungCap = new JTable();

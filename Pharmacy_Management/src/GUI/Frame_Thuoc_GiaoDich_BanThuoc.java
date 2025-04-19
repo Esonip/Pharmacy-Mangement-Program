@@ -7,6 +7,8 @@ import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 
 import java.awt.Color;
+import java.awt.Dimension;
+
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
@@ -82,6 +84,7 @@ public class Frame_Thuoc_GiaoDich_BanThuoc extends JPanel {
 	 */
 	public Frame_Thuoc_GiaoDich_BanThuoc(String maNV) {
 		setLayout(null);
+		setPreferredSize(new Dimension(1550, 755));
 
 		pnlBackGround = new JPanel();
 		pnlBackGround.setBounds(0, 10, 1559, 761);
@@ -355,6 +358,9 @@ public class Frame_Thuoc_GiaoDich_BanThuoc extends JPanel {
 		pnlBackGround.add(btnChoXuLy);
 		txtNgayLap.getDateEditor().getUiComponent().setFont(new Font("Segoe UI", Font.PLAIN, 16));
 
+		modelThuoc = (DefaultTableModel) tableThuoc.getModel();
+		modelChiTiet = (DefaultTableModel) tableChiTiet.getModel();
+
 		loadDataToTable();
 		generateMaHD();
 		goiYSoDT();
@@ -379,7 +385,7 @@ public class Frame_Thuoc_GiaoDich_BanThuoc extends JPanel {
 		btnTaiLaiThuoc.addActionListener(e -> btnTaiLaiThuocActionPerformed());
 		btnKhachHangVangLai.addActionListener(e -> btnKhachHangVangLaiActionPerformed());
 		btnTaiLaiKhachHang.addActionListener(e -> btnTaiLaiKhachHangActionPerformed());
-		btnTaiLaiHoaDon.addActionListener(e -> btnTaiLaiHoaDonActionPerformed());
+		btnTaiLaiHoaDon.addActionListener(e -> resetForm(modelChiTiet));
 		btnRadioTienMat.addActionListener(e -> phuongThucThanhToanActionPerformed(0));
 		btnRadioChuyenKhoan.addActionListener(e -> phuongThucThanhToanActionPerformed(1));
 		btnThanhToan.addActionListener(e -> {
@@ -430,8 +436,6 @@ public class Frame_Thuoc_GiaoDich_BanThuoc extends JPanel {
 		DefaultTableModel model = (DefaultTableModel) tableThuoc.getModel();
 		model.setRowCount(0);
 
-		modelThuoc = (DefaultTableModel) tableThuoc.getModel();
-		modelChiTiet = (DefaultTableModel) tableChiTiet.getModel();
 		List<Object[]> data = thuocGiaoDichDAO.loadDataToDSSP();
 		for (Object[] row : data) {
 			modelThuoc.addRow(row);
@@ -694,6 +698,11 @@ public class Frame_Thuoc_GiaoDich_BanThuoc extends JPanel {
 				return;
 			}
 
+			if (!thuocGiaoDichDAO.capNhatSoLuongTon(maThuoc, soLuong)) {
+				JOptionPane.showMessageDialog(this, "Cập nhật số lượng thuốc không thành công");
+				return;
+			}
+
 			int soLuongTonMoi = soLuongTonHienTai - soLuong;
 			tableThuoc.setValueAt(soLuongTonMoi, selectedRow, 4);
 
@@ -803,25 +812,24 @@ public class Frame_Thuoc_GiaoDich_BanThuoc extends JPanel {
 				int soLuongMoi = Integer.parseInt(txtSoLuong.getText().trim());
 
 				if (soLuongMoi == 0) {
-					// Xóa khỏi bảng chi tiết nếu số lượng = 0
 					((DefaultTableModel) tableChiTiet.getModel()).removeRow(row);
-
-					// Cộng lại số lượng đã trừ vào tồn kho
+					// Cộng lại số lượng vào database
+					if (!thuocGiaoDichDAO.capNhatSoLuongTon(maThuoc, -soLuongCu)) {
+						JOptionPane.showMessageDialog(this, "Lỗi khi cập nhật số lượng tồn trong database");
+						return;
+					}
 					capNhatSoLuongTon(maThuoc, soLuongCu);
-
 					JOptionPane.showMessageDialog(this, "Đã xóa thuốc khỏi hóa đơn");
 				} else if (soLuongMoi > 0) {
-					// Cập nhật số lượng mới
 					tableChiTiet.setValueAt(soLuongMoi, row, 2);
-
-					// Tính toán chênh lệch số lượng
 					int chechLech = soLuongCu - soLuongMoi;
-
-					// Cập nhật thành tiền
+					// Cập nhật số lượng tồn trong database
+					if (!thuocGiaoDichDAO.capNhatSoLuongTon(maThuoc, -chechLech)) {
+						JOptionPane.showMessageDialog(this, "Lỗi khi cập nhật số lượng tồn trong database");
+						return;
+					}
 					double thanhTien = soLuongMoi * donGia;
 					tableChiTiet.setValueAt(String.format("%,.0fđ", thanhTien), row, 4);
-
-					// Cập nhật tồn kho
 					if (chechLech != 0) {
 						capNhatSoLuongTon(maThuoc, chechLech);
 					}
@@ -830,7 +838,6 @@ public class Frame_Thuoc_GiaoDich_BanThuoc extends JPanel {
 					return;
 				}
 
-				// Cập nhật tổng tiền
 				tinhTongTien();
 			}
 		} catch (NumberFormatException ex) {
@@ -878,50 +885,64 @@ public class Frame_Thuoc_GiaoDich_BanThuoc extends JPanel {
 
 		boolean luu = false;
 
-		// Tiền mặt
-		if (phuongThucThanhToan == 0) {
-			inHoaDon(maHoaDon, ngayLap, tongTien, maNV, maKhachHang, trangThaiStr, phuongThucThanhToanStr);
-			if (Dialog_InHoaDon.isPrinting()) {
-				luu = thuocGiaoDichDAO.luuHoaDon(maHoaDon, ngayLap, tongTien, maNV, maKhachHang, trangThaiStr,
-						phuongThucThanhToanStr);
-			} else {
-				JOptionPane.showMessageDialog(this, "Thanh toán tiền mặt bị hủy");
-			}
-
-			if (luu) {
-				luu = luuChiTietvaTonKho(maHoaDon, model);
-				if (luu) {
-					JOptionPane.showMessageDialog(this, "Lưu chi tiết hóa đơn thành công");
-					resetForm();
-				} else {
-					JOptionPane.showMessageDialog(this, "Lỗi khi lưu chi tiết hóa đơn");
+		if (trangThai == 0) {
+			if (thuocGiaoDichDAO.luuHoaDon(maHoaDon, ngayLap, tongTien, maNV, maKhachHang, trangThaiStr,
+					phuongThucThanhToanStr)) {
+				luu = luuChiTiet(maHoaDon, model);
+				if(luu) {
+					JOptionPane.showMessageDialog(this, "Lưu hóa đơn thành công");
+					btnTaiLaiKhachHangActionPerformed();
+					btnTaiLaiHoaDonActionPerformed();
+					loadDataToTable();
 				}
 			}
-
-		}
-		// Chuyển khoản
-		else {
-			hienThiQRCode(maHoaDon, tongTien);
-			if (Dialog_InQRCode.getResult()) {
+		} else {
+			// Tiền mặt
+			if (phuongThucThanhToan == 0) {
 				inHoaDon(maHoaDon, ngayLap, tongTien, maNV, maKhachHang, trangThaiStr, phuongThucThanhToanStr);
-				luu = thuocGiaoDichDAO.luuHoaDon(maHoaDon, ngayLap, tongTien, maNV, maKhachHang, trangThaiStr,
-						phuongThucThanhToanStr);
+				if (Dialog_InHoaDon.isPrinting()) {
+					luu = thuocGiaoDichDAO.luuHoaDon(maHoaDon, ngayLap, tongTien, maNV, maKhachHang, trangThaiStr,
+							phuongThucThanhToanStr);
+				} else {
+					JOptionPane.showMessageDialog(this, "Thanh toán tiền mặt bị hủy");
+				}
+
 				if (luu) {
-					luu = luuChiTietvaTonKho(maHoaDon, model);
+					luu = luuChiTiet(maHoaDon, model);
 					if (luu) {
 						JOptionPane.showMessageDialog(this, "Lưu chi tiết hóa đơn thành công");
-						resetForm();
+						resetForm(model);
 					} else {
 						JOptionPane.showMessageDialog(this, "Lỗi khi lưu chi tiết hóa đơn");
 					}
 				}
-			} else {
-				JOptionPane.showMessageDialog(this, "Thanh toán chuyển khoản bị hủy");
+
+			}
+			// Chuyển khoản
+			else {
+				hienThiQRCode(maHoaDon, tongTien);
+				if (Dialog_InQRCode.getResult()) {
+					inHoaDon(maHoaDon, ngayLap, tongTien, maNV, maKhachHang, trangThaiStr, phuongThucThanhToanStr);
+					luu = thuocGiaoDichDAO.luuHoaDon(maHoaDon, ngayLap, tongTien, maNV, maKhachHang, trangThaiStr,
+							phuongThucThanhToanStr);
+					if (luu) {
+						luu = luuChiTiet(maHoaDon, model);
+						if (luu) {
+							JOptionPane.showMessageDialog(this, "Lưu chi tiết hóa đơn thành công");
+							resetForm(model);
+						} else {
+							JOptionPane.showMessageDialog(this, "Lỗi khi lưu chi tiết hóa đơn");
+						}
+					}
+				} else {
+					JOptionPane.showMessageDialog(this, "Thanh toán chuyển khoản bị hủy");
+				}
 			}
 		}
+
 	}
 
-	private boolean luuChiTietvaTonKho(String maHoaDon, DefaultTableModel model) {
+	private boolean luuChiTiet(String maHoaDon, DefaultTableModel model) {
 		try {
 			// Lưu chi tiết hóa đơn
 			for (int i = 0; i < model.getRowCount(); i++) {
@@ -933,11 +954,6 @@ public class Frame_Thuoc_GiaoDich_BanThuoc extends JPanel {
 				if (!chiTietHoaDonDAO.luuChiTietHoaDon(maHoaDon, maThuocCT, soLuongCT, donGiaCT)) {
 					return false;
 				}
-
-				// Cập nhật tồn kho
-				if (!thuocGiaoDichDAO.capNhatSoLuongTon(maThuocCT, soLuongCT)) {
-					return false;
-				}
 			}
 			return true;
 		} catch (Exception e) {
@@ -946,11 +962,29 @@ public class Frame_Thuoc_GiaoDich_BanThuoc extends JPanel {
 		}
 	}
 
-	private void resetForm() {
-		btnTaiLaiThuocActionPerformed();
+	private void resetForm(DefaultTableModel model) {
+		resetSoLuongTon(model);
 		btnTaiLaiKhachHangActionPerformed();
 		btnTaiLaiHoaDonActionPerformed();
-		loadDataToTable();
+	}
+
+	private void resetSoLuongTon(DefaultTableModel model) {
+		try {
+			for (int i = 0; i < model.getRowCount(); i++) {
+				String maThuoc = model.getValueAt(i, 0).toString();
+				int soLuong = Integer.parseInt(model.getValueAt(i, 2).toString());
+
+				// Cộng lại số lượng vào database
+				if (!thuocGiaoDichDAO.capNhatSoLuongTon(maThuoc, -soLuong)) {
+					JOptionPane.showMessageDialog(this, "Lỗi khi hoàn trả số lượng tồn cho thuốc: " + maThuoc);
+					return;
+				}
+			}
+			loadDataToTable(); // Tải lại dữ liệu vào bảng thuốc
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(this, "Lỗi khi reset số lượng tồn: " + e.getMessage());
+			e.printStackTrace();
+		}
 	}
 
 	private void inHoaDon(String maHoaDon, String ngayLap, double tongTien, String maNV, String maKhachHang,
@@ -960,11 +994,10 @@ public class Frame_Thuoc_GiaoDich_BanThuoc extends JPanel {
 			DefaultTableModel model = (DefaultTableModel) tableChiTiet.getModel();
 
 			for (int i = 0; i < model.getRowCount(); i++) {
-				Object[] row = {
-					model.getValueAt(i, 1), // Tên thuốc
-					model.getValueAt(i, 2), // Số lượng
-					model.getValueAt(i, 3), // Đơn giá
-					model.getValueAt(i, 4) // Thành tiền
+				Object[] row = { model.getValueAt(i, 1), // Tên thuốc
+						model.getValueAt(i, 2), // Số lượng
+						model.getValueAt(i, 3), // Đơn giá
+						model.getValueAt(i, 4) // Thành tiền
 				};
 				data.add(row);
 			}
@@ -988,5 +1021,38 @@ public class Frame_Thuoc_GiaoDich_BanThuoc extends JPanel {
 			e.printStackTrace();
 		}
 	}
+	
+	public void setHoaDonInfo(String maHD, String ngayLap, String maKH, String phuongThucTT) throws ParseException {
+		txtMaHoaDon.setText(maHD);
+		txtNgayLap.setDate(new SimpleDateFormat("dd/MM/yyyy").parse(ngayLap));
+		txtMaKH.setText(maKH);
+		Map<String, String> khachHangInfo = khachHangDAO.getKhachHangByMaKH(maKH);
+		if (khachHangInfo != null) {
+			txtTenKH.setText(khachHangInfo.get("hoTen"));
+			comboBoxSDT.setSelectedItem(khachHangInfo.get("soDienThoai"));
+		}
+		
+		if (phuongThucTT.equals("Tiền mặt")) {
+			btnRadioTienMat.setSelected(true);
+			phuongThucThanhToan = 0;
+		} else {
+			btnRadioChuyenKhoan.setSelected(true);
+			phuongThucThanhToan = 1;
+		}
+		
+		loadChiTietHoaDon(maHD);
+	}
 
+	private void loadChiTietHoaDon(String maHD) {
+		List<Object[]> data = chiTietHoaDonDAO.getChiTietHoaDon_ChuyenFrame(maHD);
+		modelChiTiet.setRowCount(0);
+		
+		for (Object[] row : data) {
+			modelChiTiet.addRow(row);
+		}
+		
+		// Tính tổng tiền
+		tinhTongTien();
+	}
+	
 }

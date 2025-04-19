@@ -530,7 +530,6 @@ public class Frame_KhachHang_DanhSachKhachHang extends JPanel {
 			try {
 				btnThemAction();
 			} catch (ParseException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 		});
@@ -546,7 +545,6 @@ public class Frame_KhachHang_DanhSachKhachHang extends JPanel {
 			try {
 				btnLuuAction();
 			} catch (ParseException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 		});
@@ -569,14 +567,14 @@ public class Frame_KhachHang_DanhSachKhachHang extends JPanel {
 		panel.add(btnHuy);
 		btnHuy.addActionListener(e -> btnHuyAction());
 
-		JButton btnIn = new JButton("Xuất File");
-		btnIn.setIcon(new ImageIcon("icon\\print.png"));
-		btnIn.setForeground(Color.BLACK);
-		btnIn.setFont(new Font("Segoe UI", Font.BOLD, 18));
-		btnIn.setBackground(new Color(167, 62, 20));
-		btnIn.setBounds(1317, 13, 177, 45);
-		panel.add(btnIn);
-		btnIn.addActionListener(e -> btnXuatFileAction());
+		JButton btnXuat = new JButton("Xuất");
+		btnXuat.setIcon(new ImageIcon("icon\\print.png"));
+		btnXuat.setForeground(Color.BLACK);
+		btnXuat.setFont(new Font("Segoe UI", Font.BOLD, 18));
+		btnXuat.setBackground(new Color(167, 62, 20));
+		btnXuat.setBounds(1317, 13, 177, 45);
+		panel.add(btnXuat);
+		btnXuat.addActionListener(e -> btnXuatFileAction());
 		
 		JButton btnSua = new JButton("Sửa");
 		btnSua.addActionListener(e -> btnSuaAction());
@@ -690,7 +688,7 @@ public class Frame_KhachHang_DanhSachKhachHang extends JPanel {
 		tableKhachHang.getColumnModel().getColumn(2).setPreferredWidth(55);
 
 		JTableHeader header = tableKhachHang.getTableHeader();
-		header.setFont(new Font("Arial", Font.BOLD, 18));
+		header.setFont(new Font("Segoe UI", Font.BOLD, 18));
 		tableKhachHang.setRowHeight(30);
 		scrollPane.setViewportView(tableKhachHang);
 
@@ -810,6 +808,7 @@ public class Frame_KhachHang_DanhSachKhachHang extends JPanel {
 				txtDienThoai.setText((String) tableKhachHang.getValueAt(selectedRow, 4));
 				txtEmail.setText((String) tableKhachHang.getValueAt(selectedRow, 5));
 				
+				lockFields();
 				btnThem.setEnabled(false);
 				btnLuu.setEnabled(false);
 			}

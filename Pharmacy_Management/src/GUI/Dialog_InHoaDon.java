@@ -6,7 +6,6 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 
-import DAO.ChiTietHoaDonDAO;
 
 import java.awt.*;
 import java.awt.print.PageFormat;
@@ -20,7 +19,6 @@ public class Dialog_InHoaDon extends JDialog {
 	private JPanel contentPane;
 	private JTable tableChiTietHoaDon;
 	private DefaultTableModel modelChiTiet;
-	private ChiTietHoaDonDAO chiTietHoaDonDAO = new ChiTietHoaDonDAO();
 	private static boolean isPrinting = false;
 
 	public Dialog_InHoaDon(JFrame parent, String maHoaDon, String ngayLap, double tongTien, String maNV,
@@ -222,7 +220,7 @@ public class Dialog_InHoaDon extends JDialog {
 		lblSoDienThoai.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 		panelCongTy.add(lblSoDienThoai);
 
-		JLabel txtSoDienThoai = new JLabel("0934653834");
+		JLabel txtSoDienThoai = new JLabel("0988889999");
 		txtSoDienThoai.setBounds(141, 52, 374, 16);
 		txtSoDienThoai.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 		panelCongTy.add(txtSoDienThoai);
@@ -245,9 +243,9 @@ public class Dialog_InHoaDon extends JDialog {
 		// Sự kiện nút In
 		btnInHoaDon.addActionListener(e -> btnInHoaDonActionPerformed());
 
-		if (phuongThucThanhToanStr.equals("Chuyển khoản")) {
-			btnDong.setVisible(false);
-		}
+//		if (phuongThucThanhToanStr.equals("Chuyển khoản")) {
+//			btnDong.setVisible(false);
+//		}
 		// Sự kiện nút Đóng
 		btnDong.addActionListener(e -> dispose());
 		

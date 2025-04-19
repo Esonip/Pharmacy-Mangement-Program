@@ -665,17 +665,4 @@ public class Frame_Thuoc_GiaoDich_TraThuoc extends JPanel {
             modelHoaDon.removeRow(0);
         }
     }
-
-    public static void main(String[] args) {
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                javax.swing.JFrame frame = new javax.swing.JFrame("Test Panel Giao Dịch Trả Thuốc");
-                frame.setDefaultCloseOperation(javax.swing.JFrame.EXIT_ON_CLOSE);
-                frame.getContentPane().add(new Frame_Thuoc_GiaoDich_TraThuoc());
-                frame.pack();
-                frame.setLocationRelativeTo(null);
-                frame.setVisible(true);
-            }
-        });
-    }
 }

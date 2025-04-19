@@ -6,7 +6,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -32,6 +31,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 
 import DAO.ThuocDAO;
+import DAO.NhaCungCapDAO;
 
 public class Frame_Thuoc_GiaoDich_NhapThuoc extends JPanel {
     private static final long serialVersionUID = 1L;
@@ -45,11 +45,11 @@ public class Frame_Thuoc_GiaoDich_NhapThuoc extends JPanel {
     private JComboBox<String> cboHinhThucThanhToan;
     private JTextField txtTimKiemThuoc;
     private JComboBox<String> cboThuoc;
-    private JTextField txtGia; // Text field for price display
+    private JTextField txtGia;
     private ThuocDAO thuocDAO = new ThuocDAO();
+    private NhaCungCapDAO nhaCungCapDAO = new NhaCungCapDAO();
     private static final DecimalFormat df = new DecimalFormat("#,###");
 
-    // Define colors from Frame_Thuoc_ThongKe
     private final Color MAIN_COLOR = new Color(254, 222, 192);
     private final Color HEADER_COLOR = new Color(251, 203, 150);
     private final Color BUTTON_COLOR = new Color(249, 187, 118);
@@ -177,6 +177,37 @@ public class Frame_Thuoc_GiaoDich_NhapThuoc extends JPanel {
         txtTongTien.setHorizontalAlignment(SwingConstants.RIGHT);
         pnlTotal.add(txtTongTien);
 
+        // Action Buttons
+        JPanel pnlActions = new JPanel();
+        pnlActions.setBounds(0, 261, 489, 40);
+        pnlLeft.add(pnlActions);
+        pnlActions.setBackground(MAIN_COLOR);
+        pnlActions.setLayout(null);
+
+        JButton btnSave = new JButton("Lưu nhập thuốc");
+        btnSave.setBackground(new Color(254, 152, 65));
+        btnSave.setForeground(new Color(50, 20, 0));
+        btnSave.setFont(new Font("Arial", Font.BOLD, 16));
+        btnSave.setBounds(0, 0, 153, 40);
+        pnlActions.add(btnSave);
+
+        JButton btnClear = new JButton("Làm mới");
+        btnClear.setBackground(BUTTON_COLOR);
+        btnClear.setForeground(BUTTON_TEXT_COLOR);
+        btnClear.setFont(new Font("Arial", Font.BOLD, 16));
+        btnClear.setBounds(168, 0, 153, 40);
+        pnlActions.add(btnClear);
+
+        JButton btnCancel = new JButton("Hủy");
+        btnCancel.setBackground(BUTTON_COLOR);
+        btnCancel.setForeground(BUTTON_TEXT_COLOR);
+        btnCancel.setFont(new Font("Arial", Font.BOLD, 16));
+        btnCancel.setBounds(336, 0, 153, 40);
+        pnlActions.add(btnCancel);
+        btnSave.addActionListener(e -> saveTransaction());
+        btnClear.addActionListener(e -> clearForm());
+        btnCancel.addActionListener(e -> cancelTransaction());
+
         // Medication Selection
         JPanel pnlMedicationSelection = new JPanel();
         pnlMedicationSelection.setBounds(0, 335, 489, 202);
@@ -218,7 +249,7 @@ public class Frame_Thuoc_GiaoDich_NhapThuoc extends JPanel {
         cboThuoc.setFont(new Font("Arial", Font.PLAIN, 16));
         cboThuoc.setBounds(160, 70, 323, 30);
         pnlMedicationSelection.add(cboThuoc);
-        cboThuoc.addActionListener(e -> updatePriceDisplay()); // Add listener to update price
+        cboThuoc.addActionListener(e -> updatePriceDisplay());
 
         JLabel lblGia = new JLabel("Giá:");
         lblGia.setForeground(TEXT_COLOR);
@@ -266,37 +297,6 @@ public class Frame_Thuoc_GiaoDich_NhapThuoc extends JPanel {
         btnRemoveMedication.setFont(new Font("Arial", Font.BOLD, 16));
         btnRemoveMedication.setBounds(243, 0, 200, 40);
         pnlMedicationButtons.add(btnRemoveMedication);
-        
-                // Action Buttons
-                JPanel pnlActions = new JPanel();
-                pnlActions.setBounds(0, 261, 489, 40);
-                pnlLeft.add(pnlActions);
-                pnlActions.setBackground(MAIN_COLOR);
-                pnlActions.setLayout(null);
-                
-                        JButton btnSave = new JButton("Lưu nhập thuốc");
-                        btnSave.setBackground(new Color(254, 152, 65));
-                        btnSave.setForeground(new Color(50, 20, 0));
-                        btnSave.setFont(new Font("Arial", Font.BOLD, 16));
-                        btnSave.setBounds(0, 0, 153, 40);
-                        pnlActions.add(btnSave);
-                        
-                                JButton btnClear = new JButton("Làm mới");
-                                btnClear.setBackground(BUTTON_COLOR);
-                                btnClear.setForeground(BUTTON_TEXT_COLOR);
-                                btnClear.setFont(new Font("Arial", Font.BOLD, 16));
-                                btnClear.setBounds(168, 0, 153, 40);
-                                pnlActions.add(btnClear);
-                                
-                                        JButton btnCancel = new JButton("Hủy");
-                                        btnCancel.setBackground(BUTTON_COLOR);
-                                        btnCancel.setForeground(BUTTON_TEXT_COLOR);
-                                        btnCancel.setFont(new Font("Arial", Font.BOLD, 16));
-                                        btnCancel.setBounds(336, 0, 153, 40);
-                                        pnlActions.add(btnCancel);
-                                        btnSave.addActionListener(e -> saveTransaction());
-                                        btnClear.addActionListener(e -> clearForm());
-                                        btnCancel.addActionListener(e -> cancelTransaction());
 
         // Right Panel (Medication Table)
         JPanel pnlRight = new JPanel();
@@ -365,15 +365,22 @@ public class Frame_Thuoc_GiaoDich_NhapThuoc extends JPanel {
         for (Object[] med : medications) {
             String maThuoc = (String) med[0];
             String tenThuoc = (String) med[1];
-            double donGia = (double) med[3]; // donGiaNhap
+            String donGiaStr = (String) med[3]; // donGiaNhap as String
+            double donGia;
+            try {
+                donGia = Double.parseDouble(donGiaStr.replaceAll("[^\\d.]", ""));
+            } catch (NumberFormatException e) {
+                donGia = 0.0; // Fallback value
+                e.printStackTrace();
+            }
             model.addElement(maThuoc + " - " + tenThuoc + " (" + df.format(donGia) + " VNĐ)");
         }
         cboThuoc.setModel(model);
-        updatePriceDisplay(); // Update price on initial load
+        updatePriceDisplay();
     }
 
     private void loadSupplierData() {
-        List<Object[]> suppliers = thuocDAO.getAllNhaCungCap();
+        List<Object[]> suppliers = nhaCungCapDAO.getAllNhaCungCap();
         DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
         for (Object[] supplier : suppliers) {
             String maNCC = (String) supplier[0];
@@ -385,16 +392,23 @@ public class Frame_Thuoc_GiaoDich_NhapThuoc extends JPanel {
 
     private void searchMedication() {
         String searchText = txtTimKiemThuoc.getText().trim();
-        List<Object[]> results = thuocDAO.timKiemThuoc(searchText, searchText, ""); // Use new method with empty soLuongTon
+        List<Object[]> results = thuocDAO.timKiemThuoc(searchText, searchText, "");
         DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
         for (Object[] med : results) {
             String maThuoc = (String) med[0];
             String tenThuoc = (String) med[1];
-            double donGia = (double) med[3]; // donGiaNhap
+            String donGiaStr = (String) med[3]; // donGiaNhap as String
+            double donGia;
+            try {
+                donGia = Double.parseDouble(donGiaStr.replaceAll("[^\\d.]", ""));
+            } catch (NumberFormatException e) {
+                donGia = 0.0; // Fallback value
+                e.printStackTrace();
+            }
             model.addElement(maThuoc + " - " + tenThuoc + " (" + df.format(donGia) + " VNĐ)");
         }
         cboThuoc.setModel(model);
-        updatePriceDisplay(); // Update price after search
+        updatePriceDisplay();
     }
 
     private void updatePriceDisplay() {
@@ -424,10 +438,9 @@ public class Frame_Thuoc_GiaoDich_NhapThuoc extends JPanel {
 
         String[] parts = selectedThuoc.split(" - ");
         String maThuoc = parts[0];
-        String tenThuoc = parts[1].split(" \\(")[0].trim(); // Extract name before price
+        String tenThuoc = parts[1].split(" \\(")[0].trim();
         double donGia = getDonGia(maThuoc);
-        // Ensure donGia is treated as an integer by rounding
-        double thanhTien = Math.round(soLuong * donGia); // Round to avoid decimal precision issues
+        double thanhTien = soLuong * donGia;
 
         int existingRow = -1;
         for (int i = 0; i < modelThuoc.getRowCount(); i++) {
@@ -440,13 +453,13 @@ public class Frame_Thuoc_GiaoDich_NhapThuoc extends JPanel {
         if (existingRow >= 0) {
             int currentSoLuong = Integer.parseInt(modelThuoc.getValueAt(existingRow, 3).toString());
             int newSoLuong = currentSoLuong + soLuong;
-            double newThanhTien = Math.round(newSoLuong * donGia); // Round to avoid decimal precision
+            double newThanhTien = newSoLuong * donGia;
             modelThuoc.setValueAt(newSoLuong, existingRow, 3);
             modelThuoc.setValueAt(df.format(newThanhTien) + " VNĐ", existingRow, 5);
         } else {
             modelThuoc.addRow(new Object[] {
                     modelThuoc.getRowCount() + 1, maThuoc, tenThuoc, soLuong,
-                    df.format(Math.round(donGia)) + " VNĐ", df.format(thanhTien) + " VNĐ"
+                    df.format(donGia) + " VNĐ", df.format(thanhTien) + " VNĐ"
             });
         }
         updateTotalAmount();
@@ -468,52 +481,60 @@ public class Frame_Thuoc_GiaoDich_NhapThuoc extends JPanel {
     private void updateTotalAmount() {
         double totalAmount = 0;
         for (int i = 0; i < modelThuoc.getRowCount(); i++) {
-            String thanhTienStr = modelThuoc.getValueAt(i, 5).toString().replace(" VNĐ", "").trim();
+            String thanhTienStr = modelThuoc.getValueAt(i, 5).toString().replace(" VNĐ", "").replace(",", "").trim();
             try {
-                double thanhTienValue = Double.parseDouble(thanhTienStr.replace(",", "")); // Remove commas before parsing
+                double thanhTienValue = Double.parseDouble(thanhTienStr);
                 totalAmount += thanhTienValue;
-                System.out.println("Row " + i + ": thanhTien = " + thanhTienValue + ", Running Total = " + totalAmount); // Debug
             } catch (NumberFormatException e) {
                 System.err.println("Error parsing thanhTien at row " + i + ": " + thanhTienStr);
             }
         }
-        txtTongTien.setText(df.format(totalAmount) + " VNĐ"); // Apply formatting with commas
+        txtTongTien.setText(df.format(totalAmount) + " VNĐ");
     }
 
     private void saveTransaction() {
-        if (modelThuoc.getRowCount() == 0) {
-            JOptionPane.showMessageDialog(this, "Vui lòng thêm ít nhất một thuốc!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+        String maPN = txtMaPhieu.getText().trim();
+        String ngayNhap = txtNgayGiaoDich.getText().trim();
+        String maNCC = cboNhaCungCap.getSelectedItem() != null ? cboNhaCungCap.getSelectedItem().toString().split(" - ")[0] : "";
+        String hinhThucThanhToan = (String) cboHinhThucThanhToan.getSelectedItem();
+        double tongTien;
+        try {
+            String tongTienStr = txtTongTien.getText().replace(" VNĐ", "").replace(",", "").trim();
+            tongTien = Double.parseDouble(tongTienStr);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Tổng tiền không hợp lệ", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        if (cboNhaCungCap.getSelectedItem() == null) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn nhà cung cấp!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+
+        int rowCount = modelThuoc.getRowCount();
+        if (rowCount == 0) {
+            JOptionPane.showMessageDialog(this, "Danh sách thuốc nhập trống!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        Object[][] chiTiet = new Object[rowCount][3];
+        for (int i = 0; i < rowCount; i++) {
+            chiTiet[i][0] = modelThuoc.getValueAt(i, 1); // maThuoc
+            chiTiet[i][1] = Integer.parseInt(modelThuoc.getValueAt(i, 3).toString()); // soLuong
+            String donGiaStr = modelThuoc.getValueAt(i, 4).toString().replace(" VNĐ", "").replace(",", "").trim();
+            chiTiet[i][2] = Double.parseDouble(donGiaStr); // donGiaNhap
+        }
+
+        if (maPN.isEmpty() || ngayNhap.isEmpty() || maNCC.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin phiếu nhập!", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         try {
-            String maPN = txtMaPhieu.getText();
-            String ngayNhap = txtNgayGiaoDich.getText();
-            String nhaCungCap = cboNhaCungCap.getSelectedItem().toString().split(" - ")[0];
-            String hinhThucThanhToan = cboHinhThucThanhToan.getSelectedItem().toString();
-            double tongTien = Double.parseDouble(txtTongTien.getText().replace(" VNĐ", "").replace(",", ""));
-
-            Object[][] chiTiet = new Object[modelThuoc.getRowCount()][3];
-            for (int i = 0; i < modelThuoc.getRowCount(); i++) {
-                chiTiet[i][0] = modelThuoc.getValueAt(i, 1); // maThuoc
-                chiTiet[i][1] = Integer.parseInt(modelThuoc.getValueAt(i, 3).toString()); // soLuong
-                chiTiet[i][2] = Double.parseDouble(modelThuoc.getValueAt(i, 4).toString().replace(" VNĐ", "").replace(",", "")); // donGia
-            }
-
-            boolean success = thuocDAO.saveTransaction(maPN, ngayNhap, nhaCungCap, hinhThucThanhToan, tongTien, chiTiet);
-            if (success) {
-                JOptionPane.showMessageDialog(this, "Đã lưu giao dịch nhập thuốc thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+            if (thuocDAO.saveTransaction(maPN, ngayNhap, maNCC, hinhThucThanhToan, tongTien, chiTiet)) {
+                JOptionPane.showMessageDialog(this, "Lưu phiếu nhập thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
                 clearForm();
             } else {
-                JOptionPane.showMessageDialog(this, "Lỗi khi lưu giao dịch!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Lưu phiếu nhập thất bại", "Lỗi", JOptionPane.ERROR_MESSAGE);
             }
         } catch (Exception e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Lỗi khi lưu giao dịch: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Lỗi khi lưu phiếu nhập: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -539,24 +560,15 @@ public class Frame_Thuoc_GiaoDich_NhapThuoc extends JPanel {
         List<Object[]> medications = thuocDAO.getAllThuoc();
         for (Object[] med : medications) {
             if (((String) med[0]).equals(maThuoc)) {
-                return (double) med[3]; // donGiaNhap
+                String donGiaStr = (String) med[3]; // donGiaNhap as String
+                try {
+                    return Double.parseDouble(donGiaStr.replaceAll("[^\\d.]", ""));
+                } catch (NumberFormatException e) {
+                    return 0.0;
+                }
             }
         }
         return 0;
     }
 
-    public static void main(String[] args) {
-        java.awt.EventQueue.invokeLater(() -> {
-            try {
-                JFrame frame = new JFrame("Giao Dịch Nhập Thuốc");
-                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                frame.setSize(1550, 878);
-                frame.setContentPane(new Frame_Thuoc_GiaoDich_NhapThuoc());
-                frame.setLocationRelativeTo(null);
-                frame.setVisible(true);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-    }
 }

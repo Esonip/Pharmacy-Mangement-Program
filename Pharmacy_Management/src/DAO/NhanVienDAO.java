@@ -383,4 +383,380 @@ public class NhanVienDAO {
 		}
 		return false;
 	}
+	
+	// Cham Cong
+	public List<Object[]> loadDataToNhanVien() {
+	    List<Object[]> data = new ArrayList<>();
+	    String sql = "SELECT nv.maNV, nv.hoTen, nv.chucVu, llv.maCa " +
+	                "FROM NhanVien nv " +
+	                "JOIN LichLamViec llv ON nv.maNV = llv.maNV " +
+	                "WHERE llv.ngay = CAST(GETDATE() AS DATE)";
+	    
+	    try (Connection conn = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
+	         PreparedStatement pstmt = conn.prepareStatement(sql);
+	         ResultSet rs = pstmt.executeQuery()) {
+	        
+	        while (rs.next()) {
+	            String maNV = rs.getString("maNV");
+	            String hoTen = rs.getString("hoTen");
+	            String chucVu = rs.getString("chucVu");
+	            String maCa = rs.getString("maCa");
+	            Object[] row = { maNV, hoTen, chucVu, maCa };
+	            data.add(row);
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        JOptionPane.showMessageDialog(null, "Lỗi khi tải dữ liệu nhân viên: " + e.getMessage());
+	    }
+	    return data;
+	}
+	
+	public List<Object[]> loadDataToChamCong() {
+		List<Object[]> data = new ArrayList<>();
+		String sql = "SELECT * FROM ChamCong WHERE ngay = CAST(GETDATE() AS DATE)";
+		try (Connection conn = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
+				PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			
+			ResultSet rs = pstmt.executeQuery();
+			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+			SimpleDateFormat sdfTime = new SimpleDateFormat("HH:mm:ss");
+			
+			while (rs.next()) {
+				String ngay = sdf.format(rs.getDate("ngay"));
+				String gioVao = sdfTime.format(rs.getTime("gioVao"));
+				String gioRa = rs.getTime("gioRa") != null ? sdfTime.format(rs.getTime("gioRa")) : "Chưa ra ca";
+				
+				Object[] row = {rs.getString("maCC"), rs.getString("maNV"), ngay, rs.getString("maCa"),
+						gioVao, gioRa, rs.getString("trangThai"), rs.getString("ghiChu") };
+				
+				data.add(row);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(null, "Lỗi khi tải dữ liệu chấm công: " + e.getMessage());
+		}
+		return data;
+	}
+	
+	public List<Object[]> searchNhanVienChamCong(String maNV) {
+		List<Object[]> data = new ArrayList<>();
+		String sql = "SELECT maNV, hoTen, chucVu FROM NhanVien WHERE maNV LIKE ?";
+		try (Connection conn = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
+				PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.setString(1, "%" + maNV + "%");
+			ResultSet rs = pstmt.executeQuery();
+			while (rs.next()) {
+				String maNVCC = rs.getString("maNV");
+				String hoTen = rs.getString("hoTen");
+				String chucVu = rs.getString("chucVu");
+				Object[] row = { maNVCC, hoTen, chucVu };
+				data.add(row);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(null, "Lỗi khi tìm kiếm nhân viên: " + e.getMessage());
+		}
+		return data;
+	}
+	
+	public List<Object[]> searchChamCong(String maCa, String ngayChamCong) {
+	    List<Object[]> data = new ArrayList<>();
+	    StringBuilder sql = new StringBuilder("SELECT * FROM ChamCong WHERE 1=1");
+	    List<Object> params = new ArrayList<>();
+	    
+		if (maCa != null && !maCa.isEmpty() && !maCa.equals("Tất cả")) {
+			sql.append(" AND maCa = ?");
+			params.add(maCa);
+		}
+		if (ngayChamCong != null && !ngayChamCong.trim().isEmpty()) {
+			sql.append(" AND ngay = ?");
+			params.add(ngayChamCong);
+		}
+
+		try (Connection conn = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
+				PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
+
+			for (int i = 0; i < params.size(); i++) {
+				pstmt.setObject(i + 1, params.get(i));
+			}
+
+			ResultSet rs = pstmt.executeQuery();
+			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+			SimpleDateFormat sdfTime = new SimpleDateFormat("HH:mm:ss");
+
+			while (rs.next()) {
+				String ngay = sdf.format(rs.getDate("ngay"));
+				String gioVao = sdfTime.format(rs.getTime("gioVao"));
+				String gioRa = rs.getTime("gioRa") != null ? sdfTime.format(rs.getTime("gioRa")) : "Chưa ra ca";
+
+				Object[] row = { rs.getString("maCC"), rs.getString("maNV"), ngay, rs.getString("maCa"), gioVao, gioRa,
+						rs.getString("trangThai"), rs.getString("ghiChu") };
+				data.add(row);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(null, "Lỗi khi tìm kiếm chấm công: " + e.getMessage());
+		}
+		return data;
+	}
+	
+	public String getLastMaChamCong() {
+        String sql = "SELECT MAX(maCC) FROM ChamCong";
+        try (Connection conn = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+            if (rs.next()) {
+                String lastMaCC = rs.getString(1);
+                if (lastMaCC != null && !lastMaCC.isEmpty()) {
+                    return lastMaCC;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Lỗi khi lấy mã nhân viên cuối cùng: " + e.getMessage());
+        }
+        return "CC000"; // Default value if no records exist or an error occurs
+    }
+	
+	public String getGioBatDauCaLam(String maCa) throws SQLException {
+	    String sql = "SELECT gioBatDau FROM CaLamViec WHERE maCa = ?";
+	    try (Connection conn = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
+	         PreparedStatement pstmt = conn.prepareStatement(sql)) {
+	        
+	        pstmt.setString(1, maCa);
+	        ResultSet rs = pstmt.executeQuery();
+	        
+	        if (rs.next()) {
+	            // Lấy chuỗi giờ (HH:mm:ss) từ cột gioBatDau
+	            String gioBatDau = rs.getString("gioBatDau");
+	            // Cắt bỏ phần mili giây (VD: 07:00:00.0000000 -> 07:00:00)
+	            return gioBatDau.split("\\.")[0];
+	        }
+	        return null; // Nếu không tìm thấy ca
+	    }
+	}
+	
+	public boolean chamCongVao(String maChamCong, String maNV, String ngayChamCong, String maCa, String gioVao, String gioRa, String trangThai, String ghiChu) throws SQLException, ParseException {
+	    String sql = "INSERT INTO ChamCong (maCC, maNV, ngay, maCa, gioVao, gioRa, trangThai, ghiChu) " +
+	                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+	    
+	    
+	    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+	    java.util.Date parsed = sdf.parse(ngayChamCong);
+		java.sql.Date datesql = new java.sql.Date(parsed.getTime());
+	    
+	    try (Connection conn = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
+	         PreparedStatement stmt = conn.prepareStatement(sql)) {
+	        
+	        stmt.setString(1, maChamCong);
+	        stmt.setString(2, maNV);
+	        stmt.setDate(3, datesql);
+	        stmt.setString(4, maCa);
+	        stmt.setString(5, gioVao);
+	        stmt.setString(6, gioRa);
+	        stmt.setString(7, trangThai);
+	        stmt.setString(8, ghiChu);
+	        int rowsAffected = stmt.executeUpdate();
+	        
+	        return rowsAffected > 0;
+	    }
+	}
+	
+	public boolean checkChamCongVao(String maNV, String maCa) throws SQLException {
+	    String sql = "SELECT * FROM ChamCong WHERE maNV = ? AND ngay = CAST(GETDATE() AS DATE)";
+	    
+	    try (Connection conn = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
+	         PreparedStatement stmt = conn.prepareStatement(sql)) {
+	        
+	        stmt.setString(1, maNV);
+	        ResultSet rs = stmt.executeQuery();
+	        
+	        if (rs.next()) {
+	            // Đã có bản ghi chấm công hôm nay
+	            if (rs.getTime("gioVao") != null) {
+	                String maCaDaCham = rs.getString("maCa");
+	                if (maCaDaCham.equals(maCa)) {
+	                    return true; // Đã chấm công vào với ca này
+	                } else {
+	                    throw new SQLException("Nhân viên đã chấm công vào với ca " + maCaDaCham + " hôm nay!");
+	                }
+	            }
+	        }
+	        return false; // Chưa chấm công vào
+	    }
+	}
+	
+	public boolean chamCongRa(String maCC, String gioRa) {
+	    String sql = "UPDATE ChamCong SET gioRa = ?, trangThai = ? WHERE maCC = ?";
+	    try (Connection conn = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
+	         PreparedStatement stmt = conn.prepareStatement(sql)) {
+	        stmt.setString(1, gioRa);
+	        stmt.setString(2, "Đã làm");
+	        stmt.setString(3, maCC);
+	        int rowsAffected = stmt.executeUpdate();
+	        return rowsAffected > 0;
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        JOptionPane.showMessageDialog(null, "Lỗi khi cập nhật chấm công ra: " + e.getMessage());
+	        return false;
+	    }
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	// Thống kê top K nhân viên theo doanh số
+    public List<Object[]> getTopNhanVienByRevenue(int topK, String fromDate, String toDate, String year, String month) {
+        List<Object[]> data = new ArrayList<>();
+        StringBuilder sql = new StringBuilder(
+            "SELECT TOP " + topK + " nv.maNV, nv.hoTen, COUNT(hd.maHD) as soGiaoDich, SUM(hd.tongTien) as doanhThu " +
+            "FROM NhanVien nv " +
+            "LEFT JOIN HoaDon hd ON nv.maNV = hd.maNV " +
+            "WHERE hd.ngayLap IS NOT NULL "
+        );
+        List<Object> params = new ArrayList<>();
+
+        // Xử lý điều kiện lọc theo thời gian
+        if (fromDate != null && toDate != null) {
+            sql.append(" AND hd.ngayLap BETWEEN ? AND ?");
+            params.add(fromDate);
+            params.add(toDate);
+        } else if (month != null && year != null) {
+            try {
+                Integer.parseInt(month);
+                Integer.parseInt(year);
+                sql.append(" AND MONTH(hd.ngayLap) = ? AND YEAR(hd.ngayLap) = ?");
+                params.add(month);
+                params.add(year);
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("Tháng hoặc năm không hợp lệ: " + e.getMessage());
+            }
+        } else if (year != null) {
+            try {
+                Integer.parseInt(year);
+                sql.append(" AND YEAR(hd.ngayLap) = ?");
+                params.add(year);
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("Năm không hợp lệ: " + e.getMessage());
+            }
+        }
+
+        sql.append(" GROUP BY nv.maNV, nv.hoTen " +
+                   "ORDER BY doanhThu DESC");
+
+        try (Connection conn = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
+             PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
+            
+            for (int i = 0; i < params.size(); i++) {
+                pstmt.setObject(i + 1, params.get(i));
+            }
+
+            ResultSet rs = pstmt.executeQuery();
+            int stt = 1;
+            while (rs.next()) {
+                double doanhThu = rs.getDouble("doanhThu");
+                double trungBinh = rs.getInt("soGiaoDich") > 0 ? doanhThu / rs.getInt("soGiaoDich") : 0;
+                
+                Object[] row = {
+                    stt++,
+                    rs.getString("maNV"),
+                    rs.getString("hoTen"),
+                    rs.getInt("soGiaoDich"),
+                    doanhThu, // Trả về giá trị gốc
+                    trungBinh // Trả về giá trị gốc
+                };
+                data.add(row);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Lỗi khi thống kê doanh số: " + e.getMessage());
+        }
+        return data;
+    }
+	
+	// Thống kê số ngày làm việc của nhân viên
+    public List<Object[]> getWorkingDaysStats(String fromDate, String toDate, String year, String month) {
+        List<Object[]> data = new ArrayList<>();
+        StringBuilder sql = new StringBuilder(
+            "SELECT nv.maNV, nv.hoTen, COUNT(DISTINCT CAST(hd.ngayLap AS DATE)) as soNgayLam " +
+            "FROM NhanVien nv " +
+            "LEFT JOIN HoaDon hd ON nv.maNV = hd.maNV " +
+            "WHERE hd.ngayLap IS NOT NULL "
+        );
+        List<Object> params = new ArrayList<>();
+
+        // Xử lý điều kiện lọc theo thời gian
+        if (fromDate != null && toDate != null) {
+            sql.append(" AND hd.ngayLap BETWEEN ? AND ?");
+            params.add(fromDate);
+            params.add(toDate);
+        } else if (month != null && year != null) {
+            try {
+                Integer.parseInt(month);
+                Integer.parseInt(year);
+                sql.append(" AND MONTH(hd.ngayLap) = ? AND YEAR(hd.ngayLap) = ?");
+                params.add(month);
+                params.add(year);
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("Tháng hoặc năm không hợp lệ: " + e.getMessage());
+            }
+        } else if (year != null) {
+            try {
+                Integer.parseInt(year);
+                sql.append(" AND YEAR(hd.ngayLap) = ?");
+                params.add(year);
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("Năm không hợp lệ: " + e.getMessage());
+            }
+        }
+
+        sql.append(" GROUP BY nv.maNV, nv.hoTen " +
+                   "ORDER BY soNgayLam DESC");
+
+        try (Connection conn = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
+             PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
+            
+            for (int i = 0; i < params.size(); i++) {
+                pstmt.setObject(i + 1, params.get(i));
+            }
+
+            ResultSet rs = pstmt.executeQuery();
+            int stt = 1;
+            while (rs.next()) {
+                Object[] row = {
+                    stt++,
+                    rs.getString("maNV"),
+                    rs.getString("hoTen"),
+                    rs.getInt("soNgayLam")
+                };
+                data.add(row);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Lỗi khi thống kê ngày làm: " + e.getMessage());
+        }
+        return data;
+    }
 }

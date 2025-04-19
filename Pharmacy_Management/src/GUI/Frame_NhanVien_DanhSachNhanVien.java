@@ -1084,7 +1084,7 @@ public class Frame_NhanVien_DanhSachNhanVien extends JPanel {
 					// Hiển thị nút nghỉ việc hoặc làm việc lại tùy theo trạng thái
 					trangThai = nhanVienDAO.getTrangThaiNhanVien(txtMaNhanVien.getText());
 					btnNghi.setVisible(trangThai);
-					
+					lockFields();
 					btnThem.setEnabled(false);
 					btnLuu.setEnabled(false);
 				}
