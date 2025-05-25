@@ -136,14 +136,13 @@ public class TraNhapThuocDAO {
 	 
 	 // Lưu chi tiết phiếu trả nhập thuốc
 	 public boolean luuChiTietPhieuTraNhapThuoc(String maTNT, String maThuoc, int soLuong, String lyDoTra, double donGiaTra) {
-		    String sql = "INSERT INTO ChiTietPhieuTraNhapThuoc (maTNT, maThuoc, soLuong, lyDoTra, donGiaNhap) VALUES (?, ?, ?, ?, ?)";
+		    String sql = "INSERT INTO ChiTietPhieuTraNhapThuoc (maTNT, maThuoc, soLuong, donGiaNhap) VALUES (?, ?, ?, ?)";
 		    try (Connection conn = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
 		         PreparedStatement pstmt = conn.prepareStatement(sql)) {
 		        pstmt.setString(1, maTNT);
 		        pstmt.setString(2, maThuoc);
 		        pstmt.setInt(3, soLuong);
-		        pstmt.setString(4, lyDoTra);
-		        pstmt.setDouble(5, donGiaTra);
+		        pstmt.setDouble(4, donGiaTra);
 		        int rowsAffected = pstmt.executeUpdate();
 		        return rowsAffected > 0;
 		    } catch (SQLException e) {
