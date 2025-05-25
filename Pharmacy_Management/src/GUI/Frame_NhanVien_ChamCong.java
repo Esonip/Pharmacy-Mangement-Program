@@ -10,23 +10,16 @@ import javax.swing.border.LineBorder;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import connectDB.ConnectDB;
 import com.toedter.calendar.JDateChooser;
 
 import DAO.NhanVienDAO;
-import java.awt.event.ActionListener;
 
 public class Frame_NhanVien_ChamCong extends JPanel {
 
@@ -373,18 +366,19 @@ public class Frame_NhanVien_ChamCong extends JPanel {
 	    DefaultTableModel model = (DefaultTableModel) tableChamCong.getModel();
 
 	    String maCC = (String) model.getValueAt(selectedRow, 0);
+	    String maNV = (String) modelNhanVien.getValueAt(selectedRow, 0);
 
 	    // Kiểm tra xem đã chấm công ra chưa
 	    String gioRaCurrent = (String) model.getValueAt(selectedRow, 5);
 	    if (!gioRaCurrent.equals("Chưa ra ca")) {
-	        JOptionPane.showMessageDialog(this, "Bản ghi này đã chấm công ra!");
+	    	JOptionPane.showMessageDialog(this, "Nhân viên " + maNV + " đã chấm công ra hôm nay!");
 	        return;
 	    }
 
 	    String gioRa = new SimpleDateFormat("HH:mm:ss").format(new Date());
 
 	    if (nhanVienDAO.chamCongRa(maCC, gioRa)) {
-	    	JOptionPane.showMessageDialog(this, "Chấm công ra thành công!");
+	    	JOptionPane.showMessageDialog(this, "Chấm công vào thành công cho nhân viên " + maNV + " !");
 	    	taiLaiChamCong();
 	    } else {
 	        JOptionPane.showMessageDialog(this, "Cập nhật chấm công ra thất bại!");

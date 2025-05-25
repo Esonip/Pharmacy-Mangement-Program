@@ -591,7 +591,7 @@ public class NhanVienDAO {
 	    try (Connection conn = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
 	         PreparedStatement stmt = conn.prepareStatement(sql)) {
 	        stmt.setString(1, gioRa);
-	        stmt.setString(2, "Đã làm");
+	        stmt.setString(2, "Đã chấm công");
 	        stmt.setString(3, maCC);
 	        int rowsAffected = stmt.executeUpdate();
 	        return rowsAffected > 0;

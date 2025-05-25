@@ -3,78 +3,65 @@ package entity;
 import java.util.Objects;
 
 public class TaiKhoan {
-    private String manv;
-    private String hoTen;
-    private String ngaySinh;
-    private String email;
-    private String gioiTinh;
-    private String cCCD;
+    private String maNV;
     private String matKhau;
-    private String chucVu;
+    private NhanVien nhanVien; // Liên kết với nhân viên
 
-    public TaiKhoan(String manv, String hoTen, String ngaySinh, String email, String gioiTinh, String cCCD, String matKhau, String chucVu) {
-        this.manv = manv;
-        this.hoTen = hoTen;
-        this.ngaySinh = ngaySinh;
-        this.email = email;
-        this.gioiTinh = gioiTinh;
-        this.cCCD = cCCD;
-        this.matKhau = matKhau;
-        this.chucVu = chucVu;
-    }
-    
+    // Constructor mặc định
     public TaiKhoan() {
-		super();
-		this.manv = "";
-        this.hoTen = "";
-        this.ngaySinh = "";
-        this.email = "";
-        this.gioiTinh = "";
-        this.cCCD = "";
-        this.matKhau = "";
-        this.chucVu = "";
-	}
+    }
 
-	public String getManv() { return manv; }
-    public void setManv(String manv) { this.manv = manv; }
+    // Constructor đầy đủ tham số
+    public TaiKhoan(String maNV, String matKhau, NhanVien nhanVien) {
+        this.maNV = maNV;
+        this.matKhau = matKhau;
+        this.nhanVien = nhanVien;
+    }
 
-    public String getHoTen() { return hoTen; }
-    public void setHoTen(String hoTen) { this.hoTen = hoTen; }
+    // Getter và Setter
+    public String getMaNV() {
+        return maNV;
+    }
 
-    public String getNgaySinh() { return ngaySinh; }
-    public void setNgaySinh(String ngaySinh) { this.ngaySinh = ngaySinh; }
+    public void setMaNV(String maNV) {
+        this.maNV = maNV;
+    }
 
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
+    public String getMatKhau() {
+        return matKhau;
+    }
 
-    public String getGioiTinh() { return gioiTinh; }
-    public void setGioiTinh(String gioiTinh) { this.gioiTinh = gioiTinh; }
+    public void setMatKhau(String matKhau) {
+        this.matKhau = matKhau;
+    }
 
-    public String getCCCD() { return cCCD; }
-    public void setCCCD(String cCCD) { this.cCCD = cCCD; }
+    public NhanVien getNhanVien() {
+        return nhanVien;
+    }
 
-    public String getMatKhau() { return matKhau; }
-    public void setMatKhau(String matKhau) { this.matKhau = matKhau; }
+    public void setNhanVien(NhanVien nhanVien) {
+        this.nhanVien = nhanVien;
+    }
 
-    public String getChucVu() { return chucVu; }
-    public void setChucVu(String chucVu) { this.chucVu = chucVu; }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TaiKhoan taiKhoan = (TaiKhoan) o;
+        return Objects.equals(maNV, taiKhoan.maNV);
+    }
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(cCCD);
-	}
+    @Override
+    public int hashCode() {
+        return Objects.hash(maNV);
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		TaiKhoan other = (TaiKhoan) obj;
-		return Objects.equals(cCCD, other.cCCD);
-	}
-    
-    
+    @Override
+    public String toString() {
+        return "TaiKhoan{" +
+                "maNV='" + maNV + '\'' +
+                ", matKhau='" + matKhau + '\'' +
+                ", nhanVien=" + nhanVien +
+                '}';
+    }
 }

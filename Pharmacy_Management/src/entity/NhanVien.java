@@ -1,31 +1,41 @@
 package entity;
 
 import java.util.Date;
+import java.util.Objects;
 
 public class NhanVien {
     private String maNV;
     private String hoTen;
-    private String gioiTinh;
-    private String email;
     private Date ngaySinh;
-    private String cccd;
-    private String matKhau;
+    private String gioiTinh;
+    private String cCCD;
+    private String soDienThoai;
+    private String email;
+    private String diaChi;
     private String chucVu;
+    private String trinhDo;
+    private double luong;
+    private boolean trangThai;
 
     // Constructor mặc định
     public NhanVien() {
     }
 
     // Constructor đầy đủ tham số
-    public NhanVien(String maNV, String hoTen, String gioiTinh, String email, Date ngaySinh, String cccd, String matKhau, String chucVu) {
+    public NhanVien(String maNV, String hoTen, Date ngaySinh, String gioiTinh, String cCCD, String soDienThoai,
+                    String email, String diaChi, String chucVu, String trinhDo, double luong, boolean trangThai) {
         this.maNV = maNV;
         this.hoTen = hoTen;
-        this.gioiTinh = gioiTinh;
-        this.email = email;
         this.ngaySinh = ngaySinh;
-        this.cccd = cccd;
-        this.matKhau = matKhau;
+        this.gioiTinh = gioiTinh;
+        this.cCCD = cCCD;
+        this.soDienThoai = soDienThoai;
+        this.email = email;
+        this.diaChi = diaChi;
         this.chucVu = chucVu;
+        this.trinhDo = trinhDo;
+        this.luong = luong;
+        this.trangThai = trangThai;
     }
 
     // Getter và Setter
@@ -45,12 +55,36 @@ public class NhanVien {
         this.hoTen = hoTen;
     }
 
+    public Date getNgaySinh() {
+        return ngaySinh;
+    }
+
+    public void setNgaySinh(Date ngaySinh) {
+        this.ngaySinh = ngaySinh;
+    }
+
     public String getGioiTinh() {
         return gioiTinh;
     }
 
     public void setGioiTinh(String gioiTinh) {
         this.gioiTinh = gioiTinh;
+    }
+
+    public String getCCCD() {
+        return cCCD;
+    }
+
+    public void setCCCD(String cCCD) {
+        this.cCCD = cCCD;
+    }
+
+    public String getSoDienThoai() {
+        return soDienThoai;
+    }
+
+    public void setSoDienThoai(String soDienThoai) {
+        this.soDienThoai = soDienThoai;
     }
 
     public String getEmail() {
@@ -61,28 +95,12 @@ public class NhanVien {
         this.email = email;
     }
 
-    public Date getNgaySinh() {
-        return ngaySinh;
+    public String getDiaChi() {
+        return diaChi;
     }
 
-    public void setNgaySinh(Date ngaySinh) {
-        this.ngaySinh = ngaySinh;
-    }
-
-    public String getCccd() {
-        return cccd;
-    }
-
-    public void setCccd(String cccd) {
-        this.cccd = cccd;
-    }
-
-    public String getMatKhau() {
-        return matKhau;
-    }
-
-    public void setMatKhau(String matKhau) {
-        this.matKhau = matKhau;
+    public void setDiaChi(String diaChi) {
+        this.diaChi = diaChi;
     }
 
     public String getChucVu() {
@@ -93,18 +111,58 @@ public class NhanVien {
         this.chucVu = chucVu;
     }
 
-    // Phương thức toString
+    public String getTrinhDo() {
+        return trinhDo;
+    }
+
+    public void setTrinhDo(String trinhDo) {
+        this.trinhDo = trinhDo;
+    }
+
+    public double getLuong() {
+        return luong;
+    }
+
+    public void setLuong(double luong) {
+        this.luong = luong;
+    }
+
+    public boolean isTrangThai() {
+        return trangThai;
+    }
+
+    public void setTrangThai(boolean trangThai) {
+        this.trangThai = trangThai;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        NhanVien nhanVien = (NhanVien) o;
+        return Objects.equals(maNV, nhanVien.maNV);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(maNV);
+    }
+
     @Override
     public String toString() {
         return "NhanVien{" +
                 "maNV='" + maNV + '\'' +
                 ", hoTen='" + hoTen + '\'' +
-                ", gioiTinh='" + gioiTinh + '\'' +
-                ", email='" + email + '\'' +
                 ", ngaySinh=" + ngaySinh +
-                ", cccd='" + cccd + '\'' +
-                ", matKhau='" + matKhau + '\'' +
+                ", gioiTinh='" + gioiTinh + '\'' +
+                ", cCCD='" + cCCD + '\'' +
+                ", soDienThoai='" + soDienThoai + '\'' +
+                ", email='" + email + '\'' +
+                ", diaChi='" + diaChi + '\'' +
                 ", chucVu='" + chucVu + '\'' +
+                ", trinhDo='" + trinhDo + '\'' +
+                ", luong=" + luong +
+                ", trangThai=" + trangThai +
                 '}';
     }
 }

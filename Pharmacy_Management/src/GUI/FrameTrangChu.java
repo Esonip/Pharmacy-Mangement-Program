@@ -41,7 +41,9 @@ public class FrameTrangChu extends JFrame {
 	// Frame Hoá Đơn
 	private Frame_HoaDon_BanThuoc frame_HoaDon_BanThuoc;
 	private Frame_HoaDon_DatThuoc frame_HoaDon_DatThuoc;
-	private Frame_HoaDon_ThongKe frame_HoaDon_ThongKe;
+	private Frame_HoaDon_NhapThuoc frame_HoaDon_NhapThuoc;
+	private Frame_HoaDon_TraThuoc frame_HoaDon_TraThuoc;
+	private Frame_HoaDon_TraNhapThuoc frame_HoaDon_TraNhapThuoc;
 	
 	// Frame Doanh Thu
 	private Frame_TaiChinh_DoanhThu frame_TaiChinh_DoanhThu;
@@ -197,7 +199,7 @@ public class FrameTrangChu extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				resetMenuColors();
 				btnThuoc.setForeground(Color.RED);
-				frame_Thuoc_GiaoDich_NhapThuoc = new Frame_Thuoc_GiaoDich_NhapThuoc();
+				frame_Thuoc_GiaoDich_NhapThuoc = new Frame_Thuoc_GiaoDich_NhapThuoc(maNV);
 				getContentPane().removeAll();
 				getContentPane().add(menuBar, BorderLayout.NORTH);
 				getContentPane().add(frame_Thuoc_GiaoDich_NhapThuoc, BorderLayout.CENTER);
@@ -228,7 +230,7 @@ public class FrameTrangChu extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				resetMenuColors();
 				btnThuoc.setForeground(Color.RED);
-				frame_Thuoc_GiaoDich_TraThuoc = new Frame_Thuoc_GiaoDich_TraThuoc();
+				frame_Thuoc_GiaoDich_TraThuoc = new Frame_Thuoc_GiaoDich_TraThuoc(maNV);
 				getContentPane().removeAll();
 				getContentPane().add(menuBar, BorderLayout.NORTH);
 				getContentPane().add(frame_Thuoc_GiaoDich_TraThuoc, BorderLayout.CENTER);
@@ -493,24 +495,11 @@ public class FrameTrangChu extends JFrame {
 				repaint();
 			}
 		});
-		btn_HoaDon_BanThuoc.setIcon(new ImageIcon("icon\\bill1.png"));
+		btn_HoaDon_BanThuoc.setIcon(new ImageIcon("icon\\bill_stay.png"));
 		btnHoaDon.add(btn_HoaDon_BanThuoc);
 		
-		JMenuItem btn_HoaDon_ThongKe = new JMenuItem("Thống Kê");
-		btn_HoaDon_ThongKe.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				resetMenuColors();
-				btnHoaDon.setForeground(Color.RED);
-				frame_HoaDon_ThongKe = new Frame_HoaDon_ThongKe();
-				getContentPane().removeAll();
-				getContentPane().add(menuBar, BorderLayout.NORTH);
-				getContentPane().add(frame_HoaDon_ThongKe, BorderLayout.CENTER);
-				revalidate();
-				repaint();
-			}
-		});
-		
 		JMenuItem btn_HoaDon_DatThuoc = new JMenuItem("Đặt Thuốc");
+		btn_HoaDon_DatThuoc.setFont(new Font("Segoe UI", Font.BOLD, 13));
 		btn_HoaDon_DatThuoc.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				resetMenuColors();
@@ -523,12 +512,60 @@ public class FrameTrangChu extends JFrame {
 				repaint();
 			}
 		});
-		btn_HoaDon_DatThuoc.setIcon(new ImageIcon("icon\\bill2.png"));
-		btn_HoaDon_DatThuoc.setFont(new Font("Segoe UI", Font.BOLD, 13));
+		btn_HoaDon_DatThuoc.setIcon(new ImageIcon("icon\\bill_away.png"));
 		btnHoaDon.add(btn_HoaDon_DatThuoc);
-		btn_HoaDon_ThongKe.setIcon(new ImageIcon("icon\\static_bill.png"));
-		btn_HoaDon_ThongKe.setFont(new Font("Segoe UI", Font.BOLD, 13));
-		btnHoaDon.add(btn_HoaDon_ThongKe);
+		
+		JMenuItem btn_HoaDon_NhapThuoc = new JMenuItem("Nhập Thuốc");
+		btn_HoaDon_NhapThuoc.setFont(new Font("Segoe UI", Font.BOLD, 13));
+		btn_HoaDon_NhapThuoc.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				resetMenuColors();
+				btnHoaDon.setForeground(Color.RED);
+				frame_HoaDon_NhapThuoc = new Frame_HoaDon_NhapThuoc();
+				getContentPane().removeAll();
+				getContentPane().add(menuBar, BorderLayout.NORTH);
+				getContentPane().add(frame_HoaDon_NhapThuoc, BorderLayout.CENTER);
+				revalidate();
+				repaint();
+			}
+		});
+		btn_HoaDon_NhapThuoc.setIcon(new ImageIcon("icon\\bill_import.png"));
+		btnHoaDon.add(btn_HoaDon_NhapThuoc);
+		
+		JMenuItem btn_HoaDon_TraThuoc = new JMenuItem("Trả Thuốc");
+		btn_HoaDon_TraThuoc.setFont(new Font("Segoe UI", Font.BOLD, 13));
+		btn_HoaDon_TraThuoc.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				resetMenuColors();
+				btnHoaDon.setForeground(Color.RED);
+				frame_HoaDon_TraThuoc = new Frame_HoaDon_TraThuoc();
+				getContentPane().removeAll();
+				getContentPane().add(menuBar, BorderLayout.NORTH);
+				getContentPane().add(frame_HoaDon_TraThuoc, BorderLayout.CENTER);
+				revalidate();
+				repaint();
+			}
+		});
+		btn_HoaDon_TraThuoc.setIcon(new ImageIcon("icon\\bill_cancel.png"));
+		btnHoaDon.add(btn_HoaDon_TraThuoc);
+		
+		JMenuItem btn_HoaDon_TraNhapThuoc = new JMenuItem("Trả Nhập Thuốc");
+		btn_HoaDon_TraNhapThuoc.setFont(new Font("Segoe UI", Font.BOLD, 13));
+		btn_HoaDon_TraNhapThuoc.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				resetMenuColors();
+				btnHoaDon.setForeground(Color.RED);
+				frame_HoaDon_TraNhapThuoc = new Frame_HoaDon_TraNhapThuoc();
+				getContentPane().removeAll();
+				getContentPane().add(menuBar, BorderLayout.NORTH);
+				getContentPane().add(frame_HoaDon_TraNhapThuoc, BorderLayout.CENTER);
+				revalidate();
+				repaint();
+			}
+		});
+		btn_HoaDon_TraNhapThuoc.setIcon(new ImageIcon("icon\\bill_return.png"));
+		btnHoaDon.add(btn_HoaDon_TraNhapThuoc);
+		
 		
 		JMenu btnTaiChinh = new JMenu("Tài Chính");
 		btnTaiChinh.setFont(new Font("Segoe UI", Font.BOLD, 13));
@@ -550,7 +587,7 @@ public class FrameTrangChu extends JFrame {
 				repaint();
 			}
 		});
-		btn_TaiChinh_DoanhThu.setIcon(new ImageIcon("icon\\static_revenue.png"));
+		btn_TaiChinh_DoanhThu.setIcon(new ImageIcon("icon\\static_bill.png"));
 		
 		JMenuItem btn_TaiChinh_LSGD = new JMenuItem("Lịch Sử Giao Dịch");
 		btn_TaiChinh_LSGD.addActionListener(new ActionListener() {
@@ -646,7 +683,6 @@ public class FrameTrangChu extends JFrame {
 			btn_Thuoc_DSThuoc.setEnabled(false);
 			btn_Thuoc_ThietLapGia.setEnabled(false);
 			btn_Thuoc_ThongKe.setEnabled(false);
-			btn_Thuoc_GiaoDich_NhapThuoc.setEnabled(false);
 			btn_Thuoc_GiaoDich_TraNhapThuoc.setEnabled(false);
 			// Nhân Viên
 			btnNhanVien.setEnabled(false);
@@ -654,8 +690,6 @@ public class FrameTrangChu extends JFrame {
 			btn_KhachHang_ThongKe.setEnabled(false);
 			// NCC
 			btnNCC.setEnabled(false);
-			// Hoá Đơn
-			btn_HoaDon_ThongKe.setEnabled(false);
 			// Tài Chính
 			btnTaiChinh.setEnabled(false);
 			

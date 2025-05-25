@@ -651,4 +651,20 @@ public class ThuocDAO {
 		}
 		return "PN000";
 	}
+	
+	public double getDonGiaNhap(String maThuoc) {
+        String sql = "SELECT donGiaNhap FROM Thuoc WHERE maThuoc = ?";
+        try (Connection con = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setString(1, maThuoc);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getDouble("donGiaNhap");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Lỗi khi lấy đơn giá nhập: " + e.getMessage());
+        }
+        return 0.0; // Return 0 if not found or error occurs
+    }
 }

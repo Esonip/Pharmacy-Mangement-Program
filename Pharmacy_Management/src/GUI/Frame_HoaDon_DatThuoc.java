@@ -38,8 +38,8 @@ import javax.swing.SwingUtilities;
 
 import com.toedter.calendar.JDateChooser;
 
-import DAO.ChiTietHoaDonDAO;
-import DAO.HoaDonDAO;
+import DAO.ChiTietDatThuocDAO;
+import DAO.HoaDonDatThuocDAO;
 
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -54,8 +54,8 @@ public class Frame_HoaDon_DatThuoc extends JPanel {
 	private JTextField txtMaKhachHangTim;
 	private JTable tablePhieuDatHang;
 	private JDateChooser txtNgayDatTim, txtNgayGiaoTim;
-	private HoaDonDAO hoaDonDao = new HoaDonDAO();
-	private ChiTietHoaDonDAO chiTietHoaDonDAO = new ChiTietHoaDonDAO();
+	private HoaDonDatThuocDAO hoaDonDao = new HoaDonDatThuocDAO();
+	private ChiTietDatThuocDAO chiTietHoaDonDAO = new ChiTietDatThuocDAO();
 	private JComboBox<String> cbxTrangThaiTim, cbxPhuongThucTT;
 	public static final int NO_SUCH_PAGE = 1;
 	public static final int PAGE_EXISTS = 0;
@@ -80,9 +80,9 @@ public class Frame_HoaDon_DatThuoc extends JPanel {
 
 		tablePhieuDatHang = new JTable();
 		tablePhieuDatHang.setModel(new DefaultTableModel(new Object[][] {}, new String[] { "Mã Phiếu Đặt", "Mã NV", "Mã KH", "Ngày Đặt",
-				"Ngày Giao", "Tổng tiền", "Trạng thái", "Phương thức" }) {
+				"Ngày Giao", "Trạng thái", "Phương thức" }) {
 			private static final long serialVersionUID = 1L;
-			boolean[] columnEditables = new boolean[] { false, false, false, false, false, false, false, false };
+			boolean[] columnEditables = new boolean[] { false, false, false, false, false, false, false };
 
 			public boolean isCellEditable(int row, int column) {
 				return columnEditables[column];
@@ -256,14 +256,18 @@ public class Frame_HoaDon_DatThuoc extends JPanel {
 				String maKhachHang = (String) tableModel.getValueAt(selectedRow, 2);
 				String ngayDat = (String) tableModel.getValueAt(selectedRow, 3);
 				String ngayGiao = (String) tableModel.getValueAt(selectedRow, 4);
-				double tongTien = Double.parseDouble(tableModel.getValueAt(selectedRow, 5).toString().replaceAll("[^0-9.]", ""));
-				String trangThaiStr = (String) tableModel.getValueAt(selectedRow, 6);
-				String phuongThucThanhToanStr = (String) tableModel.getValueAt(selectedRow, 7);
+				String trangThaiStr = (String) tableModel.getValueAt(selectedRow, 5);
+				String phuongThucThanhToanStr = (String) tableModel.getValueAt(selectedRow, 6);
 
-				if (evt.getClickCount() == 2 && trangThaiStr.equals("Đã thanh toán")) {
+				if (evt.getClickCount() == 2) {
 					if (selectedRow != -1) {
-						// In hóa đơn
-						inHoaDon(maPDH, maNV, maKhachHang, ngayDat, ngayGiao, tongTien, trangThaiStr, phuongThucThanhToanStr);
+						if(trangThaiStr.equals("Đã thanh toán"))
+							// In hóa đơn
+							inHoaDon(maPDH, maNV, maKhachHang, ngayDat, ngayGiao, trangThaiStr, phuongThucThanhToanStr);
+						else if (trangThaiStr.equals("Đã hủy")) {
+							// Hiện hoá đơn đã hủy
+							huyHoaDon(maPDH, maNV, maKhachHang, ngayDat, ngayGiao, trangThaiStr, phuongThucThanhToanStr);
+						}
 					}
 				}
 
@@ -413,14 +417,28 @@ public class Frame_HoaDon_DatThuoc extends JPanel {
 		});
 	}
 
-	private void inHoaDon(String maPDH, String maNV, String maKH, String ngayDat, String ngayGiao, double tongTien,
+	private void inHoaDon(String maPDH, String maNV, String maKH, String ngayDat, String ngayGiao,
 			String trangThaiStr, String phuongThucThanhToanStr) {
 		try {
 			List<Object[]> data = chiTietHoaDonDAO.getChiTietPhieuDatHang(maPDH);
 
-			Dialog_InPhieuDatHang inPhieuDatHang = new Dialog_InPhieuDatHang(null, maPDH, maNV, maKH, ngayDat, ngayGiao,
-					tongTien, trangThaiStr, phuongThucThanhToanStr, data);
+			Dialog_InPhieuDatThuoc inPhieuDatHang = new Dialog_InPhieuDatThuoc(null, maPDH, maNV, maKH, ngayDat, ngayGiao,
+					trangThaiStr, phuongThucThanhToanStr, data);
 			inPhieuDatHang.setVisible(true);
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(this, "Lỗi khi in phiếu đặt hàng: " + e.getMessage());
+			e.printStackTrace();
+		}
+	}
+	
+	private void huyHoaDon(String maPDH, String maNV, String maKH, String ngayDat, String ngayGiao,
+			String trangThaiStr, String phuongThucThanhToanStr) {
+		try {
+			List<Object[]> data = chiTietHoaDonDAO.getChiTietPhieuDatHang(maPDH);
+
+			Dialog_XemPhieuDatThuoc huyPhieuDatHang = new Dialog_XemPhieuDatThuoc(null, maPDH, maNV, maKH, ngayDat, ngayGiao,
+					trangThaiStr, phuongThucThanhToanStr, data);
+			huyPhieuDatHang.setVisible(true);
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(this, "Lỗi khi in phiếu đặt hàng: " + e.getMessage());
 			e.printStackTrace();
@@ -448,7 +466,7 @@ public class Frame_HoaDon_DatThuoc extends JPanel {
 	
 	private void btnThanhToanAction() throws ParseException {
 		String maPDH = (String) tableModel.getValueAt(tablePhieuDatHang.getSelectedRow(), 0);
-		Object[] data = chiTietHoaDonDAO.getPhieuDatHangInfo(maPDH);
+		Object[] data = chiTietHoaDonDAO.getPhieuDatThuocInfo(maPDH);
 		Frame_Thuoc_GiaoDich_DatThuoc giaoDich = new Frame_Thuoc_GiaoDich_DatThuoc(data[1].toString());
 		giaoDich.setPhieuDatInfo(maPDH, data[3].toString(), data[4].toString(), data[2].toString(), data[7].toString());
 		

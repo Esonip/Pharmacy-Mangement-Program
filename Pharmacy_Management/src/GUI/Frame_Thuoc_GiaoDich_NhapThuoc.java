@@ -1,574 +1,583 @@
 package GUI;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.text.DecimalFormat;
+import javax.swing.*;
+import javax.swing.border.LineBorder;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.JTableHeader;
+import java.awt.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-
-import javax.swing.BorderFactory;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSpinner;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.SwingConstants;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
-import javax.swing.border.TitledBorder;
-import javax.swing.table.DefaultTableModel;
-
-import DAO.ThuocDAO;
-import DAO.NhaCungCapDAO;
+import java.util.Vector;
+import DAO.*;
+import connectDB.ConnectDB;
 
 public class Frame_Thuoc_GiaoDich_NhapThuoc extends JPanel {
     private static final long serialVersionUID = 1L;
-    private JTextField txtMaPhieu;
-    private JTextField txtNgayGiaoDich;
+    private JTextField txtMaPhieuNhap;
+    private JTextField txtNgayNhap;
     private JComboBox<String> cboNhaCungCap;
-    private JTable tableThuoc;
-    private DefaultTableModel modelThuoc;
-    private JSpinner spinnerSoLuong;
-    private JTextField txtTongTien;
     private JComboBox<String> cboHinhThucThanhToan;
+    private JTextField txtTongTien;
     private JTextField txtTimKiemThuoc;
     private JComboBox<String> cboThuoc;
-    private JTextField txtGia;
+    private JTextField txtDonGiaNhap;
+    private JSpinner spinnerSoLuong;
+    private JTable tableThuocNhap;
+    private DefaultTableModel modelThuocNhap;
+    private NhapThuocDAO NhapThuocDAO = new NhapThuocDAO();
+    private ChiTietNhapThuocDAO chiTietNhapThuocDAO = new ChiTietNhapThuocDAO();
     private ThuocDAO thuocDAO = new ThuocDAO();
     private NhaCungCapDAO nhaCungCapDAO = new NhaCungCapDAO();
-    private static final DecimalFormat df = new DecimalFormat("#,###");
+    private String maNV;
 
-    private final Color MAIN_COLOR = new Color(254, 222, 192);
-    private final Color HEADER_COLOR = new Color(251, 203, 150);
-    private final Color BUTTON_COLOR = new Color(249, 187, 118);
-    private final Color BUTTON_TEXT_COLOR = new Color(121, 70, 13);
-    private final Color TEXT_COLOR = new Color(100, 60, 20);
-    private final Color PANEL_BORDER_COLOR = new Color(222, 184, 135);
-    private final Color TABLE_HEADER_COLOR = new Color(251, 203, 150);
-    private final Color SELECTED_COLOR = new Color(255, 239, 213);
+    // Các thành phần hiển thị thông tin chi tiết thuốc trong panel_ChonThuoc
+    private JLabel lblChiTietMaThuoc;
+    private JTextField txtChiTietMaThuoc;
+    private JLabel lblChiTietTenThuoc;
+    private JTextField txtChiTietTenThuoc;
+    private JLabel lblChiTietDonViTinh;
+    private JTextField txtChiTietDonViTinh;
+    private JLabel lblChiTietDonGiaNhap;
+    private JTextField txtChiTietDonGiaNhap;
+    private JLabel lblChiTietDonGiaBan;
+    private JTextField txtChiTietDonGiaBan;
+    private JLabel lblChiTietHanSuDung;
+    private JTextField txtChiTietHanSuDung;
+    private JLabel lblChiTietHamLuong;
+    private JTextField txtChiTietHamLuong;
+    private JLabel lblChiTietSoLuongTon;
+    private JTextField txtChiTietSoLuongTon;
 
-    public Frame_Thuoc_GiaoDich_NhapThuoc() {
+    // Panel Chọn Thuốc Nhập
+    private JPanel panel_ChonThuoc;
+
+    public Frame_Thuoc_GiaoDich_NhapThuoc(String maNV) {
+        this.maNV = maNV;
+        setLayout(null);
+        setPreferredSize(new Dimension(1550, 755));
         initialize();
+        loadData();
         setInitialValues();
-        loadMedicationData();
-        loadSupplierData();
     }
 
     private void initialize() {
-        setBackground(MAIN_COLOR);
-        setLayout(null);
-        setPreferredSize(new Dimension(1550, 878));
+        JPanel pnlBackground = new JPanel();
+        pnlBackground.setBounds(0, 0, 1559, 771);
+        pnlBackground.setBackground(new Color(254, 222, 192));
+        add(pnlBackground);
+        pnlBackground.setLayout(null);
 
-        // Title Panel
-        JPanel pnlTitle = new JPanel();
-        pnlTitle.setBounds(0, 0, 1540, 60);
-        pnlTitle.setBackground(HEADER_COLOR);
-        add(pnlTitle);
-        pnlTitle.setLayout(new BorderLayout());
+        // Panel Thông Tin Phiếu Nhập
+        JPanel panel_PhieuNhap = new JPanel();
+        panel_PhieuNhap.setBackground(new Color(220, 128, 78));
+        panel_PhieuNhap.setBounds(957, 10, 568, 400);
+        panel_PhieuNhap.setBorder(BorderFactory.createTitledBorder(
+                new LineBorder(Color.WHITE, 2), "Thông Tin Phiếu Nhập",
+                0, 0, new Font("Segoe UI", Font.PLAIN, 12)));
+        panel_PhieuNhap.setLayout(null);
+        pnlBackground.add(panel_PhieuNhap);
 
-        JLabel lblTitle = new JLabel("GIAO DỊCH NHẬP THUỐC");
-        lblTitle.setHorizontalAlignment(SwingConstants.CENTER);
-        lblTitle.setFont(new Font("Arial", Font.BOLD, 28));
-        lblTitle.setForeground(TEXT_COLOR);
-        pnlTitle.add(lblTitle, BorderLayout.CENTER);
+        JLabel lblMaPhieuNhap = new JLabel("Mã Phiếu Nhập:");
+        lblMaPhieuNhap.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        lblMaPhieuNhap.setBounds(10, 38, 166, 45);
+        panel_PhieuNhap.add(lblMaPhieuNhap);
 
-        // Left Panel (Transaction Info and Medication Selection)
-        JPanel pnlLeft = new JPanel();
-        pnlLeft.setBounds(10, 70, 509, 798);
-        pnlLeft.setBackground(MAIN_COLOR);
-        pnlLeft.setLayout(null);
-        add(pnlLeft);
+        txtMaPhieuNhap = new JTextField();
+        txtMaPhieuNhap.setFont(new Font("Segoe UI", Font.PLAIN, 20));
+        txtMaPhieuNhap.setBounds(186, 38, 372, 43);
+        txtMaPhieuNhap.setEditable(false);
+        panel_PhieuNhap.add(txtMaPhieuNhap);
 
-        // Transaction Info
-        JPanel pnlTransactionInfo = new JPanel();
-        pnlTransactionInfo.setBounds(0, 0, 489, 240);
-        pnlTransactionInfo.setBorder(new TitledBorder(new LineBorder(PANEL_BORDER_COLOR, 1),
-                "Thông tin giao dịch nhập thuốc", TitledBorder.LEFT, TitledBorder.TOP,
-                new Font("Arial", Font.BOLD, 16), TEXT_COLOR));
-        pnlTransactionInfo.setBackground(MAIN_COLOR);
-        pnlTransactionInfo.setLayout(null);
-        pnlLeft.add(pnlTransactionInfo);
+        JLabel lblNgayNhap = new JLabel("Ngày Nhập:");
+        lblNgayNhap.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        lblNgayNhap.setBounds(10, 93, 166, 45);
+        panel_PhieuNhap.add(lblNgayNhap);
 
-        JLabel lblMaPhieu = new JLabel("Mã phiếu nhập:");
-        lblMaPhieu.setForeground(TEXT_COLOR);
-        lblMaPhieu.setFont(new Font("Arial", Font.PLAIN, 16));
-        lblMaPhieu.setBounds(10, 30, 150, 30);
-        pnlTransactionInfo.add(lblMaPhieu);
+        txtNgayNhap = new JTextField();
+        txtNgayNhap.setFont(new Font("Segoe UI", Font.PLAIN, 20));
+        txtNgayNhap.setBounds(186, 93, 372, 43);
+        txtNgayNhap.setEditable(false);
+        panel_PhieuNhap.add(txtNgayNhap);
 
-        txtMaPhieu = new JTextField();
-        txtMaPhieu.setEditable(false);
-        txtMaPhieu.setForeground(TEXT_COLOR);
-        txtMaPhieu.setBackground(new Color(240, 240, 240));
-        txtMaPhieu.setFont(new Font("Arial", Font.PLAIN, 16));
-        txtMaPhieu.setBounds(160, 30, 319, 30);
-        pnlTransactionInfo.add(txtMaPhieu);
-
-        JLabel lblNgayGiaoDich = new JLabel("Ngày nhập:");
-        lblNgayGiaoDich.setForeground(TEXT_COLOR);
-        lblNgayGiaoDich.setFont(new Font("Arial", Font.PLAIN, 16));
-        lblNgayGiaoDich.setBounds(10, 70, 150, 30);
-        pnlTransactionInfo.add(lblNgayGiaoDich);
-
-        txtNgayGiaoDich = new JTextField();
-        txtNgayGiaoDich.setEditable(false);
-        txtNgayGiaoDich.setForeground(TEXT_COLOR);
-        txtNgayGiaoDich.setBackground(new Color(240, 240, 240));
-        txtNgayGiaoDich.setFont(new Font("Arial", Font.PLAIN, 16));
-        txtNgayGiaoDich.setBounds(160, 70, 319, 30);
-        pnlTransactionInfo.add(txtNgayGiaoDich);
-
-        JLabel lblNhaCungCap = new JLabel("Nhà cung cấp:");
-        lblNhaCungCap.setForeground(TEXT_COLOR);
-        lblNhaCungCap.setFont(new Font("Arial", Font.PLAIN, 16));
-        lblNhaCungCap.setBounds(10, 110, 150, 30);
-        pnlTransactionInfo.add(lblNhaCungCap);
+        JLabel lblNhaCungCap = new JLabel("Nhà Cung Cấp:");
+        lblNhaCungCap.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        lblNhaCungCap.setBounds(10, 148, 166, 45);
+        panel_PhieuNhap.add(lblNhaCungCap);
 
         cboNhaCungCap = new JComboBox<>();
-        cboNhaCungCap.setBackground(Color.WHITE);
-        cboNhaCungCap.setForeground(TEXT_COLOR);
-        cboNhaCungCap.setFont(new Font("Arial", Font.PLAIN, 16));
-        cboNhaCungCap.setBounds(160, 110, 319, 30);
-        pnlTransactionInfo.add(cboNhaCungCap);
+        cboNhaCungCap.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        cboNhaCungCap.setBounds(186, 148, 372, 43);
+        panel_PhieuNhap.add(cboNhaCungCap);
 
-        JLabel lblHinhThucThanhToan = new JLabel("Hình thức thanh toán:");
-        lblHinhThucThanhToan.setForeground(TEXT_COLOR);
-        lblHinhThucThanhToan.setFont(new Font("Arial", Font.PLAIN, 16));
-        lblHinhThucThanhToan.setBounds(10, 150, 150, 30);
-        pnlTransactionInfo.add(lblHinhThucThanhToan);
+        JLabel lblHinhThucThanhToan = new JLabel("Hình Thức TT:");
+        lblHinhThucThanhToan.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        lblHinhThucThanhToan.setBounds(10, 203, 166, 45);
+        panel_PhieuNhap.add(lblHinhThucThanhToan);
 
-        cboHinhThucThanhToan = new JComboBox<>(new String[] {"Tiền mặt", "Chuyển khoản", "Công nợ"});
-        cboHinhThucThanhToan.setBackground(Color.WHITE);
-        cboHinhThucThanhToan.setForeground(TEXT_COLOR);
-        cboHinhThucThanhToan.setFont(new Font("Arial", Font.PLAIN, 16));
-        cboHinhThucThanhToan.setBounds(160, 150, 319, 30);
-        pnlTransactionInfo.add(cboHinhThucThanhToan);
+        cboHinhThucThanhToan = new JComboBox<>(new String[]{"Tiền mặt", "Chuyển khoản"});
+        cboHinhThucThanhToan.setFont(new Font("Segoe UI", Font.PLAIN, 20));
+        cboHinhThucThanhToan.setBounds(186, 203, 372, 43);
+        panel_PhieuNhap.add(cboHinhThucThanhToan);
 
-        // Total Amount
-        JPanel pnlTotal = new JPanel();
-        pnlTotal.setBackground(MAIN_COLOR);
-        pnlTotal.setBounds(10, 190, 469, 40);
-        pnlTransactionInfo.add(pnlTotal);
-        pnlTotal.setLayout(null);
+        JLabel lblTongTien = new JLabel("Tổng Tiền:");
+        lblTongTien.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        lblTongTien.setBounds(10, 258, 166, 45);
+        panel_PhieuNhap.add(lblTongTien);
 
-        JLabel lblTongTien = new JLabel("Tổng tiền:");
-        lblTongTien.setBounds(0, 0, 91, 40);
-        lblTongTien.setFont(new Font("Arial", Font.BOLD, 18));
-        lblTongTien.setForeground(TEXT_COLOR);
-        pnlTotal.add(lblTongTien);
-
-        txtTongTien = new JTextField("0 VNĐ");
-        txtTongTien.setBounds(91, 0, 368, 40);
+        txtTongTien = new JTextField("0đ");
+        txtTongTien.setFont(new Font("Segoe UI", Font.PLAIN, 20));
+        txtTongTien.setBounds(186, 258, 372, 43);
         txtTongTien.setEditable(false);
-        txtTongTien.setFont(new Font("Arial", Font.BOLD, 18));
-        txtTongTien.setForeground(new Color(165, 42, 42));
-        txtTongTien.setBackground(new Color(253, 245, 230));
-        txtTongTien.setHorizontalAlignment(SwingConstants.RIGHT);
-        pnlTotal.add(txtTongTien);
+        panel_PhieuNhap.add(txtTongTien);
 
-        // Action Buttons
-        JPanel pnlActions = new JPanel();
-        pnlActions.setBounds(0, 261, 489, 40);
-        pnlLeft.add(pnlActions);
-        pnlActions.setBackground(MAIN_COLOR);
-        pnlActions.setLayout(null);
+        JButton btnLuu = new JButton("LƯU PHIẾU NHẬP");
+        btnLuu.setBounds(82, 338, 200, 51);
+        panel_PhieuNhap.add(btnLuu);
+        btnLuu.setForeground(Color.WHITE);
+        btnLuu.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        btnLuu.setBackground(new Color(0, 128, 255));
+        btnLuu.setOpaque(true);
+        btnLuu.setBorderPainted(false);
 
-        JButton btnSave = new JButton("Lưu nhập thuốc");
-        btnSave.setBackground(new Color(254, 152, 65));
-        btnSave.setForeground(new Color(50, 20, 0));
-        btnSave.setFont(new Font("Arial", Font.BOLD, 16));
-        btnSave.setBounds(0, 0, 153, 40);
-        pnlActions.add(btnSave);
+        JButton btnHuy = new JButton("HỦY");
+        btnHuy.setBounds(296, 338, 200, 51);
+        panel_PhieuNhap.add(btnHuy);
+        btnHuy.setForeground(Color.WHITE);
+        btnHuy.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        btnHuy.setBackground(new Color(255, 0, 0));
+        btnHuy.setOpaque(true);
+        btnHuy.setBorderPainted(false);
+        btnHuy.addActionListener(e -> resetForm());
+        btnLuu.addActionListener(e -> luuPhieuNhap());
 
-        JButton btnClear = new JButton("Làm mới");
-        btnClear.setBackground(BUTTON_COLOR);
-        btnClear.setForeground(BUTTON_TEXT_COLOR);
-        btnClear.setFont(new Font("Arial", Font.BOLD, 16));
-        btnClear.setBounds(168, 0, 153, 40);
-        pnlActions.add(btnClear);
+        // Panel Chọn Thuốc Nhập
+        panel_ChonThuoc = new JPanel();
+        panel_ChonThuoc.setBackground(new Color(220, 128, 78));
+        panel_ChonThuoc.setBounds(10, 420, 1515, 260);
+        panel_ChonThuoc.setBorder(BorderFactory.createTitledBorder(
+                new LineBorder(Color.WHITE, 2), "Chọn Thuốc Nhập",
+                0, 0, new Font("Segoe UI", Font.PLAIN, 12)));
+        panel_ChonThuoc.setLayout(null);
+        pnlBackground.add(panel_ChonThuoc);
 
-        JButton btnCancel = new JButton("Hủy");
-        btnCancel.setBackground(BUTTON_COLOR);
-        btnCancel.setForeground(BUTTON_TEXT_COLOR);
-        btnCancel.setFont(new Font("Arial", Font.BOLD, 16));
-        btnCancel.setBounds(336, 0, 153, 40);
-        pnlActions.add(btnCancel);
-        btnSave.addActionListener(e -> saveTransaction());
-        btnClear.addActionListener(e -> clearForm());
-        btnCancel.addActionListener(e -> cancelTransaction());
+        // Khu vực tìm kiếm và nhập liệu thuốc (bên trái)
+        JPanel panelNhapThuoc = new JPanel();
+        panelNhapThuoc.setBackground(new Color(220, 128, 78));
+        panelNhapThuoc.setBounds(20, 20, 581, 220);
+        panelNhapThuoc.setBorder(BorderFactory.createTitledBorder(
+                new LineBorder(Color.WHITE, 1), "Nhập Thuốc",
+                0, 0, new Font("Segoe UI", Font.PLAIN, 12)));
+        panelNhapThuoc.setLayout(null);
+        panel_ChonThuoc.add(panelNhapThuoc);
 
-        // Medication Selection
-        JPanel pnlMedicationSelection = new JPanel();
-        pnlMedicationSelection.setBounds(0, 335, 489, 202);
-        pnlMedicationSelection.setBorder(new TitledBorder(new LineBorder(PANEL_BORDER_COLOR, 1),
-                "Chọn thuốc nhập", TitledBorder.LEFT, TitledBorder.TOP,
-                new Font("Arial", Font.BOLD, 16), TEXT_COLOR));
-        pnlMedicationSelection.setBackground(MAIN_COLOR);
-        pnlMedicationSelection.setLayout(null);
-        pnlLeft.add(pnlMedicationSelection);
-
-        JLabel lblTimKiemThuoc = new JLabel("Tìm kiếm thuốc:");
-        lblTimKiemThuoc.setForeground(TEXT_COLOR);
-        lblTimKiemThuoc.setFont(new Font("Arial", Font.PLAIN, 16));
-        lblTimKiemThuoc.setBounds(10, 30, 150, 30);
-        pnlMedicationSelection.add(lblTimKiemThuoc);
+        JLabel lblTenThuoc = new JLabel("Tên Thuốc:");
+        lblTenThuoc.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        lblTenThuoc.setBounds(20, 30, 100, 30);
+        panelNhapThuoc.add(lblTenThuoc);
 
         txtTimKiemThuoc = new JTextField();
-        txtTimKiemThuoc.setForeground(TEXT_COLOR);
-        txtTimKiemThuoc.setFont(new Font("Arial", Font.PLAIN, 16));
-        txtTimKiemThuoc.setBounds(160, 30, 233, 30);
-        pnlMedicationSelection.add(txtTimKiemThuoc);
+        txtTimKiemThuoc.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        txtTimKiemThuoc.setBounds(151, 30, 289, 30);
+        panelNhapThuoc.add(txtTimKiemThuoc);
 
-        JButton btnSearch = new JButton("Tìm");
-        btnSearch.setBackground(BUTTON_COLOR);
-        btnSearch.setForeground(BUTTON_TEXT_COLOR);
-        btnSearch.setFont(new Font("Arial", Font.BOLD, 16));
-        btnSearch.setBounds(403, 30, 80, 30);
-        pnlMedicationSelection.add(btnSearch);
+        JButton btnTimThuoc = new JButton("Tìm");
+        btnTimThuoc.setIcon(new ImageIcon("icon\\find.png"));
+        btnTimThuoc.setFont(new Font("Times New Roman", Font.BOLD, 16));
+        btnTimThuoc.setBounds(450, 32, 121, 30);
+        btnTimThuoc.addActionListener(e -> timThuoc());
+        panelNhapThuoc.add(btnTimThuoc);
+
+        JButton btnReset = new JButton("Reset");
+        btnReset.setIcon(new ImageIcon("icon\\refresh.png"));
+        btnReset.setFont(new Font("Times New Roman", Font.BOLD, 16));
+        btnReset.setBounds(450, 72, 121, 30);
+        btnReset.addActionListener(e -> resetThuoc());
+        panelNhapThuoc.add(btnReset);
 
         JLabel lblThuoc = new JLabel("Thuốc:");
-        lblThuoc.setForeground(TEXT_COLOR);
-        lblThuoc.setFont(new Font("Arial", Font.PLAIN, 16));
-        lblThuoc.setBounds(10, 70, 150, 30);
-        pnlMedicationSelection.add(lblThuoc);
+        lblThuoc.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        lblThuoc.setBounds(20, 70, 100, 30);
+        panelNhapThuoc.add(lblThuoc);
 
         cboThuoc = new JComboBox<>();
-        cboThuoc.setBackground(Color.WHITE);
-        cboThuoc.setForeground(TEXT_COLOR);
-        cboThuoc.setFont(new Font("Arial", Font.PLAIN, 16));
-        cboThuoc.setBounds(160, 70, 323, 30);
-        pnlMedicationSelection.add(cboThuoc);
-        cboThuoc.addActionListener(e -> updatePriceDisplay());
+        cboThuoc.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        cboThuoc.setBounds(151, 70, 289, 30);
+        cboThuoc.addActionListener(e -> updateDonGia());
+        panelNhapThuoc.add(cboThuoc);
 
-        JLabel lblGia = new JLabel("Giá:");
-        lblGia.setForeground(TEXT_COLOR);
-        lblGia.setFont(new Font("Arial", Font.PLAIN, 16));
-        lblGia.setBounds(10, 110, 150, 30);
-        pnlMedicationSelection.add(lblGia);
+        JLabel lblDonGia = new JLabel("Đơn Giá Nhập:");
+        lblDonGia.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        lblDonGia.setBounds(20, 110, 125, 30);
+        panelNhapThuoc.add(lblDonGia);
 
-        txtGia = new JTextField("0 VNĐ");
-        txtGia.setEditable(false);
-        txtGia.setForeground(TEXT_COLOR);
-        txtGia.setFont(new Font("Arial", Font.PLAIN, 16));
-        txtGia.setBackground(new Color(240, 240, 240));
-        txtGia.setBounds(160, 110, 323, 30);
-        pnlMedicationSelection.add(txtGia);
+        txtDonGiaNhap = new JTextField("0đ");
+        txtDonGiaNhap.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        txtDonGiaNhap.setBounds(151, 110, 420, 30);
+        txtDonGiaNhap.setEditable(false);
+        panelNhapThuoc.add(txtDonGiaNhap);
 
-        JLabel lblSoLuong = new JLabel("Số lượng nhập:");
-        lblSoLuong.setForeground(TEXT_COLOR);
-        lblSoLuong.setFont(new Font("Arial", Font.PLAIN, 16));
-        lblSoLuong.setBounds(10, 150, 150, 30);
-        pnlMedicationSelection.add(lblSoLuong);
+        JLabel lblSoLuong = new JLabel("Số Lượng:");
+        lblSoLuong.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        lblSoLuong.setBounds(20, 150, 100, 30);
+        panelNhapThuoc.add(lblSoLuong);
 
         spinnerSoLuong = new JSpinner(new SpinnerNumberModel(1, 1, 1000, 1));
-        spinnerSoLuong.getEditor().getComponent(0).setForeground(TEXT_COLOR);
-        spinnerSoLuong.setFont(new Font("Arial", Font.PLAIN, 16));
-        spinnerSoLuong.setBounds(160, 150, 100, 30);
-        pnlMedicationSelection.add(spinnerSoLuong);
+        spinnerSoLuong.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        spinnerSoLuong.setBounds(151, 151, 60, 30);
+        panelNhapThuoc.add(spinnerSoLuong);
 
-        // Medication Buttons
-        JPanel pnlMedicationButtons = new JPanel();
-        pnlMedicationButtons.setBounds(0, 545, 489, 40);
-        pnlMedicationButtons.setBackground(MAIN_COLOR);
-        pnlMedicationButtons.setLayout(null);
-        pnlLeft.add(pnlMedicationButtons);
+        JButton btnThemThuoc = new JButton("Thêm");
+        btnThemThuoc.setIcon(new ImageIcon("icon\\add.png"));
+        btnThemThuoc.setFont(new Font("Times New Roman", Font.BOLD, 16));
+        btnThemThuoc.setBounds(238, 152, 125, 30);
+        btnThemThuoc.addActionListener(e -> themThuoc());
+        panelNhapThuoc.add(btnThemThuoc);
 
-        JButton btnAddMedication = new JButton("Thêm thuốc nhập");
-        btnAddMedication.setBackground(new Color(254, 152, 65));
-        btnAddMedication.setForeground(new Color(50, 20, 0));
-        btnAddMedication.setFont(new Font("Arial", Font.BOLD, 16));
-        btnAddMedication.setBounds(10, 0, 200, 40);
-        pnlMedicationButtons.add(btnAddMedication);
+        JButton btnThemThuocMoi = new JButton("Thêm Thuốc");
+        btnThemThuocMoi.setIcon(new ImageIcon("icon\\medicine.png"));
+        btnThemThuocMoi.setFont(new Font("Times New Roman", Font.BOLD, 16));
+        btnThemThuocMoi.setBounds(386, 151, 185, 30);
+        btnThemThuocMoi.addActionListener(e -> themThuocMoi());
+        panelNhapThuoc.add(btnThemThuocMoi);
 
-        JButton btnRemoveMedication = new JButton("Xóa thuốc");
-        btnRemoveMedication.setBackground(BUTTON_COLOR);
-        btnRemoveMedication.setForeground(BUTTON_TEXT_COLOR);
-        btnRemoveMedication.setFont(new Font("Arial", Font.BOLD, 16));
-        btnRemoveMedication.setBounds(243, 0, 200, 40);
-        pnlMedicationButtons.add(btnRemoveMedication);
+        // Khu vực thông tin chi tiết thuốc (phần còn lại của panel)
+        JPanel panelChiTietThuoc = new JPanel();
+        panelChiTietThuoc.setBackground(new Color(220, 128, 78));
+        panelChiTietThuoc.setBounds(611, 20, 879, 220);
+        panelChiTietThuoc.setBorder(BorderFactory.createTitledBorder(
+                new LineBorder(Color.WHITE, 1), "Thông Tin Chi Tiết Thuốc",
+                0, 0, new Font("Segoe UI", Font.PLAIN, 12)));
+        panelChiTietThuoc.setLayout(null);
+        panel_ChonThuoc.add(panelChiTietThuoc);
 
-        // Right Panel (Medication Table)
-        JPanel pnlRight = new JPanel();
-        pnlRight.setBounds(529, 70, 1011, 798);
-        pnlRight.setBackground(MAIN_COLOR);
-        add(pnlRight);
-        pnlRight.setLayout(null);
+        lblChiTietMaThuoc = new JLabel("Mã thuốc:");
+        lblChiTietMaThuoc.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        lblChiTietMaThuoc.setBounds(20, 30, 131, 25);
+        panelChiTietThuoc.add(lblChiTietMaThuoc);
 
-        // Medication Table
-        JPanel pnlTable = new JPanel();
-        pnlTable.setBounds(10, 10, 991, 778);
-        pnlTable.setBackground(MAIN_COLOR);
-        pnlTable.setBorder(new TitledBorder(new LineBorder(PANEL_BORDER_COLOR, 1),
-                "Danh sách thuốc nhập", TitledBorder.LEFT, TitledBorder.TOP,
-                new Font("Arial", Font.BOLD, 16), TEXT_COLOR));
-        pnlRight.add(pnlTable);
-        pnlTable.setLayout(null);
+        txtChiTietMaThuoc = new JTextField();
+        txtChiTietMaThuoc.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtChiTietMaThuoc.setBounds(161, 30, 308, 25);
+        txtChiTietMaThuoc.setEditable(false);
+        panelChiTietThuoc.add(txtChiTietMaThuoc);
 
-        modelThuoc = new DefaultTableModel(new Object[] {"STT", "Mã thuốc", "Tên thuốc", "Số lượng nhập", "Đơn giá", "Thành tiền"}, 0) {
-            private static final long serialVersionUID = 1L;
+        lblChiTietTenThuoc = new JLabel("Tên thuốc:");
+        lblChiTietTenThuoc.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        lblChiTietTenThuoc.setBounds(20, 60, 131, 25);
+        panelChiTietThuoc.add(lblChiTietTenThuoc);
+
+        txtChiTietTenThuoc = new JTextField();
+        txtChiTietTenThuoc.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtChiTietTenThuoc.setBounds(161, 60, 308, 25);
+        txtChiTietTenThuoc.setEditable(false);
+        panelChiTietThuoc.add(txtChiTietTenThuoc);
+
+        lblChiTietDonViTinh = new JLabel("Đơn vị tính:");
+        lblChiTietDonViTinh.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        lblChiTietDonViTinh.setBounds(20, 90, 131, 25);
+        panelChiTietThuoc.add(lblChiTietDonViTinh);
+
+        txtChiTietDonViTinh = new JTextField();
+        txtChiTietDonViTinh.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtChiTietDonViTinh.setBounds(161, 90, 308, 25);
+        txtChiTietDonViTinh.setEditable(false);
+        panelChiTietThuoc.add(txtChiTietDonViTinh);
+
+        lblChiTietDonGiaNhap = new JLabel("Đơn giá nhập:");
+        lblChiTietDonGiaNhap.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        lblChiTietDonGiaNhap.setBounds(20, 120, 131, 25);
+        panelChiTietThuoc.add(lblChiTietDonGiaNhap);
+
+        txtChiTietDonGiaNhap = new JTextField();
+        txtChiTietDonGiaNhap.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtChiTietDonGiaNhap.setBounds(161, 120, 308, 25);
+        txtChiTietDonGiaNhap.setEditable(false);
+        panelChiTietThuoc.add(txtChiTietDonGiaNhap);
+
+        lblChiTietDonGiaBan = new JLabel("Đơn giá bán:");
+        lblChiTietDonGiaBan.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        lblChiTietDonGiaBan.setBounds(20, 150, 131, 25);
+        panelChiTietThuoc.add(lblChiTietDonGiaBan);
+
+        txtChiTietDonGiaBan = new JTextField();
+        txtChiTietDonGiaBan.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtChiTietDonGiaBan.setBounds(161, 150, 308, 25);
+        txtChiTietDonGiaBan.setEditable(false);
+        panelChiTietThuoc.add(txtChiTietDonGiaBan);
+
+        lblChiTietHanSuDung = new JLabel("Hạn sử dụng:");
+        lblChiTietHanSuDung.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        lblChiTietHanSuDung.setBounds(479, 30, 148, 25);
+        panelChiTietThuoc.add(lblChiTietHanSuDung);
+
+        txtChiTietHanSuDung = new JTextField();
+        txtChiTietHanSuDung.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtChiTietHanSuDung.setBounds(637, 30, 200, 25);
+        txtChiTietHanSuDung.setEditable(false);
+        panelChiTietThuoc.add(txtChiTietHanSuDung);
+
+        lblChiTietHamLuong = new JLabel("Hàm lượng:");
+        lblChiTietHamLuong.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        lblChiTietHamLuong.setBounds(479, 60, 148, 25);
+        panelChiTietThuoc.add(lblChiTietHamLuong);
+
+        txtChiTietHamLuong = new JTextField();
+        txtChiTietHamLuong.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtChiTietHamLuong.setBounds(637, 60, 200, 25);
+        txtChiTietHamLuong.setEditable(false);
+        panelChiTietThuoc.add(txtChiTietHamLuong);
+
+        lblChiTietSoLuongTon = new JLabel("Số lượng tồn:");
+        lblChiTietSoLuongTon.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        lblChiTietSoLuongTon.setBounds(479, 90, 148, 25);
+        panelChiTietThuoc.add(lblChiTietSoLuongTon);
+
+        txtChiTietSoLuongTon = new JTextField();
+        txtChiTietSoLuongTon.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtChiTietSoLuongTon.setBounds(637, 90, 200, 25);
+        txtChiTietSoLuongTon.setEditable(false);
+        panelChiTietThuoc.add(txtChiTietSoLuongTon);
+
+        // Panel Danh Sách Thuốc Nhập
+        JPanel panel_DanhSachThuoc = new JPanel();
+        panel_DanhSachThuoc.setBackground(new Color(220, 128, 78));
+        panel_DanhSachThuoc.setBounds(10, 10, 933, 400);
+        panel_DanhSachThuoc.setBorder(BorderFactory.createTitledBorder(
+                new LineBorder(Color.WHITE, 2), "Danh Sách Thuốc Nhập",
+                0, 0, new Font("Segoe UI", Font.PLAIN, 12)));
+        pnlBackground.add(panel_DanhSachThuoc);
+        panel_DanhSachThuoc.setLayout(null);
+
+        JScrollPane scrollPaneThuocNhap = new JScrollPane();
+        scrollPaneThuocNhap.setBounds(20, 25, 900, 366);
+        panel_DanhSachThuoc.add(scrollPaneThuocNhap);
+
+        tableThuocNhap = new JTable();
+        tableThuocNhap.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+        JTableHeader header = tableThuocNhap.getTableHeader();
+        header.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        modelThuocNhap = new DefaultTableModel(
+                new Object[][]{},
+                new String[]{"Mã Thuốc", "Tên Thuốc", "Số Lượng", "Đơn Giá Nhập", "Thành Tiền"}) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
             }
         };
-
-        tableThuoc = new JTable(modelThuoc);
-        tableThuoc.getTableHeader().setFont(new Font("Arial", Font.BOLD, 14));
-        tableThuoc.getTableHeader().setBackground(TABLE_HEADER_COLOR);
-        tableThuoc.getTableHeader().setForeground(TEXT_COLOR);
-        tableThuoc.setBackground(Color.WHITE);
-        tableThuoc.setForeground(TEXT_COLOR);
-        tableThuoc.setSelectionBackground(SELECTED_COLOR);
-        tableThuoc.setRowHeight(30);
-        tableThuoc.setFont(new Font("Arial", Font.PLAIN, 14));
-
-        JScrollPane scrollThuoc = new JScrollPane(tableThuoc);
-        scrollThuoc.setBounds(10, 21, 971, 747);
-        pnlTable.add(scrollThuoc);
-
-        // Event Handlers
-        btnAddMedication.addActionListener(e -> addMedicationToTable());
-        btnRemoveMedication.addActionListener(e -> removeMedicationFromTable());
-        btnSearch.addActionListener(e -> searchMedication());
+        tableThuocNhap.setModel(modelThuocNhap);
+        tableThuocNhap.setRowHeight(30);
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+        for (int i = 0; i < tableThuocNhap.getColumnCount(); i++) {
+            tableThuocNhap.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
+        scrollPaneThuocNhap.setViewportView(tableThuocNhap);
     }
 
     private void setInitialValues() {
-        String lastMaPN = thuocDAO.getLastMaPhieuNhap();
-        String newMaPN = generateNextMaPN(lastMaPN);
-        txtMaPhieu.setText(newMaPN);
-        txtNgayGiaoDich.setText(new SimpleDateFormat("dd/MM/yyyy").format(new Date()));
+        txtMaPhieuNhap.setText(NhapThuocDAO.generateMaPhieuNhap());
+        txtNgayNhap.setText(new SimpleDateFormat("dd/MM/yyyy").format(new Date()));
+        txtTongTien.setText("0đ");
+        clearChiTietThuoc();
     }
 
-    private String generateNextMaPN(String lastMaPN) {
-        if (lastMaPN == null || lastMaPN.isEmpty() || !lastMaPN.startsWith("PN")) {
-            return "PN001";
+    private void loadData() {
+        List<Object[]> thuocList = thuocDAO.getAllThuoc();
+        Vector<String> thuocItems = new Vector<>();
+        for (Object[] thuoc : thuocList) {
+            thuocItems.add(thuoc[0] + " - " + thuoc[1]);
         }
-        String numPart = lastMaPN.substring(2);
-        int num = Integer.parseInt(numPart) + 1;
-        return String.format("PN%03d", num);
+        cboThuoc.setModel(new DefaultComboBoxModel<>(thuocItems));
+
+        List<Object[]> nccList = nhaCungCapDAO.getAllNhaCungCap();
+        Vector<String> nccItems = new Vector<>();
+        for (Object[] ncc : nccList) {
+            nccItems.add(ncc[0] + " - " + ncc[1]);
+        }
+        cboNhaCungCap.setModel(new DefaultComboBoxModel<>(nccItems));
     }
 
-    private void loadMedicationData() {
-        List<Object[]> medications = thuocDAO.getAllThuoc();
-        DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
-        for (Object[] med : medications) {
-            String maThuoc = (String) med[0];
-            String tenThuoc = (String) med[1];
-            String donGiaStr = (String) med[3]; // donGiaNhap as String
-            double donGia;
-            try {
-                donGia = Double.parseDouble(donGiaStr.replaceAll("[^\\d.]", ""));
-            } catch (NumberFormatException e) {
-                donGia = 0.0; // Fallback value
-                e.printStackTrace();
+    private void timThuoc() {
+        String keyword = txtTimKiemThuoc.getText().trim();
+        // Chỉ tìm kiếm theo tenThuoc, không tìm theo maThuoc hay soLuongTon
+        List<Object[]> results = thuocDAO.timKiemThuoc("", keyword, "");
+        Vector<String> thuocItems = new Vector<>();
+
+        if (results.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Không tìm thấy thuốc với tên: " + keyword);
+            thuocItems.add("Không tìm thấy thuốc");
+            cboThuoc.setModel(new DefaultComboBoxModel<>(thuocItems));
+            txtDonGiaNhap.setText("0đ");
+            clearChiTietThuoc();
+            return;
+        }
+
+        thuocItems.clear();
+        for (Object[] thuoc : results) {
+            String maThuoc = (String) thuoc[0];
+            String tenThuoc = (String) thuoc[1];
+            thuocItems.add(maThuoc + " - " + tenThuoc);
+            if (thuocItems.size() == 1) {
+                txtChiTietMaThuoc.setText((String) thuoc[0]);
+                txtChiTietTenThuoc.setText((String) thuoc[1]);
+                txtChiTietDonViTinh.setText((String) thuoc[2]);
+                txtChiTietDonGiaNhap.setText((String) thuoc[3]);
+                txtChiTietDonGiaBan.setText((String) thuoc[4]);
+                txtChiTietHanSuDung.setText((String) thuoc[5]);
+                txtChiTietHamLuong.setText((String) thuoc[6]);
+                txtChiTietSoLuongTon.setText(String.valueOf(thuoc[7] != null ? thuoc[7] : "0"));
             }
-            model.addElement(maThuoc + " - " + tenThuoc + " (" + df.format(donGia) + " VNĐ)");
         }
-        cboThuoc.setModel(model);
-        updatePriceDisplay();
+        cboThuoc.setModel(new DefaultComboBoxModel<>(thuocItems));
+        updateDonGia();
     }
 
-    private void loadSupplierData() {
-        List<Object[]> suppliers = nhaCungCapDAO.getAllNhaCungCap();
-        DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
-        for (Object[] supplier : suppliers) {
-            String maNCC = (String) supplier[0];
-            String tenNCC = (String) supplier[1];
-            model.addElement(maNCC + " - " + tenNCC);
-        }
-        cboNhaCungCap.setModel(model);
-    }
-
-    private void searchMedication() {
-        String searchText = txtTimKiemThuoc.getText().trim();
-        List<Object[]> results = thuocDAO.timKiemThuoc(searchText, searchText, "");
-        DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
-        for (Object[] med : results) {
-            String maThuoc = (String) med[0];
-            String tenThuoc = (String) med[1];
-            String donGiaStr = (String) med[3]; // donGiaNhap as String
-            double donGia;
-            try {
-                donGia = Double.parseDouble(donGiaStr.replaceAll("[^\\d.]", ""));
-            } catch (NumberFormatException e) {
-                donGia = 0.0; // Fallback value
-                e.printStackTrace();
-            }
-            model.addElement(maThuoc + " - " + tenThuoc + " (" + df.format(donGia) + " VNĐ)");
-        }
-        cboThuoc.setModel(model);
-        updatePriceDisplay();
-    }
-
-    private void updatePriceDisplay() {
+    private void updateDonGia() {
         String selectedThuoc = (String) cboThuoc.getSelectedItem();
-        if (selectedThuoc != null && !selectedThuoc.isEmpty()) {
-            String[] parts = selectedThuoc.split(" - ");
-            String maThuoc = parts[0];
-            double donGia = getDonGia(maThuoc);
-            txtGia.setText(df.format(donGia) + " VNĐ");
+        if (selectedThuoc != null && !selectedThuoc.equals("Không tìm thấy thuốc")) {
+            String maThuoc = selectedThuoc.split(" - ")[0];
+            double donGia = thuocDAO.getDonGiaNhap(maThuoc);
+            txtDonGiaNhap.setText(String.format("%,.0fđ", donGia));
+
+            // Cập nhật thông tin chi tiết thuốc khi chọn từ combobox
+            List<Object[]> results = thuocDAO.timKiemThuoc(maThuoc, "", "");
+            if (!results.isEmpty()) {
+                Object[] thuoc = results.get(0);
+                txtChiTietMaThuoc.setText((String) thuoc[0]);
+                txtChiTietTenThuoc.setText((String) thuoc[1]);
+                txtChiTietDonViTinh.setText((String) thuoc[2]);
+                txtChiTietDonGiaNhap.setText((String) thuoc[3]);
+                txtChiTietDonGiaBan.setText((String) thuoc[4]);
+                txtChiTietHanSuDung.setText((String) thuoc[5]);
+                txtChiTietHamLuong.setText((String) thuoc[6]);
+                txtChiTietSoLuongTon.setText(String.valueOf(thuoc[7] != null ? thuoc[7] : "0"));
+            }
         } else {
-            txtGia.setText("0 VNĐ");
+            txtDonGiaNhap.setText("0đ");
+            clearChiTietThuoc();
         }
     }
 
-    private void addMedicationToTable() {
+    private void themThuoc() {
         String selectedThuoc = (String) cboThuoc.getSelectedItem();
-        if (selectedThuoc == null || selectedThuoc.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn thuốc!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+        if (selectedThuoc == null || selectedThuoc.equals("Không tìm thấy thuốc")) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn thuốc hoặc thêm thuốc mới!");
             return;
         }
-
+        String maThuoc = selectedThuoc.split(" - ")[0];
+        String tenThuoc = selectedThuoc.split(" - ")[1];
         int soLuong = (int) spinnerSoLuong.getValue();
-        if (soLuong <= 0) {
-            JOptionPane.showMessageDialog(this, "Số lượng nhập phải lớn hơn 0!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        String[] parts = selectedThuoc.split(" - ");
-        String maThuoc = parts[0];
-        String tenThuoc = parts[1].split(" \\(")[0].trim();
-        double donGia = getDonGia(maThuoc);
+        double donGia = thuocDAO.getDonGiaNhap(maThuoc);
         double thanhTien = soLuong * donGia;
 
-        int existingRow = -1;
-        for (int i = 0; i < modelThuoc.getRowCount(); i++) {
-            if (modelThuoc.getValueAt(i, 1).equals(maThuoc)) {
-                existingRow = i;
-                break;
+        for (int i = 0; i < modelThuocNhap.getRowCount(); i++) {
+            if (modelThuocNhap.getValueAt(i, 0).equals(maThuoc)) {
+                int soLuongCu = Integer.parseInt(modelThuocNhap.getValueAt(i, 2).toString());
+                int soLuongMoi = soLuongCu + soLuong;
+                modelThuocNhap.setValueAt(soLuongMoi, i, 2);
+                modelThuocNhap.setValueAt(String.format("%,.0fđ", soLuongMoi * donGia), i, 4);
+                updateTongTien();
+                return;
             }
         }
 
-        if (existingRow >= 0) {
-            int currentSoLuong = Integer.parseInt(modelThuoc.getValueAt(existingRow, 3).toString());
-            int newSoLuong = currentSoLuong + soLuong;
-            double newThanhTien = newSoLuong * donGia;
-            modelThuoc.setValueAt(newSoLuong, existingRow, 3);
-            modelThuoc.setValueAt(df.format(newThanhTien) + " VNĐ", existingRow, 5);
-        } else {
-            modelThuoc.addRow(new Object[] {
-                    modelThuoc.getRowCount() + 1, maThuoc, tenThuoc, soLuong,
-                    df.format(donGia) + " VNĐ", df.format(thanhTien) + " VNĐ"
-            });
-        }
-        updateTotalAmount();
+        modelThuocNhap.addRow(new Object[]{
+                maThuoc, tenThuoc, soLuong,
+                String.format("%,.0fđ", donGia),
+                String.format("%,.0fđ", thanhTien)
+        });
+        updateTongTien();
     }
 
-    private void removeMedicationFromTable() {
-        int selectedRow = tableThuoc.getSelectedRow();
-        if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn thuốc cần xóa!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+    private void themThuocMoi() {
+        String lastMaThuoc = thuocDAO.getLastMaThuoc();
+        String newMaThuoc = generateNextMaThuoc(lastMaThuoc);
+        Dialog_ChiTietThuoc dialog = new Dialog_ChiTietThuoc(null, false);
+        dialog.hienThiMaThuoc(newMaThuoc);
+        dialog.setVisible(true);
+        // Sau khi dialog đóng, làm mới danh sách thuốc
+        loadData();
+    }
+
+    private String generateNextMaThuoc(String lastMaThuoc) {
+        if (lastMaThuoc == null || lastMaThuoc.isEmpty() || !lastMaThuoc.startsWith("T")) {
+            return "T001";
+        }
+        String numPart = lastMaThuoc.substring(1);
+        int num = Integer.parseInt(numPart) + 1;
+        return String.format("T%03d", num);
+    }
+
+    private void clearChiTietThuoc() {
+        txtChiTietMaThuoc.setText("");
+        txtChiTietTenThuoc.setText("");
+        txtChiTietDonViTinh.setText("");
+        txtChiTietDonGiaNhap.setText("");
+        txtChiTietDonGiaBan.setText("");
+        txtChiTietHanSuDung.setText("");
+        txtChiTietHamLuong.setText("");
+        txtChiTietSoLuongTon.setText("");
+    }
+
+    private void resetThuoc() {
+        loadData();
+        clearChiTietThuoc();
+        txtTimKiemThuoc.setText("");
+        txtDonGiaNhap.setText("0đ");
+    }
+
+    private void updateTongTien() {
+        double tongTien = 0;
+        for (int i = 0; i < modelThuocNhap.getRowCount(); i++) {
+            String thanhTienStr = modelThuocNhap.getValueAt(i, 4).toString().replace("đ", "").replace(",", "");
+            tongTien += Double.parseDouble(thanhTienStr);
+        }
+        txtTongTien.setText(String.format("%,.0fđ", tongTien));
+    }
+
+    private void luuPhieuNhap() {
+        if (modelThuocNhap.getRowCount() == 0) {
+            JOptionPane.showMessageDialog(this, "Danh sách thuốc nhập trống!");
             return;
         }
-        modelThuoc.removeRow(selectedRow);
-        for (int i = 0; i < modelThuoc.getRowCount(); i++) {
-            modelThuoc.setValueAt(i + 1, i, 0);
-        }
-        updateTotalAmount();
-    }
-
-    private void updateTotalAmount() {
-        double totalAmount = 0;
-        for (int i = 0; i < modelThuoc.getRowCount(); i++) {
-            String thanhTienStr = modelThuoc.getValueAt(i, 5).toString().replace(" VNĐ", "").replace(",", "").trim();
-            try {
-                double thanhTienValue = Double.parseDouble(thanhTienStr);
-                totalAmount += thanhTienValue;
-            } catch (NumberFormatException e) {
-                System.err.println("Error parsing thanhTien at row " + i + ": " + thanhTienStr);
-            }
-        }
-        txtTongTien.setText(df.format(totalAmount) + " VNĐ");
-    }
-
-    private void saveTransaction() {
-        String maPN = txtMaPhieu.getText().trim();
-        String ngayNhap = txtNgayGiaoDich.getText().trim();
+        String maPhieuNhap = txtMaPhieuNhap.getText().trim();
+        String ngayNhap = txtNgayNhap.getText().trim();
         String maNCC = cboNhaCungCap.getSelectedItem() != null ? cboNhaCungCap.getSelectedItem().toString().split(" - ")[0] : "";
-        String hinhThucThanhToan = (String) cboHinhThucThanhToan.getSelectedItem();
-        double tongTien;
-        try {
-            String tongTienStr = txtTongTien.getText().replace(" VNĐ", "").replace(",", "").trim();
-            tongTien = Double.parseDouble(tongTienStr);
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Tổng tiền không hợp lệ", "Lỗi", JOptionPane.ERROR_MESSAGE);
+        String hinhThucThanhToan = cboHinhThucThanhToan.getSelectedItem().toString();
+
+        if (maPhieuNhap.isEmpty() || ngayNhap.isEmpty() || maNCC.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin!");
             return;
         }
 
-        int rowCount = modelThuoc.getRowCount();
-        if (rowCount == 0) {
-            JOptionPane.showMessageDialog(this, "Danh sách thuốc nhập trống!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+        boolean success = NhapThuocDAO.luuPhieuNhap(maPhieuNhap, maNV, maNCC, ngayNhap, hinhThucThanhToan, 0);
+        if (!success) {
+            JOptionPane.showMessageDialog(this, "Lưu phiếu nhập thất bại!");
             return;
         }
 
-        Object[][] chiTiet = new Object[rowCount][3];
-        for (int i = 0; i < rowCount; i++) {
-            chiTiet[i][0] = modelThuoc.getValueAt(i, 1); // maThuoc
-            chiTiet[i][1] = Integer.parseInt(modelThuoc.getValueAt(i, 3).toString()); // soLuong
-            String donGiaStr = modelThuoc.getValueAt(i, 4).toString().replace(" VNĐ", "").replace(",", "").trim();
-            chiTiet[i][2] = Double.parseDouble(donGiaStr); // donGiaNhap
-        }
-
-        if (maPN.isEmpty() || ngayNhap.isEmpty() || maNCC.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin phiếu nhập!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        try {
-            if (thuocDAO.saveTransaction(maPN, ngayNhap, maNCC, hinhThucThanhToan, tongTien, chiTiet)) {
-                JOptionPane.showMessageDialog(this, "Lưu phiếu nhập thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-                clearForm();
-            } else {
-                JOptionPane.showMessageDialog(this, "Lưu phiếu nhập thất bại", "Lỗi", JOptionPane.ERROR_MESSAGE);
+        success = chiTietNhapThuocDAO.luuChiTietPhieuNhap(maPhieuNhap, modelThuocNhap);
+        if (success) {
+            for (int i = 0; i < modelThuocNhap.getRowCount(); i++) {
+                String maThuoc = modelThuocNhap.getValueAt(i, 0).toString();
+                int soLuong = Integer.parseInt(modelThuocNhap.getValueAt(i, 2).toString());
+                NhapThuocDAO.capNhatSoLuongTon(maThuoc, soLuong);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Lỗi khi lưu phiếu nhập: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Lưu phiếu nhập thành công!");
+            resetForm();
+        } else {
+            JOptionPane.showMessageDialog(this, "Lưu chi tiết phiếu nhập thất bại!");
         }
     }
 
-    private void clearForm() {
+    private void resetForm() {
         setInitialValues();
         cboNhaCungCap.setSelectedIndex(0);
         cboHinhThucThanhToan.setSelectedIndex(0);
-        modelThuoc.setRowCount(0);
-        txtTongTien.setText("0 VNĐ");
+        modelThuocNhap.setRowCount(0);
         txtTimKiemThuoc.setText("");
-        txtGia.setText("0 VNĐ");
-        loadMedicationData();
+        loadData();
     }
-
-    private void cancelTransaction() {
-        int option = JOptionPane.showConfirmDialog(this, "Bạn có chắc muốn hủy?", "Xác nhận", JOptionPane.YES_NO_OPTION);
-        if (option == JOptionPane.YES_OPTION) {
-            clearForm();
-        }
-    }
-
-    private double getDonGia(String maThuoc) {
-        List<Object[]> medications = thuocDAO.getAllThuoc();
-        for (Object[] med : medications) {
-            if (((String) med[0]).equals(maThuoc)) {
-                String donGiaStr = (String) med[3]; // donGiaNhap as String
-                try {
-                    return Double.parseDouble(donGiaStr.replaceAll("[^\\d.]", ""));
-                } catch (NumberFormatException e) {
-                    return 0.0;
-                }
-            }
-        }
-        return 0;
-    }
-
 }

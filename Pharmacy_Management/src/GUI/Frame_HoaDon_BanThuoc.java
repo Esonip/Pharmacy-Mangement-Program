@@ -38,9 +38,9 @@ import javax.swing.SwingUtilities;
 
 import com.toedter.calendar.JDateChooser;
 
-import DAO.ChiTietHoaDonDAO;
-import DAO.HoaDonDAO;
-import DAO.Thuoc_GiaoDichDAO;
+import DAO.ChiTietBanThuocDAO;
+import DAO.HoaDonBanThuocDAO;
+import DAO.BanThuocDAO;
 
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -55,9 +55,9 @@ public class Frame_HoaDon_BanThuoc extends JPanel {
 	private JTextField txtMaKhachHangTim;
 	private JTable tableHoaDon;
 	private JDateChooser JDateNgayLapTim;
-	private HoaDonDAO hoaDonDao = new HoaDonDAO();
-	private ChiTietHoaDonDAO chiTietHoaDonDAO = new ChiTietHoaDonDAO();
-	private Thuoc_GiaoDichDAO thuocGiaoDichDAO = new Thuoc_GiaoDichDAO();
+	private HoaDonBanThuocDAO hoaDonDao = new HoaDonBanThuocDAO();
+	private ChiTietBanThuocDAO chiTietHoaDonDAO = new ChiTietBanThuocDAO();
+	private BanThuocDAO thuocGiaoDichDAO = new BanThuocDAO();
 	private JComboBox<String> cbxTrangThaiTim, cbxPhuongThucTT;
 	public static final int NO_SUCH_PAGE = 1;
 	public static final int PAGE_EXISTS = 0;
@@ -82,9 +82,9 @@ public class Frame_HoaDon_BanThuoc extends JPanel {
 
 		tableHoaDon = new JTable();
 		tableHoaDon.setModel(new DefaultTableModel(new Object[][] {}, new String[] { "Mã hóa đơn", "Ngày lập đơn",
-				"Tổng tiền", "Mã nhân viên", "Mã khách hàng", "Trạng thái", "Phương thức" }) {
+				"Mã nhân viên", "Mã khách hàng", "Trạng thái", "Phương thức" }) {
 			private static final long serialVersionUID = 1L;
-			boolean[] columnEditables = new boolean[] { false, false, false, false, false, false, false };
+			boolean[] columnEditables = new boolean[] { false, false, false, false, false, false };
 
 			public boolean isCellEditable(int row, int column) {
 				return columnEditables[column];
@@ -244,17 +244,21 @@ public class Frame_HoaDon_BanThuoc extends JPanel {
 				int selectedRow = tableHoaDon.getSelectedRow();
 				String maHoaDon = (String) tableModel.getValueAt(selectedRow, 0);
 				String ngayLap = (String) tableModel.getValueAt(selectedRow, 1);
-				double tongTien = Double
-						.parseDouble(tableModel.getValueAt(selectedRow, 2).toString().replaceAll("[^0-9.]", ""));
-				String maNV = (String) tableModel.getValueAt(selectedRow, 3);
-				String maKhachHang = (String) tableModel.getValueAt(selectedRow, 4);
-				String trangThaiStr = (String) tableModel.getValueAt(selectedRow, 5);
-				String phuongThucThanhToanStr = (String) tableModel.getValueAt(selectedRow, 6);
+				String maNV = (String) tableModel.getValueAt(selectedRow, 2);
+				String maKhachHang = (String) tableModel.getValueAt(selectedRow, 3);
+				String trangThaiStr = (String) tableModel.getValueAt(selectedRow, 4);
+				String phuongThucThanhToanStr = (String) tableModel.getValueAt(selectedRow, 5);
 
-				if (evt.getClickCount() == 2 && trangThaiStr.equals("Đã thanh toán")) {
+				if (evt.getClickCount() == 2) {
 					if (selectedRow != -1) {
-						// In hóa đơn
-						inHoaDon(maHoaDon, ngayLap, tongTien, maNV, maKhachHang, trangThaiStr, phuongThucThanhToanStr);
+						if(trangThaiStr.equals("Đã thanh toán")) {
+							// In hóa đơn
+							inHoaDon(maHoaDon, ngayLap, maNV, maKhachHang, trangThaiStr, phuongThucThanhToanStr);
+						}
+						else if (trangThaiStr.equals("Đã hủy")) {
+							// Hiện hóa đơn đã hủy
+							huyHoaDon(maHoaDon, ngayLap, maNV, maKhachHang, trangThaiStr, phuongThucThanhToanStr);
+						}
 					}
 				}
 
@@ -326,11 +330,11 @@ public class Frame_HoaDon_BanThuoc extends JPanel {
 	// Xuất hóa đơn ra file Excel
 	private void btnXuatFileAction() {
 		Workbook workbook = new XSSFWorkbook();
-		Sheet sheet = workbook.createSheet("DanhSachHoaDon");
+		Sheet sheet = workbook.createSheet("DanhSachPhieuBanThuoc");
 
 		// Create header row
 		Row headerRow = sheet.createRow(0);
-		String[] headers = { "Mã hóa đơn", "Ngày lập đơn", "Tổng tiền", "Mã nhân viên", "Mã khách hàng", "Trạng thái",
+		String[] headers = { "Mã hóa đơn", "Ngày lập đơn", "Mã nhân viên", "Mã khách hàng", "Trạng thái",
 				"Phương thức thanh toán" };
 		for (int i = 0; i < headers.length; i++) {
 			Cell cell = headerRow.createCell(i);
@@ -370,7 +374,7 @@ public class Frame_HoaDon_BanThuoc extends JPanel {
 		}
 
 		// Write the output to a file
-		try (FileOutputStream fileOut = new FileOutputStream("DanhSachHoaDon.xlsx")) {
+		try (FileOutputStream fileOut = new FileOutputStream("DanhSachPhieuBanThuoc.xlsx")) {
 			workbook.write(fileOut);
 			JOptionPane.showMessageDialog(this, "Xuất file Excel thành công");
 		} catch (IOException e) {
@@ -398,14 +402,28 @@ public class Frame_HoaDon_BanThuoc extends JPanel {
 		});
 	}
 
-	private void inHoaDon(String maHoaDon, String ngayLap, double tongTien, String maNV, String maKhachHang,
+	private void inHoaDon(String maHoaDon, String ngayLap, String maNV, String maKhachHang,
 			String trangThaiStr, String phuongThucThanhToanStr) {
 		try {
-			List<Object[]> data = chiTietHoaDonDAO.getChiTietHoaDon(maHoaDon);
+			List<Object[]> data = chiTietHoaDonDAO.getChiTietPhieuBanThuoc(maHoaDon);
 
-			Dialog_InHoaDon inHoaDon = new Dialog_InHoaDon(null, maHoaDon, ngayLap, tongTien, maNV, maKhachHang,
+			Dialog_InPhieuBanThuoc inHoaDon = new Dialog_InPhieuBanThuoc(null, maHoaDon, ngayLap, maNV, maKhachHang,
 					trangThaiStr, phuongThucThanhToanStr, data);
 			inHoaDon.setVisible(true);
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(this, "Lỗi khi in hóa đơn: " + e.getMessage());
+			e.printStackTrace();
+		}
+	}
+	
+	private void huyHoaDon(String maHoaDon, String ngayLap, String maNV, String maKhachHang,
+			String trangThaiStr, String phuongThucThanhToanStr) {
+		try {
+			List<Object[]> data = chiTietHoaDonDAO.getChiTietPhieuBanThuoc(maHoaDon);
+
+			Dialog_XemPhieuBanThuoc huyHoaDon = new Dialog_XemPhieuBanThuoc(null, maHoaDon, ngayLap, maNV, maKhachHang,
+					trangThaiStr, phuongThucThanhToanStr, data);
+			huyHoaDon.setVisible(true);
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(this, "Lỗi khi in hóa đơn: " + e.getMessage());
 			e.printStackTrace();
@@ -435,7 +453,7 @@ public class Frame_HoaDon_BanThuoc extends JPanel {
 	
 	private void btnThanhToanAction() throws ParseException {
 		String maHoaDon = (String) tableModel.getValueAt(tableHoaDon.getSelectedRow(), 0);
-		Object[] data = chiTietHoaDonDAO.getHoaDonInfo(maHoaDon);
+		Object[] data = chiTietHoaDonDAO.getPhieuBanThuocInfo(maHoaDon);
 		Frame_Thuoc_GiaoDich_BanThuoc giaoDich = new Frame_Thuoc_GiaoDich_BanThuoc(data[3].toString());
 		giaoDich.setHoaDonInfo(maHoaDon, data[1].toString(), data[4].toString(), data[6].toString());
 		

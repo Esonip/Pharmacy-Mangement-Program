@@ -1,85 +1,101 @@
 package entity;
 
+import java.util.Date;
+import java.util.Objects;
+
 public class KhachHang {
-	private String maKhachHang, tenKhachHang, diaChi, dienThoai, email, ngaySinh;
-	
-	public KhachHang() {
-	}
-	
-	public KhachHang(String maKhachHang, String tenKhachHang, String diaChi, String dienThoai, String email,
-			String ngaySinh) {
-		this.maKhachHang = maKhachHang;
-		this.tenKhachHang = tenKhachHang;
-		this.diaChi = diaChi;
-		this.dienThoai = dienThoai;
-		this.email = email;
-		this.ngaySinh = ngaySinh;
-	}
+    private String maKH;
+    private String hoTen;
+    private Date ngaySinh;
+    private String diaChi;
+    private String soDienThoai;
+    private String email;
 
-	public KhachHang(String tenKhachHang, String diaChi, String dienThoai, String email, String ngaySinh) {
-		super();
-		this.tenKhachHang = tenKhachHang;
-		this.diaChi = diaChi;
-		this.dienThoai = dienThoai;
-		this.email = email;
-		this.ngaySinh = ngaySinh;
-	}
+    // Constructor mặc định
+    public KhachHang() {
+    }
 
-	public String getMaKhachHang() {
-		return maKhachHang;
-	}
+    // Constructor đầy đủ tham số
+    public KhachHang(String maKH, String hoTen, Date ngaySinh, String diaChi, String soDienThoai, String email) {
+        this.maKH = maKH;
+        this.hoTen = hoTen;
+        this.ngaySinh = ngaySinh;
+        this.diaChi = diaChi;
+        this.soDienThoai = soDienThoai;
+        this.email = email;
+    }
 
-	public void setMaKhachHang(String maKhachHang) {
-		this.maKhachHang = maKhachHang;
-	}
+    // Getter và Setter
+    public String getMaKH() {
+        return maKH;
+    }
 
-	public String getTenKhachHang() {
-		return tenKhachHang;
-	}
+    public void setMaKH(String maKH) {
+        this.maKH = maKH;
+    }
 
-	public void setTenKhachHang(String tenKhachHang) {
-		this.tenKhachHang = tenKhachHang;
-	}
+    public String getHoTen() {
+        return hoTen;
+    }
 
-	public String getDiaChi() {
-		return diaChi;
-	}
+    public void setHoTen(String hoTen) {
+        this.hoTen = hoTen;
+    }
 
-	public void setDiaChi(String diaChi) {
-		this.diaChi = diaChi;
-	}
+    public Date getNgaySinh() {
+        return ngaySinh;
+    }
 
-	public String getDienThoai() {
-		return dienThoai;
-	}
+    public void setNgaySinh(Date ngaySinh) {
+        this.ngaySinh = ngaySinh;
+    }
 
-	public void setDienThoai(String dienThoai) {
-		this.dienThoai = dienThoai;
-	}
+    public String getDiaChi() {
+        return diaChi;
+    }
 
-	public String getEmail() {
-		return email;
-	}
+    public void setDiaChi(String diaChi) {
+        this.diaChi = diaChi;
+    }
 
-	public void setEmail(String email) {
-		this.email = email;
-	}
+    public String getSoDienThoai() {
+        return soDienThoai;
+    }
 
-	public String getNgaySinh() {
-		return ngaySinh;
-	}
+    public void setSoDienThoai(String soDienThoai) {
+        this.soDienThoai = soDienThoai;
+    }
 
-	public void setNgaySinh(String ngaySinh) {
-		this.ngaySinh = ngaySinh;
-	}
+    public String getEmail() {
+        return email;
+    }
 
-	@Override
-	public String toString() {
-		return "KhachHang [maKhachHang=" + maKhachHang + ", tenKhachHang=" + tenKhachHang + ", diaChi=" + diaChi
-				+ ", dienThoai=" + dienThoai + ", email=" + email + ", ngaySinh=" + ngaySinh + "]";
-	}
-	
-	
-	
-	
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        KhachHang khachHang = (KhachHang) o;
+        return Objects.equals(maKH, khachHang.maKH);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(maKH);
+    }
+
+    @Override
+    public String toString() {
+        return "KhachHang{" +
+                "maKH='" + maKH + '\'' +
+                ", hoTen='" + hoTen + '\'' +
+                ", ngaySinh=" + ngaySinh +
+                ", diaChi='" + diaChi + '\'' +
+                ", soDienThoai='" + soDienThoai + '\'' +
+                ", email='" + email + '\'' +
+                '}';
+    }
 }

@@ -21,9 +21,10 @@ import javax.swing.Timer;
 
 import com.toedter.calendar.JDateChooser;
 
-import DAO.ChiTietHoaDonDAO;
+import DAO.ChiTietDatThuocDAO;
+import DAO.DatThuocDAO;
 import DAO.KhachHangDAO;
-import DAO.Thuoc_GiaoDichDAO;
+import DAO.TaiChinhDAO;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -46,6 +47,8 @@ import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
@@ -63,8 +66,9 @@ public class Frame_Thuoc_GiaoDich_DatThuoc extends JPanel {
 	private JTable tableThuoc;
 	private JTable tableChiTiet;
 	private KhachHangDAO khachHangDAO = new KhachHangDAO();
-	private Thuoc_GiaoDichDAO thuocGiaoDichDAO = new Thuoc_GiaoDichDAO();
-	private ChiTietHoaDonDAO chiTietHoaDonDAO = new ChiTietHoaDonDAO();
+	private DatThuocDAO datThuocDAO = new DatThuocDAO();
+	private ChiTietDatThuocDAO chiTietDatThuocDAO = new ChiTietDatThuocDAO();
+	private TaiChinhDAO taiChinhDAO = new TaiChinhDAO();
 	public static final int NO_SUCH_PAGE = 1;
 	public static final int PAGE_EXISTS = 0;
 	private JTextField txtTimMaThuoc;
@@ -368,13 +372,12 @@ public class Frame_Thuoc_GiaoDich_DatThuoc extends JPanel {
 		btnChoXuLy.setBackground(new Color(255, 0, 0));
 		btnChoXuLy.setBounds(1306, 687, 219, 43);
 		pnlBackGround.add(btnChoXuLy);
-		txtNgayDat.getDateEditor().getUiComponent().setFont(new Font("Segoe UI", Font.PLAIN, 16));
 
 		modelThuoc = (DefaultTableModel) tableThuoc.getModel();
 		modelChiTiet = (DefaultTableModel) tableChiTiet.getModel();
 
 		loadDataToTable();
-		generateMaPDH();
+		generateMaPDT();
 		goiYSoDT();
 
 		// Panel Tìm Mã Thuốc
@@ -448,7 +451,7 @@ public class Frame_Thuoc_GiaoDich_DatThuoc extends JPanel {
 		DefaultTableModel model = (DefaultTableModel) tableThuoc.getModel();
 		model.setRowCount(0);
 
-		List<Object[]> data = thuocGiaoDichDAO.loadDataToDSSP();
+		List<Object[]> data = datThuocDAO.loadDataToDSSP();
 		for (Object[] row : data) {
 			modelThuoc.addRow(row);
 		}
@@ -458,7 +461,7 @@ public class Frame_Thuoc_GiaoDich_DatThuoc extends JPanel {
 		String maThuoc = txtTimMaThuoc.getText().trim();
 		String tenThuoc = txtTimTenThuoc.getText().trim();
 
-		List<Object[]> data = thuocGiaoDichDAO.timKiemThuoc(maThuoc, tenThuoc);
+		List<Object[]> data = datThuocDAO.timKiemThuoc(maThuoc, tenThuoc);
 		modelThuoc.setRowCount(0);
 		for (Object[] row : data) {
 			modelThuoc.addRow(row);
@@ -473,19 +476,19 @@ public class Frame_Thuoc_GiaoDich_DatThuoc extends JPanel {
 
 	// Generate maHoaDon
 	private String generateMaHoaDon() {
-		String lastMaHD = thuocGiaoDichDAO.getLastMaPhieuDatHang();
-		if (lastMaHD == null || lastMaHD.isEmpty() || lastMaHD.equals("PDH000")) {
-			return "PDH001";
+		String lastMaHD = datThuocDAO.getLastMaPhieuDatHang();
+		if (lastMaHD == null || lastMaHD.isEmpty() || lastMaHD.equals("PDT000")) {
+			return "PDT001";
 		}
 
 		String numericPart = lastMaHD.substring(3);
 		int nextNumber = Integer.parseInt(numericPart);
 		nextNumber++;
 
-		return "PDH" + String.format("%03d", nextNumber);
+		return "PDT" + String.format("%03d", nextNumber);
 	}
 
-	private void generateMaPDH() {
+	private void generateMaPDT() {
 		String maHD = generateMaHoaDon();
 		txtMaPhieuDatHang.setText(maHD);
 	}
@@ -540,7 +543,7 @@ public class Frame_Thuoc_GiaoDich_DatThuoc extends JPanel {
 	}
 
 	public void btnTaiLaiHoaDonActionPerformed() {
-		generateMaPDH();
+		generateMaPDT();
 		txtTongTien.setText("");
 		txtNgayGiao.setDate(null);
 		modelChiTiet.setRowCount(0);
@@ -856,13 +859,26 @@ public class Frame_Thuoc_GiaoDich_DatThuoc extends JPanel {
 			return;
 		}
 
-		String maPDH = txtMaPhieuDatHang.getText().trim();
+		String maPDT = txtMaPhieuDatHang.getText().trim();
 		String ngayDat = new SimpleDateFormat("dd/MM/yyyy").format(((JDateChooser) txtNgayDat).getDate());
 		String ngayGiao = null;
 		if (txtNgayGiao.getDate() != null) {
 	        ngayGiao = new SimpleDateFormat("dd/MM/yyyy").format(txtNgayGiao.getDate());
 	    } else {
 	        JOptionPane.showMessageDialog(this, "Vui lòng chọn ngày giao");
+	        txtNgayGiao.requestFocus();
+	        return;
+	    }
+		ngayGiao = new SimpleDateFormat("dd/MM/yyyy").format(txtNgayGiao.getDate());
+	    Date selectedDate = txtNgayGiao.getDate();
+	    LocalDate today = LocalDate.now(); // Ngày hiện tại: 14/05/2025
+	    LocalDate ngayGiaoDate = selectedDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+	    if (!ngayGiaoDate.isAfter(today)) {
+	        JOptionPane.showMessageDialog(this, 
+	            "Ngày giao phải lớn hơn ngày hiện tại (" + today.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")) + ")!", 
+	            "Lỗi", JOptionPane.ERROR_MESSAGE);
+	        txtNgayGiao.setDate(null); // Xóa ngày không hợp lệ
 	        txtNgayGiao.requestFocus();
 	        return;
 	    }
@@ -884,8 +900,8 @@ public class Frame_Thuoc_GiaoDich_DatThuoc extends JPanel {
 
 		// Trạng thái 0: Chờ xử lý
 		if (trangThai == 0) {
-			if (thuocGiaoDichDAO.luuPhieuDatHang(maPDH, ngayDat, ngayGiao, tongTien, maNV, maKH, trangThaiStr, phuongThucThanhToanStr)) {
-				luu = luuChiTiet(maPDH, model);
+			if (datThuocDAO.luuPhieuDatHang(maPDT, ngayDat, ngayGiao, maNV, maKH, trangThaiStr, phuongThucThanhToanStr)) {
+				luu = luuChiTiet(maPDT, model);
 				if(luu) {
 					JOptionPane.showMessageDialog(this, "Lưu phiếu đặt hàng thành công");
 					btnTaiLaiKhachHangActionPerformed();
@@ -898,15 +914,16 @@ public class Frame_Thuoc_GiaoDich_DatThuoc extends JPanel {
 		else {
 			// Tiền mặt
 			if (phuongThucThanhToan == 0) {
-				inPhieuDatHang(maPDH, maNV, maKH, ngayDat, ngayGiao, tongTien, trangThaiStr, phuongThucThanhToanStr);
-				if (Dialog_InHoaDon.isPrinting()) {
-					luu = thuocGiaoDichDAO.luuPhieuDatHang(maPDH, maNV, maKH, tongTien, ngayDat, ngayGiao, trangThaiStr, phuongThucThanhToanStr);
+				inPhieuDatHang(maPDT, maNV, maKH, ngayDat, ngayGiao, trangThaiStr, phuongThucThanhToanStr);
+				if (Dialog_InPhieuDatThuoc.isPrinting()) {
+					luu = datThuocDAO.luuPhieuDatHang(maPDT, ngayDat, ngayGiao, maNV, maKH, trangThaiStr, phuongThucThanhToanStr);
+					luu = taiChinhDAO.luuPhieuThu(maNV, ngayDat, phuongThucThanhToanStr, "Đặt thuốc", maPDT);
 				} else {
 					JOptionPane.showMessageDialog(this, "Thanh toán tiền mặt bị hủy");
 				}
 
 				if (luu) {
-					luu = luuChiTiet(maPDH, model);
+					luu = luuChiTiet(maPDT, model);
 					if (luu) {
 						JOptionPane.showMessageDialog(this, "Lưu chi tiết phiếu đặt hàng thành công");
 						resetForm();
@@ -918,12 +935,13 @@ public class Frame_Thuoc_GiaoDich_DatThuoc extends JPanel {
 			}
 			// Chuyển khoản
 			else {
-				hienThiQRCode(maPDH, tongTien);
+				hienThiQRCode(maPDT, tongTien);
 				if (Dialog_InQRCode.getResult()) {
-					inPhieuDatHang(maPDH, maNV, maKH, ngayDat, ngayGiao, tongTien, trangThaiStr, phuongThucThanhToanStr);
-					luu = thuocGiaoDichDAO.luuPhieuDatHang(maPDH, maNV, maKH, tongTien, ngayDat, ngayGiao, trangThaiStr, phuongThucThanhToanStr);
+					inPhieuDatHang(maPDT, maNV, maKH, ngayDat, ngayGiao, trangThaiStr, phuongThucThanhToanStr);
+					luu = datThuocDAO.luuPhieuDatHang(maPDT, ngayDat, ngayGiao, maNV, maKH, trangThaiStr, phuongThucThanhToanStr);
+					luu = taiChinhDAO.luuPhieuThu(maNV, ngayDat, phuongThucThanhToanStr, "Đặt thuốc", maPDT);
 					if (luu) {
-						luu = luuChiTiet(maPDH, model);
+						luu = luuChiTiet(maPDT, model);
 						if (luu) {
 							JOptionPane.showMessageDialog(this, "Lưu chi tiết phiếu đặt hàng thành công");
 							resetForm();
@@ -939,7 +957,7 @@ public class Frame_Thuoc_GiaoDich_DatThuoc extends JPanel {
 
 	}
 
-	private boolean luuChiTiet(String maPDH, DefaultTableModel model) {
+	private boolean luuChiTiet(String maPDT, DefaultTableModel model) {
 		try {
 			// Lưu chi tiết hóa đơn
 			for (int i = 0; i < model.getRowCount(); i++) {
@@ -948,7 +966,7 @@ public class Frame_Thuoc_GiaoDich_DatThuoc extends JPanel {
 				double donGiaCT = Double
 						.parseDouble(model.getValueAt(i, 3).toString().replace("đ", "").replace(",", "").trim());
 
-				if (!chiTietHoaDonDAO.luuChiTietPhieuDatHang(maPDH, maThuocCT, soLuongCT, donGiaCT)) {
+				if (!chiTietDatThuocDAO.luuChiTietPhieuDatHang(maPDT, maThuocCT, soLuongCT, donGiaCT)) {
 					return false;
 				}
 			}
@@ -966,7 +984,7 @@ public class Frame_Thuoc_GiaoDich_DatThuoc extends JPanel {
 	}
 
 
-	private void inPhieuDatHang(String maHoaDon, String maNV, String maKH, String ngayDat, String ngayGiao, double tongTien,
+	private void inPhieuDatHang(String maHoaDon, String maNV, String maKH, String ngayDat, String ngayGiao,
 			String trangThaiStr, String phuongThucThanhToanStr) {
 		try {
 			List<Object[]> data = new ArrayList<>();
@@ -981,8 +999,8 @@ public class Frame_Thuoc_GiaoDich_DatThuoc extends JPanel {
 				data.add(row);
 			}
 
-			Dialog_InPhieuDatHang inPhieuDatHang = new Dialog_InPhieuDatHang(null, maHoaDon, maNV, maKH, ngayDat,
-					ngayGiao, tongTien, trangThaiStr, phuongThucThanhToanStr, data);
+			Dialog_InPhieuDatThuoc inPhieuDatHang = new Dialog_InPhieuDatThuoc(null, maHoaDon, maNV, maKH, ngayDat,
+					ngayGiao, trangThaiStr, phuongThucThanhToanStr, data);
 			inPhieuDatHang.setVisible(true);
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(this, "Lỗi khi in phiếu đặt hàng: " + e.getMessage());
@@ -991,9 +1009,9 @@ public class Frame_Thuoc_GiaoDich_DatThuoc extends JPanel {
 
 	}
 
-	private void hienThiQRCode(String maPDH, double tongTien) {
+	private void hienThiQRCode(String maPDT, double tongTien) {
 		try {
-			Dialog_InQRCode inQRCode = new Dialog_InQRCode(null, maPDH, tongTien);
+			Dialog_InQRCode inQRCode = new Dialog_InQRCode(null, maPDT, tongTien);
 			inQRCode.setVisible(true);
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(this, "Lỗi khi hiển thị QR Code: " + e.getMessage());
@@ -1001,8 +1019,8 @@ public class Frame_Thuoc_GiaoDich_DatThuoc extends JPanel {
 		}
 	}
 	
-	public void setPhieuDatInfo(String maPDH, String ngayDat, String ngayGiao, String maKH, String phuongThucTT) throws ParseException {
-		txtMaPhieuDatHang.setText(maPDH);
+	public void setPhieuDatInfo(String maPDT, String ngayDat, String ngayGiao, String maKH, String phuongThucTT) throws ParseException {
+		txtMaPhieuDatHang.setText(maPDT);
 		txtNgayDat.setDate(new SimpleDateFormat("dd/MM/yyyy").parse(ngayDat));
 		txtNgayGiao.setDate(new SimpleDateFormat("dd/MM/yyyy").parse(ngayGiao));
 		txtMaKH.setText(maKH);
@@ -1020,11 +1038,11 @@ public class Frame_Thuoc_GiaoDich_DatThuoc extends JPanel {
 			phuongThucThanhToan = 1;
 		}
 		
-		loadChiTietHoaDon(maPDH);
+		loadChiTietHoaDon(maPDT);
 	}
 
-	private void loadChiTietHoaDon(String maPDH) {
-		List<Object[]> data = chiTietHoaDonDAO.getChiTietPhieuDatHang_ChuyenFrame(maPDH);
+	private void loadChiTietHoaDon(String maPDT) {
+		List<Object[]> data = chiTietDatThuocDAO.getChiTietPhieuDatHang_ChuyenFrame(maPDT);
 		modelChiTiet.setRowCount(0);
 		
 		for (Object[] row : data) {
