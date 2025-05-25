@@ -732,7 +732,7 @@ public class Frame_Thuoc_GiaoDich_TraNhapThuoc extends JPanel {
 		// Chuyển khoản
 		else {
 			hienThiQRCode(maTra, formattedTongTienDouble); 
-			if (Dialog_InQRCode_PhieuTraNhapThuoc.getResult()) {
+			if (Dialog_InQRCode.getResult()) {
 				inPhieuTraNhapThuoc(maTra, ngayLap, formattedTongTienDouble, maNV, maNCC, "Đã thanh toán", phuongThucThanhToan);
 				luu = traNhapThuocDAO.luuPhieuTraNhapThuoc(maTra, maPhieuNhap, maNV, maNCC, date, liDoTra);
 				if (luu) {
@@ -811,7 +811,7 @@ public class Frame_Thuoc_GiaoDich_TraNhapThuoc extends JPanel {
 	// Hàm hiển thị QR Code
 	private void hienThiQRCode(String maTNT, double tongTien) {
 		try {
-			Dialog_InQRCode_PhieuTraNhapThuoc inQRCode = new Dialog_InQRCode_PhieuTraNhapThuoc(null, maTNT, tongTien);
+			Dialog_InQRCode inQRCode = new Dialog_InQRCode(null, maTNT, tongTien);
 			inQRCode.setVisible(true);
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(this, "Lỗi khi hiển thị QR Code: " + e.getMessage());
