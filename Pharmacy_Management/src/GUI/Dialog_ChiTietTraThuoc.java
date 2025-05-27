@@ -13,10 +13,10 @@ public class Dialog_ChiTietTraThuoc extends JDialog {
     private boolean confirmed = false;
     private int soLuongTra = 0;
 
-    public Dialog_ChiTietTraThuoc(Frame owner, String maThuoc, String tenThuoc, int soLuongBan) {
+    public Dialog_ChiTietTraThuoc(Frame owner, String maThuoc, String tenThuoc, int soLuongConLai) {
         super(owner, "Nhập Chi Tiết Trả Thuốc", true);
         setIconImage(Toolkit.getDefaultToolkit().getImage("icon\\return.png"));
-        setSize(400, 250); // Giảm chiều cao vì bỏ mục lý do trả
+        setSize(400, 250);
         setLocationRelativeTo(owner);
         getContentPane().setLayout(new BorderLayout());
 
@@ -35,10 +35,10 @@ public class Dialog_ChiTietTraThuoc extends JDialog {
         lblTenThuoc.setBounds(20, 50, 350, 30);
         formPanel.add(lblTenThuoc);
 
-        JLabel lblSoLuongBan = new JLabel("Số Lượng Đã Bán: " + soLuongBan);
-        lblSoLuongBan.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        lblSoLuongBan.setBounds(20, 80, 350, 30);
-        formPanel.add(lblSoLuongBan);
+        JLabel lblSoLuongCoTheTra = new JLabel("Số lượng có thể trả: " + soLuongConLai);
+        lblSoLuongCoTheTra.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        lblSoLuongCoTheTra.setBounds(20, 80, 350, 30);
+        formPanel.add(lblSoLuongCoTheTra);
 
         // Trường nhập số lượng trả
         JLabel lblSoLuongTra = new JLabel("Số Lượng Trả:");
@@ -48,20 +48,20 @@ public class Dialog_ChiTietTraThuoc extends JDialog {
 
         txtSoLuongTra = new JTextField();
         txtSoLuongTra.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        txtSoLuongTra.setBounds(150, 110, 200, 30);
+        txtSoLuongTra.setBounds(170, 110, 200, 30);
         formPanel.add(txtSoLuongTra);
 
         // Nút Xác Nhận và Hủy
         btnXacNhan = new JButton("Xác Nhận");
         btnXacNhan.setIcon(new ImageIcon("icon\\save.png"));
         btnXacNhan.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        btnXacNhan.setBounds(51, 160, 155, 40); // Điều chỉnh vị trí vì bỏ lý do trả
+        btnXacNhan.setBounds(51, 160, 155, 40);
         formPanel.add(btnXacNhan);
 
         btnHuy = new JButton("Hủy");
         btnHuy.setIcon(new ImageIcon("icon\\cancel.png"));
         btnHuy.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        btnHuy.setBounds(216, 160, 120, 40); // Điều chỉnh vị trí vì bỏ lý do trả
+        btnHuy.setBounds(216, 160, 120, 40);
         formPanel.add(btnHuy);
 
         getContentPane().add(formPanel, BorderLayout.CENTER);
@@ -78,8 +78,8 @@ public class Dialog_ChiTietTraThuoc extends JDialog {
                 }
 
                 soLuongTra = Integer.parseInt(soLuongTraText);
-                if (soLuongTra <= 0 || soLuongTra > soLuongBan) {
-                    JOptionPane.showMessageDialog(this, "Số lượng trả không hợp lệ (phải từ 1 đến " + soLuongBan + ")");
+                if (soLuongTra <= 0 || soLuongTra > soLuongConLai) {
+                    JOptionPane.showMessageDialog(this, "Số lượng trả không hợp lệ (phải từ 1 đến " + soLuongConLai + ")");
                     txtSoLuongTra.requestFocus();
                     return;
                 }

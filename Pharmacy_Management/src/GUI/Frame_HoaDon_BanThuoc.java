@@ -454,8 +454,8 @@ public class Frame_HoaDon_BanThuoc extends JPanel {
 	private void btnThanhToanAction() throws ParseException {
 		String maHoaDon = (String) tableModel.getValueAt(tableHoaDon.getSelectedRow(), 0);
 		Object[] data = chiTietHoaDonDAO.getPhieuBanThuocInfo(maHoaDon);
-		Frame_Thuoc_GiaoDich_BanThuoc giaoDich = new Frame_Thuoc_GiaoDich_BanThuoc(data[3].toString());
-		giaoDich.setHoaDonInfo(maHoaDon, data[1].toString(), data[4].toString(), data[6].toString());
+		Frame_Thuoc_GiaoDich_BanThuoc giaoDich = new Frame_Thuoc_GiaoDich_BanThuoc(data[2].toString());
+		giaoDich.setPhieuBanThuocInfo(maHoaDon, data[1].toString(), data[3].toString(), data[5].toString());
 		
 		FrameTrangChu frameTrangChu = (FrameTrangChu) SwingUtilities.getWindowAncestor(this);
 		if (frameTrangChu != null) {
@@ -466,7 +466,7 @@ public class Frame_HoaDon_BanThuoc extends JPanel {
 	}
 	
 	private void hoanSoLuongThuoc(String maHoaDon) {
-		List<Object[]> data = chiTietHoaDonDAO.getChiTietHoaDon_ChuyenFrame(maHoaDon);
+		List<Object[]> data = chiTietHoaDonDAO.getChiTietPhieuBanThuoc_ChuyenFrame(maHoaDon);
 		for (Object[] row : data) {
 			String maThuoc = (String) row[0];
 			int soLuong = (int) row[2];

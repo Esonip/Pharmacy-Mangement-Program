@@ -7,6 +7,14 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.Calendar;
 import java.util.List;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 import DAO.NhaCungCapDAO;
 
 public class Frame_NCC_ThongKe extends JPanel {
@@ -177,7 +185,7 @@ public class Frame_NCC_ThongKe extends JPanel {
         add(pnlThongTin);
         pnlThongTin.setLayout(null);
 
-        JLabel lblTongNhaCungCap = new JLabel("Tổng nhà cung cấp:");
+        JLabel lblTongNhaCungCap = new JLabel("Tổng NCC:");
         lblTongNhaCungCap.setForeground(TEXT_COLOR);
         lblTongNhaCungCap.setFont(new Font("Arial", Font.BOLD, 18));
         lblTongNhaCungCap.setBounds(10, 30, 300, 30);
@@ -224,7 +232,7 @@ public class Frame_NCC_ThongKe extends JPanel {
 
         // Button events
         btnThongKe.addActionListener(e -> performStatistics());
-        btnXuatBaoCao.addActionListener(e -> JOptionPane.showMessageDialog(this, "Chức năng xuất báo cáo chưa được triển khai"));
+        btnXuatBaoCao.addActionListener(e -> xuatExcel());
     }
 
     private void performStatistics() {
@@ -260,6 +268,62 @@ public class Frame_NCC_ThongKe extends JPanel {
         txtTrungBinh.setText(String.format("%d", tongNhaCungCap > 0 ? tongSoLuong / tongNhaCungCap : 0));
     }
 
+    private void xuatExcel() {
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("ThongKeNhaCungCap");
+
+        // tạo tiêu đề cho sheet
+        Row headerRow = sheet.createRow(0);
+        String[] headers = {"Mã nhà cung cấp", "Tên nhà cung cấp", "Số giao dịch", "Tổng số lượng nhập"};
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+        }
+
+        // Ghi dữ liệu từ bảng vào sheet
+        DefaultTableModel tableModel = (DefaultTableModel) tableNhaCungCap.getModel();
+        int rowCount = tableModel.getRowCount();
+        for (int i = 0; i < rowCount; i++) {
+            Row row = sheet.createRow(i + 1);
+            for (int j = 0; j < tableModel.getColumnCount(); j++) {
+                Object value = tableModel.getValueAt(i, j);
+                Cell cell = row.createCell(j);
+                if (value != null) {
+                    if (j == 2 || j == 3) { // Cột Số giao dịch và Tổng số lượng nhập
+                        try {
+                            cell.setCellValue(Integer.parseInt(value.toString()));
+                        } catch (NumberFormatException e) {
+                            cell.setCellValue(value.toString());
+                        }
+                    } else {
+                        cell.setCellValue(value.toString());
+                    }
+                } else {
+                    cell.setCellValue("");
+                }
+            }
+        }
+
+        // Tự động điều chỉnh kích thước cột
+        for (int i = 0; i < headers.length; i++) {
+            sheet.autoSizeColumn(i);
+        }
+
+        // Ghi workbook vào file
+        try (FileOutputStream fileOut = new FileOutputStream("ThongKeNhaCungCap.xlsx")) {
+            workbook.write(fileOut);
+            JOptionPane.showMessageDialog(this, "Xuất file Excel thành công!");
+        } catch (IOException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Xuất file Excel thất bại!");
+        } finally {
+            try {
+                workbook.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
     public static void main(String[] args) {
         EventQueue.invokeLater(() -> {
             try {

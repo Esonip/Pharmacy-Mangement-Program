@@ -1,5 +1,4 @@
 package GUI;
-
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
@@ -74,7 +73,7 @@ public class Frame_NhanVien_BangLuong extends JPanel {
 		pnlBackGround.setLayout(null);
 		
 		JScrollPane scrollPaneDanhSachNhanVien = new JScrollPane();
-		scrollPaneDanhSachNhanVien.setBounds(648, 27, 820, 350);
+		scrollPaneDanhSachNhanVien.setBounds(517, 27, 951, 350);
 		pnlBackGround.add(scrollPaneDanhSachNhanVien);
 		
 		tableDanhSachNhanVien = new JTable();
@@ -104,7 +103,7 @@ public class Frame_NhanVien_BangLuong extends JPanel {
 		}
 		
 		JScrollPane scrollPaneBangLuong = new JScrollPane();
-		scrollPaneBangLuong.setBounds(648, 415, 820, 326);
+		scrollPaneBangLuong.setBounds(517, 415, 951, 326);
 		pnlBackGround.add(scrollPaneBangLuong);
 		
 		tableBangLuong = new JTable();
@@ -143,7 +142,7 @@ public class Frame_NhanVien_BangLuong extends JPanel {
 		pnlTacVu.setBackground(new Color(255, 153, 51));
 		TitledBorder titledBorder = BorderFactory.createTitledBorder("Tác vụ");
 		titledBorder.setTitleFont(new Font("Segoe UI", Font.BOLD, 20));
-		pnlTacVu.setBounds(63, 29, 397, 348);
+		pnlTacVu.setBounds(39, 29, 421, 348);
 		pnlTacVu.setBorder(titledBorder);
 		pnlBackGround.add(pnlTacVu);
 		
@@ -202,6 +201,7 @@ public class Frame_NhanVien_BangLuong extends JPanel {
 		pnlTacVu.add(btnTim);
 		
 		btnTaiLai = new JButton("Tải lại");
+		btnTaiLai.setIcon(new ImageIcon("icon\\refresh.png"));
 		btnTaiLai.setFont(new Font("Segoe UI", Font.BOLD, 18));
 		btnTaiLai.setBackground(new Color(255, 128, 128));
 		btnTaiLai.setBounds(216, 283, 141, 50);
@@ -209,7 +209,7 @@ public class Frame_NhanVien_BangLuong extends JPanel {
 		
 		pnlThaoTac = new JPanel();
 		pnlThaoTac.setBackground(new Color(255, 153, 51));
-		pnlThaoTac.setBounds(63, 433, 397, 308);
+		pnlThaoTac.setBounds(39, 415, 421, 326);
 		TitledBorder titledBorderThaoTac = BorderFactory.createTitledBorder("Thao tác");
 		titledBorderThaoTac.setTitleFont(new Font("Segoe UI", Font.BOLD, 20));
 		pnlThaoTac.setBorder(titledBorderThaoTac);
@@ -227,11 +227,9 @@ public class Frame_NhanVien_BangLuong extends JPanel {
 		cboThang.setBounds(162, 32, 158, 33);
 		pnlThaoTac.add(cboThang);
 		
-		btnTaiLuong = new JButton("Tải Bảng Lương");
-		btnTaiLuong.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-			}
-		});
+		btnTaiLuong = new JButton("Tải Lương");
+		btnTaiLuong.setIcon(new ImageIcon("icon\\history_transaction.png"));
+		
 		btnTaiLuong.setFont(new Font("Segoe UI", Font.BOLD, 18));
 		btnTaiLuong.setBackground(new Color(255, 128, 128));
 		btnTaiLuong.setBounds(10, 95, 180, 50);
@@ -284,7 +282,7 @@ public class Frame_NhanVien_BangLuong extends JPanel {
 		pnlThaoTac.add(txtThucLinh);
 		
 		JButton btnXuatExcel = new JButton("Xuất Excel");
-		btnXuatExcel.setIcon(new ImageIcon("icon\\find.png"));
+		btnXuatExcel.setIcon(new ImageIcon("icon\\print.png"));
 		btnXuatExcel.setFont(new Font("Segoe UI", Font.BOLD, 18));
 		btnXuatExcel.setBackground(new Color(255, 128, 128));
 		btnXuatExcel.setBounds(200, 95, 180, 50);
@@ -321,36 +319,47 @@ public class Frame_NhanVien_BangLuong extends JPanel {
 		    public void actionPerformed(ActionEvent e) {
 		        String maNV = txtMaNV.getText().trim();
 		        String thangNam = (String) cboThang.getSelectedItem();
-
+		        double tongLuongThuong = 0.0;
+		        double tongLuongTangCa = 0.0;
 		        if (!maNV.isEmpty() && thangNam != null) {
 		            List<Object[]> payrollData = bangLuongDAO.getPayroll(maNV, thangNam);
 		            DefaultTableModel model = (DefaultTableModel) tableBangLuong.getModel();
 		            model.setRowCount(0); // Clear old data
 		            for (Object[] row : payrollData) {
 		                model.addRow(row);
-		            }
-
-		            // Update salary information
-		            if (!payrollData.isEmpty()) {
-		                Object[] firstRow = payrollData.get(0);
-
-		                // Clean and parse formatted salary strings
-		                String luongThuongStr = firstRow[5].toString();
-		                String luongTangCaStr = firstRow[6].toString();
-
+		             
+		                String luongThuongStr = row[5].toString();
+		                String luongTangCaStr = row[6].toString();
+		                
 		                double luongThuong = parseCurrency(luongThuongStr);
 		                double luongTangCa = parseCurrency(luongTangCaStr);
-
+		                
+		                tongLuongThuong += luongThuong;
+		                tongLuongTangCa += luongTangCa;
+		                
+		            }
+		            // Update salary information
+		            if (!payrollData.isEmpty()) {
 		                // Calculate total salary
-		                double thucLinh = luongThuong + luongTangCa;
-
-		                // Format as Vietnamese currency
-		                NumberFormat currencyVN = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
-		                String formattedThucLinh = currencyVN.format(thucLinh);
-
+		                double thucLinh = tongLuongThuong + tongLuongTangCa;
+		                
+		                // Định dạng số tiền theo định dạng Việt Nam
+		                Locale localeVN = new Locale("vi", "VN");
+		                NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(localeVN);
+		                // Chuyển đổi số tiền sang định dạng chuỗi
+		                currencyFormatter.setMinimumFractionDigits(3);
+		                currencyFormatter.setMaximumFractionDigits(3);
+		                
+		                
+		                String luongThuongStr = currencyFormatter.format(tongLuongThuong);
+		                String luongTangCaStr = currencyFormatter.format(tongLuongTangCa);
+		                String formattedThucLinh = currencyFormatter.format(thucLinh);
+		                
 		                txtLuongThuong.setText(luongThuongStr);
 		                txtLuongTangCa.setText(luongTangCaStr);
 		                txtThucLinh.setText(formattedThucLinh);
+//		                System.out.println(thucLinh);
+		                
 		            } else {
 		                txtLuongThuong.setText("");
 		                txtLuongTangCa.setText("");

@@ -117,7 +117,7 @@ public class TraNhapThuocDAO {
 	}
 	// Lưu phiếu trả nhập thuốc
 	 public boolean luuPhieuTraNhapThuoc(String maTNT, String maPNT, String maNV, String maNCC,java.util.Date ngayTra, String lyDoTra) {
-		 String sql = "INSERT INTO ChiTietPhieuTraNhapThuoc (maTNT, maThuoc, soLuong, donGiaNhap) VALUES (?, ?, ?, ?)";
+		 String sql = "INSERT INTO PhieuTraNhapThuoc (maTNT, maPNT, maNV, maNCC, ngayTra, lyDoTra) VALUES (?, ?, ?, ?, ?, ?)";
 	        try (Connection conn = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
 	             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 	            pstmt.setString(1, maTNT);

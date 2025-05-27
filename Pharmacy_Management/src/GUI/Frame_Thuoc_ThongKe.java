@@ -14,6 +14,14 @@ import java.util.List;
 
 import com.toedter.calendar.JDateChooser;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 import DAO.ThuocDAO;
 
 public class Frame_Thuoc_ThongKe extends JPanel {
@@ -340,7 +348,7 @@ public class Frame_Thuoc_ThongKe extends JPanel {
 
         // Button events
         btnThongKe.addActionListener(e -> thongKeThuoc());
-        btnXuatBaoCao.addActionListener(e -> JOptionPane.showMessageDialog(this, "Chức năng xuất báo cáo chưa được triển khai!"));
+        btnXuatBaoCao.addActionListener(e -> xuatExcel());
     }
 
     private void thongKeThuoc() {
@@ -399,6 +407,71 @@ public class Frame_Thuoc_ThongKe extends JPanel {
         } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this, "Lỗi khi thống kê: " + e.getMessage());
+        }
+    }
+    
+    private void xuatExcel() {
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("ThongKeThuoc");
+
+        // Tạo hàng tiêu đề
+        Row headerRow = sheet.createRow(0);
+        String[] headers = {"Mã thuốc", "Tên thuốc", "Số lượng bán", "Doanh thu", "Tồn kho"};
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+        }
+
+        // Ghi dữ liệu từ bảng vào file Excel
+        DefaultTableModel tableModel = (DefaultTableModel) tableThuoc.getModel();
+        int rowCount = tableModel.getRowCount();
+        for (int i = 0; i < rowCount; i++) {
+            Row row = sheet.createRow(i + 1);
+            for (int j = 0; j < tableModel.getColumnCount(); j++) {
+                Object value = tableModel.getValueAt(i, j);
+                Cell cell = row.createCell(j);
+                if (value != null) {
+                    if (j == 3) { // Cột Doanh thu
+                        String valueStr = value.toString().replaceAll("[^0-9.]", "");
+                        try {
+                            double number = Double.parseDouble(valueStr);
+                            cell.setCellValue(number);
+                        } catch (NumberFormatException e) {
+                            cell.setCellValue(value.toString());
+                        }
+                    } else if (j == 2 || j == 4) { // Cột Số lượng bán và Tồn kho
+                        try {
+                            cell.setCellValue(Integer.parseInt(value.toString()));
+                        } catch (NumberFormatException e) {
+                            cell.setCellValue(value.toString());
+                        }
+                    } else {
+                        cell.setCellValue(value.toString());
+                    }
+                } else {
+                    cell.setCellValue("");
+                }
+            }
+        }
+
+        // Tự động điều chỉnh kích thước cột
+        for (int i = 0; i < headers.length; i++) {
+            sheet.autoSizeColumn(i);
+        }
+
+        // Xuất file Excel
+        try (FileOutputStream fileOut = new FileOutputStream("ThongKeThuoc.xlsx")) {
+            workbook.write(fileOut);
+            JOptionPane.showMessageDialog(this, "Xuất file Excel thành công!");
+        } catch (IOException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Xuất file Excel thất bại!");
+        } finally {
+            try {
+                workbook.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 

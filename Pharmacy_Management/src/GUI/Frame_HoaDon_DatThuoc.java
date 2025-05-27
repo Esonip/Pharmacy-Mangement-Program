@@ -420,7 +420,7 @@ public class Frame_HoaDon_DatThuoc extends JPanel {
 	private void inHoaDon(String maPDH, String maNV, String maKH, String ngayDat, String ngayGiao,
 			String trangThaiStr, String phuongThucThanhToanStr) {
 		try {
-			List<Object[]> data = chiTietHoaDonDAO.getChiTietPhieuDatHang(maPDH);
+			List<Object[]> data = chiTietHoaDonDAO.getChiTietPhieuDatThuoc(maPDH);
 
 			Dialog_InPhieuDatThuoc inPhieuDatHang = new Dialog_InPhieuDatThuoc(null, maPDH, maNV, maKH, ngayDat, ngayGiao,
 					trangThaiStr, phuongThucThanhToanStr, data);
@@ -434,7 +434,7 @@ public class Frame_HoaDon_DatThuoc extends JPanel {
 	private void huyHoaDon(String maPDH, String maNV, String maKH, String ngayDat, String ngayGiao,
 			String trangThaiStr, String phuongThucThanhToanStr) {
 		try {
-			List<Object[]> data = chiTietHoaDonDAO.getChiTietPhieuDatHang(maPDH);
+			List<Object[]> data = chiTietHoaDonDAO.getChiTietPhieuDatThuoc(maPDH);
 
 			Dialog_XemPhieuDatThuoc huyPhieuDatHang = new Dialog_XemPhieuDatThuoc(null, maPDH, maNV, maKH, ngayDat, ngayGiao,
 					trangThaiStr, phuongThucThanhToanStr, data);
@@ -468,7 +468,7 @@ public class Frame_HoaDon_DatThuoc extends JPanel {
 		String maPDH = (String) tableModel.getValueAt(tablePhieuDatHang.getSelectedRow(), 0);
 		Object[] data = chiTietHoaDonDAO.getPhieuDatThuocInfo(maPDH);
 		Frame_Thuoc_GiaoDich_DatThuoc giaoDich = new Frame_Thuoc_GiaoDich_DatThuoc(data[1].toString());
-		giaoDich.setPhieuDatInfo(maPDH, data[3].toString(), data[4].toString(), data[2].toString(), data[7].toString());
+		giaoDich.setPhieuDatInfo(maPDH, data[2].toString(), data[3].toString(), data[4].toString(), data[6].toString());
 		
 		FrameTrangChu frameTrangChu = (FrameTrangChu) SwingUtilities.getWindowAncestor(this);
 		if (frameTrangChu != null) {

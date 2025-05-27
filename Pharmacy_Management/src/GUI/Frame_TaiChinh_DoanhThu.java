@@ -18,6 +18,13 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.DefaultCategoryDataset;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 import DAO.HoaDonBanThuocDAO;
 
@@ -347,7 +354,7 @@ public class Frame_TaiChinh_DoanhThu extends JPanel {
 
         // Button events
         btnThongKe.addActionListener(e -> thongKeHoaDon());
-        btnXuatBaoCao.addActionListener(e -> JOptionPane.showMessageDialog(this, "Chức năng xuất báo cáo chưa được triển khai!"));
+        btnXuatBaoCao.addActionListener(e -> xuatExcel());
 
         // Load initial charts
         updateCharts();
@@ -571,6 +578,89 @@ public class Frame_TaiChinh_DoanhThu extends JPanel {
         } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this, "Lỗi khi cập nhật biểu đồ: " + e.getMessage());
+        }
+    }
+    
+    private void xuatExcel() {
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("ThongKeDoanhThu");
+
+        // Tạo tiêu đề cho sheet
+        Row headerRow = sheet.createRow(0);
+        String[] headers;
+        String loaiThongKe = cboLoaiThongKe.getSelectedItem().toString();
+        if (loaiThongKe.equals("Tuần")) {
+            headers = new String[]{"Mã hóa đơn", "Ngày lập", "Mã khách hàng", "Tổng tiền"};
+        } else if (loaiThongKe.equals("Tháng")) {
+            headers = new String[]{"Tháng", "Số hóa đơn", "Tổng doanh thu"};
+        } else if (loaiThongKe.equals("Quý")) {
+            headers = new String[]{"Quý", "Số hóa đơn", "Tổng doanh thu"};
+        } else { // Năm
+            headers = new String[]{"Năm", "Số hóa đơn", "Tổng doanh thu"};
+        }
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+        }
+
+        // Ghi dữ liệu từ bảng vào sheet
+        DefaultTableModel tableModel = (DefaultTableModel) tableHoaDon.getModel();
+        int rowCount = tableModel.getRowCount();
+        for (int i = 0; i < rowCount; i++) {
+            Row row = sheet.createRow(i + 1);
+            for (int j = 0; j < tableModel.getColumnCount(); j++) {
+                Object value = tableModel.getValueAt(i, j);
+                Cell cell = row.createCell(j);
+                if (value != null) {
+                    if (loaiThongKe.equals("Tuần") && j == 3) { // Cột Tổng tiền
+                        String valueStr = value.toString().replaceAll("[^0-9.]", "");
+                        try {
+                            double number = Double.parseDouble(valueStr);
+                            cell.setCellValue(number);
+                        } catch (NumberFormatException e) {
+                            cell.setCellValue(value.toString());
+                        }
+                    } else if (!loaiThongKe.equals("Tuần") && j == 2) { // Cột Tổng doanh thu
+                        String valueStr = value.toString().replaceAll("[^0-9.]", "");
+                        try {
+                            double number = Double.parseDouble(valueStr);
+                            cell.setCellValue(number);
+                        } catch (NumberFormatException e) {
+                            cell.setCellValue(value.toString());
+                        }
+                    } else if (!loaiThongKe.equals("Tuần") && j == 1) { // Cột Số hóa đơn
+                        try {
+                            cell.setCellValue(Integer.parseInt(value.toString()));
+                        } catch (NumberFormatException e) {
+                            cell.setCellValue(value.toString());
+                        }
+                    } else {
+                        cell.setCellValue(value.toString());
+                    }
+                } else {
+                    cell.setCellValue("");
+                }
+            }
+        }
+
+        // Tự động điều chỉnh kích thước cột
+        for (int i = 0; i < headers.length; i++) {
+            sheet.autoSizeColumn(i);
+        }
+
+        // Ghi workbook vào file
+        try (FileOutputStream fileOut = new FileOutputStream("ThongKeDoanhThu.xlsx")) {
+            workbook.write(fileOut);
+            JOptionPane.showMessageDialog(this, "Xuất file Excel thành công!");
+        } catch (IOException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Xuất file Excel thất bại!");
+        } finally {
+            try {
+                workbook.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 

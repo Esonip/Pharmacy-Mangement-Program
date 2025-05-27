@@ -11,6 +11,8 @@ import java.util.List;
 import connectDB.ConnectDB;
 
 public class ChiTietTraThuocDAO {
+	
+	// Lấy danh sách chi tiết phiếu trả thuốc theo mã phiếu trả thuốc
 	public List<Object[]> getChiTietPhieuTraThuoc(String maPhieuDatHang) {
 		List<Object[]> chiTietList = new ArrayList<>();
 		String sql = "SELECT c.maThuoc, t.tenThuoc, c.soLuong, c.donGiaBan "
@@ -39,6 +41,7 @@ public class ChiTietTraThuocDAO {
 		return chiTietList;
 	}
 	
+	// Lấy chi tiết phiếu bán thuốc theo mã hóa đơn
 	public List<Object[]> getChiTietPhieuBanThuoc(String maHoaDon) {
 		List<Object[]> chiTietList = new ArrayList<>();
 		String sql = "SELECT c.maThuoc, t.tenThuoc, c.soLuong, c.donGiaBan "
@@ -67,7 +70,39 @@ public class ChiTietTraThuocDAO {
 		}
 		return chiTietList;
 	}
+	
+	// Lấy chi tiết phiếu đặt thuốc theo mã phiếu đặt hàng
+    public List<Object[]> getChiTietPhieuDatHang(String maPhieuDatHang) {
+        List<Object[]> chiTietList = new ArrayList<>();
+        String sql = "SELECT c.maThuoc, t.tenThuoc, c.soLuong, c.donGiaBan "
+                + "FROM ChiTietPhieuDatThuoc c JOIN Thuoc t ON c.maThuoc = t.maThuoc "
+                + "WHERE c.maPDT = ?";
 
+        try (Connection con = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
+
+            pstmt.setString(1, maPhieuDatHang);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                String maThuoc = rs.getString("maThuoc");
+                String tenThuoc = rs.getString("tenThuoc");
+                int soLuong = rs.getInt("soLuong");
+                float donGiaBan = rs.getFloat("donGiaBan");
+
+                String formatGiaBan = String.format("%,.0fđ", donGiaBan);
+                String formatThanhTien = String.format("%,.0fđ", donGiaBan * soLuong);
+
+                Object[] row = { maThuoc, tenThuoc, soLuong, formatGiaBan, formatThanhTien };
+                chiTietList.add(row);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return chiTietList;
+    }
+
+	// Lưu chi tiết phiếu trả thuốc vào cơ sở dữ liệu
 	public boolean luuChiTietPhieuTra(String maPhieuTra, String maThuoc, int soLuongTra, double donGia) {
 	    String sql = "INSERT INTO ChiTietPhieuTraThuoc (maPTT, maThuoc, soLuong, donGiaBan) VALUES (?, ?, ?, ?)";
 	    try (Connection conn = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
@@ -83,6 +118,7 @@ public class ChiTietTraThuocDAO {
 	    }
 	}
 
+    // Lấy số lượng thuốc đã bán theo mã phiếu bán thuốc và mã thuốc
     public int getSoLuongBan(String maPBT, String maThuoc) {
         String sql = "SELECT soLuong FROM ChiTietPhieuBanThuoc WHERE maPBT = ? AND maThuoc = ?";
         try (Connection con = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
@@ -92,6 +128,52 @@ public class ChiTietTraThuocDAO {
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
                 return rs.getInt("soLuong");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+    
+ // Lấy số lượng mua ban đầu từ ChiTietPhieuBanThuoc hoặc ChiTietPhieuDatThuoc
+    public int getSoLuongMuaBanDau(String maHD, String maThuoc, boolean isBanThuoc) {
+        String sql = isBanThuoc ?
+            "SELECT ct.soLuong " +
+            "FROM ChiTietPhieuBanThuoc ct " +
+            "JOIN PhieuBanThuoc pbt ON ct.maPBT = pbt.maPBT " +
+            "WHERE pbt.maPBT = ? AND ct.maThuoc = ?" :
+            "SELECT ct.soLuong " +
+            "FROM ChiTietPhieuDatThuoc ct " +
+            "JOIN PhieuDatThuoc pdt ON ct.maPDT = pdt.maPDT " +
+            "WHERE pdt.maPDT = ? AND ct.maThuoc = ?";
+        
+        try (Connection conn = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, maHD);
+            pstmt.setString(2, maThuoc);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("soLuong");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    // Lấy tổng số lượng thuốc đã trả theo maHD và maThuoc
+    public int getTongSoLuongDaTra(String maHD, String maThuoc) {
+        String sql = "SELECT SUM(ct.soLuong) as tongSoLuong " +
+                     "FROM ChiTietPhieuTraThuoc ct " +
+                     "JOIN PhieuTraThuoc ptt ON ct.maPTT = ptt.maPTT " +
+                     "WHERE ptt.maHD = ? AND ct.maThuoc = ?";
+        try (Connection conn = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, maHD);
+            pstmt.setString(2, maThuoc);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("tongSoLuong");
             }
         } catch (SQLException e) {
             e.printStackTrace();

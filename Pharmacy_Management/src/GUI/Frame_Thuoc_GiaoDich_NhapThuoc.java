@@ -5,7 +5,21 @@ import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
+
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.DateUtil;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
 import java.awt.*;
+import java.awt.Color;
+import java.awt.Font;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -30,6 +44,7 @@ public class Frame_Thuoc_GiaoDich_NhapThuoc extends JPanel {
     private ChiTietNhapThuocDAO chiTietNhapThuocDAO = new ChiTietNhapThuocDAO();
     private ThuocDAO thuocDAO = new ThuocDAO();
     private NhaCungCapDAO nhaCungCapDAO = new NhaCungCapDAO();
+    private TaiChinhDAO taiChinhDAO = new TaiChinhDAO();
     private String maNV;
 
     // Các thành phần hiển thị thông tin chi tiết thuốc trong panel_ChonThuoc
@@ -107,7 +122,7 @@ public class Frame_Thuoc_GiaoDich_NhapThuoc extends JPanel {
         panel_PhieuNhap.add(lblNhaCungCap);
 
         cboNhaCungCap = new JComboBox<>();
-        cboNhaCungCap.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        cboNhaCungCap.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         cboNhaCungCap.setBounds(186, 148, 372, 43);
         panel_PhieuNhap.add(cboNhaCungCap);
 
@@ -155,7 +170,7 @@ public class Frame_Thuoc_GiaoDich_NhapThuoc extends JPanel {
         // Panel Chọn Thuốc Nhập
         panel_ChonThuoc = new JPanel();
         panel_ChonThuoc.setBackground(new Color(220, 128, 78));
-        panel_ChonThuoc.setBounds(10, 420, 1515, 260);
+        panel_ChonThuoc.setBounds(10, 420, 1515, 321);
         panel_ChonThuoc.setBorder(BorderFactory.createTitledBorder(
                 new LineBorder(Color.WHITE, 2), "Chọn Thuốc Nhập",
                 0, 0, new Font("Segoe UI", Font.PLAIN, 12)));
@@ -165,7 +180,7 @@ public class Frame_Thuoc_GiaoDich_NhapThuoc extends JPanel {
         // Khu vực tìm kiếm và nhập liệu thuốc (bên trái)
         JPanel panelNhapThuoc = new JPanel();
         panelNhapThuoc.setBackground(new Color(220, 128, 78));
-        panelNhapThuoc.setBounds(20, 20, 581, 220);
+        panelNhapThuoc.setBounds(20, 20, 581, 280);
         panelNhapThuoc.setBorder(BorderFactory.createTitledBorder(
                 new LineBorder(Color.WHITE, 1), "Nhập Thuốc",
                 0, 0, new Font("Segoe UI", Font.PLAIN, 12)));
@@ -185,67 +200,74 @@ public class Frame_Thuoc_GiaoDich_NhapThuoc extends JPanel {
         JButton btnTimThuoc = new JButton("Tìm");
         btnTimThuoc.setIcon(new ImageIcon("icon\\find.png"));
         btnTimThuoc.setFont(new Font("Times New Roman", Font.BOLD, 16));
-        btnTimThuoc.setBounds(450, 32, 121, 30);
+        btnTimThuoc.setBounds(450, 30, 121, 30);
         btnTimThuoc.addActionListener(e -> timThuoc());
         panelNhapThuoc.add(btnTimThuoc);
 
         JButton btnReset = new JButton("Reset");
         btnReset.setIcon(new ImageIcon("icon\\refresh.png"));
         btnReset.setFont(new Font("Times New Roman", Font.BOLD, 16));
-        btnReset.setBounds(450, 72, 121, 30);
+        btnReset.setBounds(450, 80, 121, 30);
         btnReset.addActionListener(e -> resetThuoc());
         panelNhapThuoc.add(btnReset);
 
         JLabel lblThuoc = new JLabel("Thuốc:");
         lblThuoc.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        lblThuoc.setBounds(20, 70, 100, 30);
+        lblThuoc.setBounds(20, 80, 100, 30);
         panelNhapThuoc.add(lblThuoc);
 
         cboThuoc = new JComboBox<>();
         cboThuoc.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        cboThuoc.setBounds(151, 70, 289, 30);
+        cboThuoc.setBounds(151, 80, 289, 30);
         cboThuoc.addActionListener(e -> updateDonGia());
         panelNhapThuoc.add(cboThuoc);
 
         JLabel lblDonGia = new JLabel("Đơn Giá Nhập:");
         lblDonGia.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        lblDonGia.setBounds(20, 110, 125, 30);
+        lblDonGia.setBounds(20, 129, 125, 30);
         panelNhapThuoc.add(lblDonGia);
 
         txtDonGiaNhap = new JTextField("0đ");
         txtDonGiaNhap.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        txtDonGiaNhap.setBounds(151, 110, 420, 30);
+        txtDonGiaNhap.setBounds(151, 129, 420, 30);
         txtDonGiaNhap.setEditable(false);
         panelNhapThuoc.add(txtDonGiaNhap);
 
         JLabel lblSoLuong = new JLabel("Số Lượng:");
         lblSoLuong.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        lblSoLuong.setBounds(20, 150, 100, 30);
+        lblSoLuong.setBounds(20, 179, 100, 30);
         panelNhapThuoc.add(lblSoLuong);
 
         spinnerSoLuong = new JSpinner(new SpinnerNumberModel(1, 1, 1000, 1));
         spinnerSoLuong.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        spinnerSoLuong.setBounds(151, 151, 60, 30);
+        spinnerSoLuong.setBounds(151, 180, 289, 30);
         panelNhapThuoc.add(spinnerSoLuong);
 
         JButton btnThemThuoc = new JButton("Thêm");
         btnThemThuoc.setIcon(new ImageIcon("icon\\add.png"));
         btnThemThuoc.setFont(new Font("Times New Roman", Font.BOLD, 16));
-        btnThemThuoc.setBounds(238, 152, 125, 30);
+        btnThemThuoc.setBounds(446, 181, 125, 30);
         btnThemThuoc.addActionListener(e -> themThuoc());
         panelNhapThuoc.add(btnThemThuoc);
 
-        JButton btnThemThuocMoi = new JButton("Thêm Thuốc");
+        JButton btnThemThuocMoi = new JButton("Thêm Thuốc Mới");
         btnThemThuocMoi.setIcon(new ImageIcon("icon\\medicine.png"));
         btnThemThuocMoi.setFont(new Font("Times New Roman", Font.BOLD, 16));
-        btnThemThuocMoi.setBounds(386, 151, 185, 30);
+        btnThemThuocMoi.setBounds(151, 237, 203, 30);
         btnThemThuocMoi.addActionListener(e -> themThuocMoi());
         panelNhapThuoc.add(btnThemThuocMoi);
+
+        JButton btnNhapTuExcel = new JButton("Nhập từ Excel");
+        btnNhapTuExcel.setIcon(new ImageIcon("icon\\excel.png"));
+        btnNhapTuExcel.setFont(new Font("Times New Roman", Font.BOLD, 16));
+        btnNhapTuExcel.setBounds(364, 237, 203, 30);
+        btnNhapTuExcel.addActionListener(e -> nhapTuExcel());
+        panelNhapThuoc.add(btnNhapTuExcel);
 
         // Khu vực thông tin chi tiết thuốc (phần còn lại của panel)
         JPanel panelChiTietThuoc = new JPanel();
         panelChiTietThuoc.setBackground(new Color(220, 128, 78));
-        panelChiTietThuoc.setBounds(611, 20, 879, 220);
+        panelChiTietThuoc.setBounds(609, 20, 879, 280);
         panelChiTietThuoc.setBorder(BorderFactory.createTitledBorder(
                 new LineBorder(Color.WHITE, 1), "Thông Tin Chi Tiết Thuốc",
                 0, 0, new Font("Segoe UI", Font.PLAIN, 12)));
@@ -265,45 +287,45 @@ public class Frame_Thuoc_GiaoDich_NhapThuoc extends JPanel {
 
         lblChiTietTenThuoc = new JLabel("Tên thuốc:");
         lblChiTietTenThuoc.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        lblChiTietTenThuoc.setBounds(20, 60, 131, 25);
+        lblChiTietTenThuoc.setBounds(20, 79, 131, 25);
         panelChiTietThuoc.add(lblChiTietTenThuoc);
 
         txtChiTietTenThuoc = new JTextField();
         txtChiTietTenThuoc.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtChiTietTenThuoc.setBounds(161, 60, 308, 25);
+        txtChiTietTenThuoc.setBounds(161, 79, 308, 25);
         txtChiTietTenThuoc.setEditable(false);
         panelChiTietThuoc.add(txtChiTietTenThuoc);
 
         lblChiTietDonViTinh = new JLabel("Đơn vị tính:");
         lblChiTietDonViTinh.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        lblChiTietDonViTinh.setBounds(20, 90, 131, 25);
+        lblChiTietDonViTinh.setBounds(20, 127, 131, 25);
         panelChiTietThuoc.add(lblChiTietDonViTinh);
 
         txtChiTietDonViTinh = new JTextField();
         txtChiTietDonViTinh.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtChiTietDonViTinh.setBounds(161, 90, 308, 25);
+        txtChiTietDonViTinh.setBounds(161, 127, 308, 25);
         txtChiTietDonViTinh.setEditable(false);
         panelChiTietThuoc.add(txtChiTietDonViTinh);
 
         lblChiTietDonGiaNhap = new JLabel("Đơn giá nhập:");
         lblChiTietDonGiaNhap.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        lblChiTietDonGiaNhap.setBounds(20, 120, 131, 25);
+        lblChiTietDonGiaNhap.setBounds(20, 178, 131, 25);
         panelChiTietThuoc.add(lblChiTietDonGiaNhap);
 
         txtChiTietDonGiaNhap = new JTextField();
         txtChiTietDonGiaNhap.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtChiTietDonGiaNhap.setBounds(161, 120, 308, 25);
+        txtChiTietDonGiaNhap.setBounds(161, 178, 308, 25);
         txtChiTietDonGiaNhap.setEditable(false);
         panelChiTietThuoc.add(txtChiTietDonGiaNhap);
 
         lblChiTietDonGiaBan = new JLabel("Đơn giá bán:");
         lblChiTietDonGiaBan.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        lblChiTietDonGiaBan.setBounds(20, 150, 131, 25);
+        lblChiTietDonGiaBan.setBounds(20, 228, 131, 25);
         panelChiTietThuoc.add(lblChiTietDonGiaBan);
 
         txtChiTietDonGiaBan = new JTextField();
         txtChiTietDonGiaBan.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtChiTietDonGiaBan.setBounds(161, 150, 308, 25);
+        txtChiTietDonGiaBan.setBounds(161, 228, 308, 25);
         txtChiTietDonGiaBan.setEditable(false);
         panelChiTietThuoc.add(txtChiTietDonGiaBan);
 
@@ -320,23 +342,23 @@ public class Frame_Thuoc_GiaoDich_NhapThuoc extends JPanel {
 
         lblChiTietHamLuong = new JLabel("Hàm lượng:");
         lblChiTietHamLuong.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        lblChiTietHamLuong.setBounds(479, 60, 148, 25);
+        lblChiTietHamLuong.setBounds(479, 79, 148, 25);
         panelChiTietThuoc.add(lblChiTietHamLuong);
 
         txtChiTietHamLuong = new JTextField();
         txtChiTietHamLuong.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtChiTietHamLuong.setBounds(637, 60, 200, 25);
+        txtChiTietHamLuong.setBounds(637, 79, 200, 25);
         txtChiTietHamLuong.setEditable(false);
         panelChiTietThuoc.add(txtChiTietHamLuong);
 
         lblChiTietSoLuongTon = new JLabel("Số lượng tồn:");
         lblChiTietSoLuongTon.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        lblChiTietSoLuongTon.setBounds(479, 90, 148, 25);
+        lblChiTietSoLuongTon.setBounds(479, 127, 148, 25);
         panelChiTietThuoc.add(lblChiTietSoLuongTon);
 
         txtChiTietSoLuongTon = new JTextField();
         txtChiTietSoLuongTon.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtChiTietSoLuongTon.setBounds(637, 90, 200, 25);
+        txtChiTietSoLuongTon.setBounds(637, 127, 200, 25);
         txtChiTietSoLuongTon.setEditable(false);
         panelChiTietThuoc.add(txtChiTietSoLuongTon);
 
@@ -537,6 +559,7 @@ public class Frame_Thuoc_GiaoDich_NhapThuoc extends JPanel {
         txtTongTien.setText(String.format("%,.0fđ", tongTien));
     }
 
+  
     private void luuPhieuNhap() {
         if (modelThuocNhap.getRowCount() == 0) {
             JOptionPane.showMessageDialog(this, "Danh sách thuốc nhập trống!");
@@ -565,6 +588,12 @@ public class Frame_Thuoc_GiaoDich_NhapThuoc extends JPanel {
                 int soLuong = Integer.parseInt(modelThuocNhap.getValueAt(i, 2).toString());
                 NhapThuocDAO.capNhatSoLuongTon(maThuoc, soLuong);
             }
+            // Lưu phiếu thu chi
+            success = taiChinhDAO.luuPhieuThu(maNV, ngayNhap, hinhThucThanhToan, "Nhập thuốc", maPhieuNhap);
+            if (!success) {
+                JOptionPane.showMessageDialog(this, "Lưu phiếu thu chi thất bại!");
+                return;
+            }
             JOptionPane.showMessageDialog(this, "Lưu phiếu nhập thành công!");
             resetForm();
         } else {
@@ -579,5 +608,176 @@ public class Frame_Thuoc_GiaoDich_NhapThuoc extends JPanel {
         modelThuocNhap.setRowCount(0);
         txtTimKiemThuoc.setText("");
         loadData();
+    }
+
+    private void nhapTuExcel() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Chọn file Excel");
+        fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Excel files", "xlsx", "xls"));
+        int result = fileChooser.showOpenDialog(this);
+        if (result != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+
+        File file = fileChooser.getSelectedFile();
+        try (FileInputStream fis = new FileInputStream(file);
+             Workbook workbook = new XSSFWorkbook(fis)) {
+
+            Sheet sheet = workbook.getSheetAt(0);
+            if (sheet == null) {
+                JOptionPane.showMessageDialog(this, "File Excel không có sheet dữ liệu!");
+                return;
+            }
+
+            // Đọc mã nhà cung cấp từ dòng đầu tiên
+            Row nccRow = sheet.getRow(0);
+            if (nccRow == null || nccRow.getCell(0) == null) {
+                JOptionPane.showMessageDialog(this, "Dòng đầu tiên phải chứa mã nhà cung cấp!");
+                return;
+            }
+            String maNCC = getCellValueAsString(nccRow.getCell(1)).trim();
+            if (maNCC.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Mã nhà cung cấp không được để trống!");
+                return;
+            }
+
+            // Tìm và chọn nhà cung cấp trong cboNhaCungCap
+            boolean nccFound = false;
+            for (int i = 0; i < cboNhaCungCap.getItemCount(); i++) {
+                String item = cboNhaCungCap.getItemAt(i);
+                String maNCCItem = item.split(" - ")[0];
+                if (maNCCItem.equals(maNCC)) {
+                    cboNhaCungCap.setSelectedIndex(i);
+                    nccFound = true;
+                    break;
+                }
+            }
+            if (!nccFound) {
+                JOptionPane.showMessageDialog(this, "Nhà cung cấp với mã '" + maNCC + "' không tồn tại trong hệ thống!");
+                return;
+            }
+
+            // Kiểm tra header (dòng thứ 2, index 1)
+            Row headerRow = sheet.getRow(1);
+            if (headerRow == null || !isValidHeader(headerRow)) {
+                JOptionPane.showMessageDialog(this, "File Excel không đúng định dạng! Cần các cột: Mã Thuốc, Tên Thuốc, Số Lượng, Đơn Giá Nhập");
+                return;
+            }
+
+            // Đọc dữ liệu từ dòng thứ 3 trở đi (index 2)
+            for (int i = 2; i <= sheet.getLastRowNum(); i++) {
+                Row row = sheet.getRow(i);
+                if (row == null) continue;
+
+                try {
+                    String maThuoc = getCellValueAsString(row.getCell(0));
+                    String tenThuoc = getCellValueAsString(row.getCell(1));
+                    Cell soLuongCell = row.getCell(2);
+                    Cell donGiaCell = row.getCell(3);
+
+                    // Kiểm tra dữ liệu hợp lệ
+                    if (maThuoc == null || maThuoc.trim().isEmpty()) {
+                        JOptionPane.showMessageDialog(this, "Dòng " + (i + 1) + ": Mã Thuốc không được để trống!");
+                        continue;
+                    }
+                    if (tenThuoc == null || tenThuoc.trim().isEmpty()) {
+                        JOptionPane.showMessageDialog(this, "Dòng " + (i + 1) + ": Tên Thuốc không được để trống!");
+                        continue;
+                    }
+                    if (soLuongCell == null || soLuongCell.getCellType() != CellType.NUMERIC) {
+                        JOptionPane.showMessageDialog(this, "Dòng " + (i + 1) + ": Số Lượng phải là số!");
+                        continue;
+                    }
+                    if (donGiaCell == null || donGiaCell.getCellType() != CellType.NUMERIC) {
+                        JOptionPane.showMessageDialog(this, "Dòng " + (i + 1) + ": Đơn Giá Nhập phải là số!");
+                        continue;
+                    }
+
+                    int soLuong = (int) soLuongCell.getNumericCellValue();
+                    double donGia = donGiaCell.getNumericCellValue();
+
+                    if (soLuong <= 0) {
+                        JOptionPane.showMessageDialog(this, "Dòng " + (i + 1) + ": Số Lượng phải là số dương!");
+                        continue;
+                    }
+                    if (donGia <= 0) {
+                        JOptionPane.showMessageDialog(this, "Dòng " + (i + 1) + ": Đơn Giá Nhập phải là số dương!");
+                        continue;
+                    }
+
+                    // Kiểm tra thuốc có tồn tại trong cơ sở dữ liệu
+                    List<Object[]> thuocList = thuocDAO.timKiemThuoc(maThuoc, tenThuoc, "");
+                    if (thuocList.isEmpty()) {
+                        JOptionPane.showMessageDialog(this, "Dòng " + (i + 1) + ": Thuốc " + maThuoc + " - " + tenThuoc + " không tồn tại trong hệ thống!");
+                        continue;
+                    }
+
+                    // Thêm hoặc cập nhật vào bảng
+                    boolean found = false;
+                    for (int j = 0; j < modelThuocNhap.getRowCount(); j++) {
+                        if (modelThuocNhap.getValueAt(j, 0).equals(maThuoc)) {
+                            int soLuongCu = Integer.parseInt(modelThuocNhap.getValueAt(j, 2).toString());
+                            int soLuongMoi = soLuongCu + soLuong;
+                            modelThuocNhap.setValueAt(soLuongMoi, j, 2);
+                            modelThuocNhap.setValueAt(String.format("%,.0fđ", soLuongMoi * donGia), j, 4);
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    if (!found) {
+                        double thanhTien = soLuong * donGia;
+                        modelThuocNhap.addRow(new Object[]{
+                                maThuoc, tenThuoc, soLuong,
+                                String.format("%,.0fđ", donGia),
+                                String.format("%,.0fđ", thanhTien)
+                        });
+                    }
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(this, "Lỗi khi đọc dòng " + (i + 1) + ": " + e.getMessage());
+                    continue;
+                }
+            }
+
+            updateTongTien();
+            JOptionPane.showMessageDialog(this, "Đã nhập dữ liệu từ file Excel thành công!");
+
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this, "Lỗi khi đọc file Excel: " + e.getMessage());
+        }
+    }
+
+    private boolean isValidHeader(Row headerRow) {
+        String[] expectedHeaders = {"Mã Thuốc", "Tên Thuốc", "Số Lượng", "Đơn Giá Nhập"};
+        if (headerRow.getPhysicalNumberOfCells() < expectedHeaders.length) {
+            return false;
+        }
+        for (int i = 0; i < expectedHeaders.length; i++) {
+            Cell cell = headerRow.getCell(i);
+            if (cell == null || !getCellValueAsString(cell).trim().equalsIgnoreCase(expectedHeaders[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private String getCellValueAsString(Cell cell) {
+        if (cell == null) {
+            return "";
+        }
+        switch (cell.getCellType()) {
+            case STRING:
+                return cell.getStringCellValue();
+            case NUMERIC:
+                if (DateUtil.isCellDateFormatted(cell)) {
+                    return new SimpleDateFormat("dd/MM/yyyy").format(cell.getDateCellValue());
+                } else {
+                    return String.valueOf((long) cell.getNumericCellValue());
+                }
+            case BOOLEAN:
+                return String.valueOf(cell.getBooleanCellValue());
+            default:
+                return "";
+        }
     }
 }

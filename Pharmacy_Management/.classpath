@@ -10,6 +10,7 @@
 	<classpathentry kind="src" path="icon"/>
 	<classpathentry kind="src" path="image"/>
 	<classpathentry kind="src" path="lib"/>
+	<classpathentry kind="src" path="pdf"/>
 	<classpathentry kind="lib" path="lib/batik-anim-1.14.jar"/>
 	<classpathentry kind="lib" path="lib/batik-awt-util-1.14.jar"/>
 	<classpathentry kind="lib" path="lib/batik-bridge-1.14.jar"/>
@@ -75,5 +76,8 @@
 	<classpathentry kind="lib" path="lib/xmlbeans-5.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/xmlgraphics-commons-2.6.jar"/>
 	<classpathentry kind="lib" path="lib/xmlsec-3.0.0.jar"/>
+	<classpathentry kind="lib" path="lib/pdfbox-3.0.5.jar"/>
+	<classpathentry kind="lib" path="lib/pdfbox-io-3.0.5.jar"/>
+	<classpathentry kind="lib" path="lib/fontbox-3.0.5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

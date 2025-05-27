@@ -602,99 +602,79 @@ public class NhanVienDAO {
 	    }
 	}
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+		
 	
 	
 	// Thống kê top K nhân viên theo doanh số
-    public List<Object[]> getTopNhanVienByRevenue(int topK, String fromDate, String toDate, String year, String month) {
-        List<Object[]> data = new ArrayList<>();
-        StringBuilder sql = new StringBuilder(
-            "SELECT TOP " + topK + " nv.maNV, nv.hoTen, COUNT(hd.maHD) as soGiaoDich, SUM(hd.tongTien) as doanhThu " +
-            "FROM NhanVien nv " +
-            "LEFT JOIN HoaDon hd ON nv.maNV = hd.maNV " +
-            "WHERE hd.ngayLap IS NOT NULL "
-        );
-        List<Object> params = new ArrayList<>();
+	public List<Object[]> getTopNhanVienByRevenue(int topK, String fromDate, String toDate, String year, String month) {
+	    List<Object[]> data = new ArrayList<>();
+	    StringBuilder sql = new StringBuilder(
+	        "SELECT TOP " + topK + " nv.maNV, nv.hoTen, COUNT(DISTINCT hd.maPBT) as soGiaoDich, " +
+	        "SUM(ct.soLuong * ct.donGiaBan) as doanhThu " +
+	        "FROM NhanVien nv " +
+	        "LEFT JOIN PhieuBanThuoc hd ON nv.maNV = hd.maNV " +
+	        "LEFT JOIN ChiTietPhieuBanThuoc ct ON hd.maPBT = ct.maPBT " +
+	        "WHERE hd.trangThai = N'Đã thanh toán' "
+	    );
+	    List<Object> params = new ArrayList<>();
 
-        // Xử lý điều kiện lọc theo thời gian
-        if (fromDate != null && toDate != null) {
-            sql.append(" AND hd.ngayLap BETWEEN ? AND ?");
-            params.add(fromDate);
-            params.add(toDate);
-        } else if (month != null && year != null) {
-            try {
-                Integer.parseInt(month);
-                Integer.parseInt(year);
-                sql.append(" AND MONTH(hd.ngayLap) = ? AND YEAR(hd.ngayLap) = ?");
-                params.add(month);
-                params.add(year);
-            } catch (NumberFormatException e) {
-                throw new IllegalArgumentException("Tháng hoặc năm không hợp lệ: " + e.getMessage());
-            }
-        } else if (year != null) {
-            try {
-                Integer.parseInt(year);
-                sql.append(" AND YEAR(hd.ngayLap) = ?");
-                params.add(year);
-            } catch (NumberFormatException e) {
-                throw new IllegalArgumentException("Năm không hợp lệ: " + e.getMessage());
-            }
-        }
+	    // Xử lý điều kiện lọc theo thời gian
+	    if (fromDate != null && toDate != null) {
+	        sql.append(" AND hd.ngayLap BETWEEN ? AND ?");
+	        params.add(fromDate);
+	        params.add(toDate);
+	    } else if (month != null && year != null) {
+	        try {
+	            Integer.parseInt(month);
+	            Integer.parseInt(year);
+	            sql.append(" AND MONTH(hd.ngayLap) = ? AND YEAR(hd.ngayLap) = ?");
+	            params.add(month);
+	            params.add(year);
+	        } catch (NumberFormatException e) {
+	            throw new IllegalArgumentException("Tháng hoặc năm không hợp lệ: " + e.getMessage());
+	        }
+	    } else if (year != null) {
+	        try {
+	            Integer.parseInt(year);
+	            sql.append(" AND YEAR(hd.ngayLap) = ?");
+	            params.add(year);
+	        } catch (NumberFormatException e) {
+	            throw new IllegalArgumentException("Năm không hợp lệ: " + e.getMessage());
+	        }
+	    }
 
-        sql.append(" GROUP BY nv.maNV, nv.hoTen " +
-                   "ORDER BY doanhThu DESC");
+	    sql.append(" GROUP BY nv.maNV, nv.hoTen " +
+	               "ORDER BY doanhThu DESC");
 
-        try (Connection conn = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
-             PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
-            
-            for (int i = 0; i < params.size(); i++) {
-                pstmt.setObject(i + 1, params.get(i));
-            }
+	    try (Connection conn = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
+	         PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
+	        
+	        for (int i = 0; i < params.size(); i++) {
+	            pstmt.setObject(i + 1, params.get(i));
+	        }
 
-            ResultSet rs = pstmt.executeQuery();
-            int stt = 1;
-            while (rs.next()) {
-                double doanhThu = rs.getDouble("doanhThu");
-                double trungBinh = rs.getInt("soGiaoDich") > 0 ? doanhThu / rs.getInt("soGiaoDich") : 0;
-                
-                Object[] row = {
-                    stt++,
-                    rs.getString("maNV"),
-                    rs.getString("hoTen"),
-                    rs.getInt("soGiaoDich"),
-                    doanhThu, // Trả về giá trị gốc
-                    trungBinh // Trả về giá trị gốc
-                };
-                data.add(row);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Lỗi khi thống kê doanh số: " + e.getMessage());
-        }
-        return data;
-    }
+	        ResultSet rs = pstmt.executeQuery();
+	        int stt = 1;
+	        while (rs.next()) {
+	            double doanhThu = rs.getDouble("doanhThu");
+	            double trungBinh = rs.getInt("soGiaoDich") > 0 ? doanhThu / rs.getInt("soGiaoDich") : 0;
+	            
+	            Object[] row = {
+	                stt++,
+	                rs.getString("maNV"),
+	                rs.getString("hoTen"),
+	                rs.getInt("soGiaoDich"),
+	                doanhThu,
+	                trungBinh
+	            };
+	            data.add(row);
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        JOptionPane.showMessageDialog(null, "Lỗi khi thống kê doanh số: " + e.getMessage());
+	    }
+	    return data;
+	}
 	
 	// Thống kê số ngày làm việc của nhân viên
     public List<Object[]> getWorkingDaysStats(String fromDate, String toDate, String year, String month) {
@@ -702,7 +682,7 @@ public class NhanVienDAO {
         StringBuilder sql = new StringBuilder(
             "SELECT nv.maNV, nv.hoTen, COUNT(DISTINCT CAST(hd.ngayLap AS DATE)) as soNgayLam " +
             "FROM NhanVien nv " +
-            "LEFT JOIN HoaDon hd ON nv.maNV = hd.maNV " +
+            "LEFT JOIN PhieuBanThuoc hd ON nv.maNV = hd.maNV " +
             "WHERE hd.ngayLap IS NOT NULL "
         );
         List<Object> params = new ArrayList<>();

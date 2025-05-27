@@ -39,10 +39,13 @@ public class Frame_Thuoc_GiaoDich_TraThuoc extends JPanel {
     private TraThuocDAO traThuocDAO = new TraThuocDAO();
     private ChiTietBanThuocDAO chiTietBanThuocDAO = new ChiTietBanThuocDAO();
     private ChiTietTraThuocDAO chiTietTraThuocDAO = new ChiTietTraThuocDAO();
+    private TaiChinhDAO taiChinhDAO = new TaiChinhDAO();
     private String maNV;
     private JButton btnLuuPhieuTra;
     private JButton btnHuy;
 
+    private JComboBox<String> comboBoxLoaiHoaDon;
+    
     // Constructor không tham số
     public Frame_Thuoc_GiaoDich_TraThuoc() {
         this(null);
@@ -65,7 +68,7 @@ public class Frame_Thuoc_GiaoDich_TraThuoc extends JPanel {
 
         // Panel Tìm Hóa Đơn
         JPanel panel_TimKiem = new JPanel();
-        panel_TimKiem.setBounds(1065, 10, 460, 260);
+        panel_TimKiem.setBounds(1065, 10, 460, 305);
         panel_TimKiem.setBackground(new Color(220, 128, 78));
         panel_TimKiem.setLayout(null);
         TitledBorder titledBorder = BorderFactory.createTitledBorder(new LineBorder(Color.WHITE, 2), "Tìm Hóa Đơn");
@@ -75,56 +78,67 @@ public class Frame_Thuoc_GiaoDich_TraThuoc extends JPanel {
 
         JLabel lblMaHoaDon = new JLabel("Mã Hóa Đơn:");
         lblMaHoaDon.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        lblMaHoaDon.setBounds(24, 32, 120, 35);
+        lblMaHoaDon.setBounds(24, 74, 120, 35);
         panel_TimKiem.add(lblMaHoaDon);
 
         comboBoxMaHD = new JComboBox<>();
         comboBoxMaHD.setEditable(true);
-        comboBoxMaHD.setBounds(150, 32, 280, 35);
+        comboBoxMaHD.setBounds(150, 74, 280, 35);
         comboBoxMaHD.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         panel_TimKiem.add(comboBoxMaHD);
 
         JLabel lblMaKHSearch = new JLabel("Mã KH:");
         lblMaKHSearch.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        lblMaKHSearch.setBounds(24, 77, 120, 35);
+        lblMaKHSearch.setBounds(24, 119, 120, 35);
         panel_TimKiem.add(lblMaKHSearch);
 
         txtMaKHSearch = new JTextField();
         txtMaKHSearch.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        txtMaKHSearch.setBounds(150, 77, 280, 35);
+        txtMaKHSearch.setBounds(150, 119, 280, 35);
         panel_TimKiem.add(txtMaKHSearch);
 
         JLabel lblTenKHSearch = new JLabel("Tên KH:");
         lblTenKHSearch.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        lblTenKHSearch.setBounds(24, 122, 120, 35);
+        lblTenKHSearch.setBounds(24, 164, 120, 35);
         panel_TimKiem.add(lblTenKHSearch);
 
         txtTenKHSearch = new JTextField();
         txtTenKHSearch.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        txtTenKHSearch.setBounds(150, 122, 280, 35);
+        txtTenKHSearch.setBounds(150, 164, 280, 35);
         panel_TimKiem.add(txtTenKHSearch);
 
         JLabel lblSoDienThoaiSearch = new JLabel("Số ĐT:");
         lblSoDienThoaiSearch.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        lblSoDienThoaiSearch.setBounds(24, 167, 120, 35);
+        lblSoDienThoaiSearch.setBounds(24, 209, 120, 35);
         panel_TimKiem.add(lblSoDienThoaiSearch);
 
         txtSoDienThoaiSearch = new JTextField();
         txtSoDienThoaiSearch.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        txtSoDienThoaiSearch.setBounds(150, 167, 280, 35);
+        txtSoDienThoaiSearch.setBounds(150, 209, 280, 35);
         panel_TimKiem.add(txtSoDienThoaiSearch);
 
         JButton btnTimHoaDon = new JButton("Tìm");
         btnTimHoaDon.setIcon(new ImageIcon("icon\\find.png"));
         btnTimHoaDon.setFont(new Font("Times New Roman", Font.BOLD, 20));
-        btnTimHoaDon.setBounds(59, 212, 139, 35);
+        btnTimHoaDon.setBounds(59, 257, 139, 35);
         panel_TimKiem.add(btnTimHoaDon);
 
         JButton btnTaiLai = new JButton("Tải Lại");
         btnTaiLai.setIcon(new ImageIcon("icon\\refresh.png"));
         btnTaiLai.setFont(new Font("Times New Roman", Font.BOLD, 20));
-        btnTaiLai.setBounds(256, 212, 139, 35);
+        btnTaiLai.setBounds(256, 257, 139, 35);
         panel_TimKiem.add(btnTaiLai);
+        
+        JLabel lblLoaiHoaDon = new JLabel("Loại Hóa Đơn:");
+        lblLoaiHoaDon.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        lblLoaiHoaDon.setBounds(24, 26, 120, 35);
+        panel_TimKiem.add(lblLoaiHoaDon);
+        
+        String[] loaiHoaDonOptions = {"Hóa đơn bán thuốc", "Hóa đơn đặt thuốc"};
+        comboBoxLoaiHoaDon = new JComboBox<>(loaiHoaDonOptions);
+        comboBoxLoaiHoaDon.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        comboBoxLoaiHoaDon.setBounds(150, 26, 280, 35);
+        panel_TimKiem.add(comboBoxLoaiHoaDon);
 
         // Panel Danh Sách Hóa Đơn
         JPanel panel_HoaDon = new JPanel();
@@ -167,7 +181,7 @@ public class Frame_Thuoc_GiaoDich_TraThuoc extends JPanel {
         titledBorderRight.setTitleFont(new Font("Segoe UI", Font.PLAIN, 12));
         panel_ChiTietTra.setBorder(titledBorderRight);
         panel_ChiTietTra.setBackground(new Color(220, 128, 78));
-        panel_ChiTietTra.setBounds(10, 281, 1045, 220);
+        panel_ChiTietTra.setBounds(10, 283, 1045, 220);
         pnlBackGround.add(panel_ChiTietTra);
         panel_ChiTietTra.setLayout(null);
 
@@ -202,7 +216,7 @@ public class Frame_Thuoc_GiaoDich_TraThuoc extends JPanel {
         titledBorderChiTietTra.setTitleFont(new Font("Segoe UI", Font.PLAIN, 12));
         panel_ChiTietTraThuoc.setBorder(titledBorderChiTietTra);
         panel_ChiTietTraThuoc.setBackground(new Color(220, 128, 78));
-        panel_ChiTietTraThuoc.setBounds(10, 512, 1045, 220);
+        panel_ChiTietTraThuoc.setBounds(10, 521, 1045, 220);
         pnlBackGround.add(panel_ChiTietTraThuoc);
         panel_ChiTietTraThuoc.setLayout(null);
 
@@ -234,7 +248,7 @@ public class Frame_Thuoc_GiaoDich_TraThuoc extends JPanel {
         // Panel Thông Tin Phiếu Trả
         JPanel panel_PhieuTra = new JPanel();
         panel_PhieuTra.setBackground(new Color(220, 128, 78));
-        panel_PhieuTra.setBounds(1065, 280, 460, 400);
+        panel_PhieuTra.setBounds(1065, 328, 460, 360);
         TitledBorder titledBorder_PhieuTra = BorderFactory.createTitledBorder(new LineBorder(Color.WHITE, 2), "Thông Tin Phiếu Trả");
         titledBorder_PhieuTra.setTitleFont(new Font("Segoe UI", Font.PLAIN, 12));
         panel_PhieuTra.setBorder(titledBorder_PhieuTra);
@@ -322,7 +336,7 @@ public class Frame_Thuoc_GiaoDich_TraThuoc extends JPanel {
 
         // Nút Lưu Phiếu Trả
         btnLuuPhieuTra = new JButton("LƯU PHIẾU TRẢ");
-        btnLuuPhieuTra.setBounds(1065, 690, 219, 51);
+        btnLuuPhieuTra.setBounds(1065, 701, 219, 40);
         pnlBackGround.add(btnLuuPhieuTra);
         btnLuuPhieuTra.setIcon(null);
         btnLuuPhieuTra.setForeground(new Color(255, 255, 255));
@@ -334,7 +348,7 @@ public class Frame_Thuoc_GiaoDich_TraThuoc extends JPanel {
 
         // Nút Hủy
         btnHuy = new JButton("HỦY");
-        btnHuy.setBounds(1306, 690, 219, 51);
+        btnHuy.setBounds(1296, 701, 219, 40);
         pnlBackGround.add(btnHuy);
         btnHuy.setIcon(null);
         btnHuy.setForeground(Color.WHITE);
@@ -353,7 +367,11 @@ public class Frame_Thuoc_GiaoDich_TraThuoc extends JPanel {
         txtMaPhieuTra.setText(generateMaPhieuTra());
         goiYMaHoaDon();
 
-        // Event Listeners
+        // Sự kiện Listeners
+        
+        // Thêm sự kiện cho comboBoxLoaiHoaDon
+        comboBoxLoaiHoaDon.addActionListener(e -> loadDataToTable());
+        
         btnTimHoaDon.addActionListener(e -> timHoaDon());
         btnTaiLai.addActionListener(e -> resetForm());
         btnTaiLaiPhieuTra.addActionListener(e -> resetForm());
@@ -400,19 +418,29 @@ public class Frame_Thuoc_GiaoDich_TraThuoc extends JPanel {
         });
     }
 
+    // Hàm tải dữ liệu hóa đơn vào bảng
     private void loadDataToTable() {
         modelHoaDon.setRowCount(0);
-        List<Object[]> data = traThuocDAO.loadDataToDSHoaDon();
+        String loaiHoaDon = (String) comboBoxLoaiHoaDon.getSelectedItem();
+        List<Object[]> data;
+        if (loaiHoaDon.equals("Hóa đơn bán thuốc")) {
+            data = traThuocDAO.loadDataToDSHoaDon();
+        } else {
+            data = traThuocDAO.loadDataToDSPhieuDat();
+        }
         for (Object[] row : data) {
             modelHoaDon.addRow(row);
         }
+        goiYMaHoaDon(); // Cập nhật gợi ý mã hóa đơn
     }
 
+    // Hàm tìm kiếm hóa đơn
     private void timHoaDon() {
         String maHD = comboBoxMaHD.getSelectedItem() != null ? comboBoxMaHD.getSelectedItem().toString().trim() : "";
         String maKH = txtMaKHSearch.getText().trim();
         String tenKH = txtTenKHSearch.getText().trim();
         String soDienThoai = txtSoDienThoaiSearch.getText().trim();
+        String loaiHoaDon = (String) comboBoxLoaiHoaDon.getSelectedItem();
 
         if (maHD.isEmpty() && maKH.isEmpty() && tenKH.isEmpty() && soDienThoai.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Vui lòng nhập ít nhất một trường để tìm kiếm");
@@ -420,7 +448,12 @@ public class Frame_Thuoc_GiaoDich_TraThuoc extends JPanel {
         }
 
         modelHoaDon.setRowCount(0);
-        List<Object[]> data = traThuocDAO.timKiemHoaDon(maHD, maKH, tenKH, soDienThoai);
+        List<Object[]> data;
+        if (loaiHoaDon.equals("Hóa đơn bán thuốc")) {
+            data = traThuocDAO.timKiemHoaDon(maHD, maKH, tenKH, soDienThoai);
+        } else {
+            data = traThuocDAO.timKiemPhieuDat(maHD, maKH, tenKH, soDienThoai);
+        }
         for (Object[] row : data) {
             modelHoaDon.addRow(row);
         }
@@ -440,8 +473,15 @@ public class Frame_Thuoc_GiaoDich_TraThuoc extends JPanel {
         return "PTT" + String.format("%03d", nextNumber);
     }
 
+    // Hàm gợi ý mã hóa đơn
     private void goiYMaHoaDon() {
-        List<String> maHDList = traThuocDAO.getAllMaHoaDon();
+        String loaiHoaDon = (String) comboBoxLoaiHoaDon.getSelectedItem();
+        List<String> maHDList;
+        if (loaiHoaDon.equals("Hóa đơn bán thuốc")) {
+            maHDList = traThuocDAO.getAllMaHoaDon();
+        } else {
+            maHDList = traThuocDAO.getAllMaPhieuDat();
+        }
         comboBoxMaHD.setModel(new DefaultComboBoxModel<>(new Vector<>(maHDList)));
         comboBoxMaHD.setSelectedItem(null);
 
@@ -492,8 +532,15 @@ public class Frame_Thuoc_GiaoDich_TraThuoc extends JPanel {
         });
     }
 
+    // Hàm lấy thông tin hóa đơn theo mã
     private void layThongTinHoaDon(String maHD) {
-        Map<String, String> hoaDonInfo = traThuocDAO.getThongTinHoaDon(maHD);
+        String loaiHoaDon = (String) comboBoxLoaiHoaDon.getSelectedItem();
+        Map<String, String> hoaDonInfo;
+        if (loaiHoaDon.equals("Hóa đơn bán thuốc")) {
+            hoaDonInfo = traThuocDAO.getThongTinHoaDon(maHD);
+        } else {
+            hoaDonInfo = traThuocDAO.getThongTinPhieuDat(maHD);
+        }
         if (hoaDonInfo != null && !hoaDonInfo.isEmpty()) {
             txtMaHoaDon.setText(maHD);
             txtMaKH.setText(hoaDonInfo.get("maKH"));
@@ -509,17 +556,24 @@ public class Frame_Thuoc_GiaoDich_TraThuoc extends JPanel {
         }
     }
 
+    // Hàm tải chi tiết hóa đơn
     private void loadChiTietHoaDon(String maHD) {
         modelChiTiet.setRowCount(0);
         modelChiTietTra.setRowCount(0);
-        List<Object[]> data = chiTietTraThuocDAO.getChiTietPhieuBanThuoc(maHD);
+        String loaiHoaDon = (String) comboBoxLoaiHoaDon.getSelectedItem();
+        List<Object[]> data;
+        if (loaiHoaDon.equals("Hóa đơn bán thuốc")) {
+            data = chiTietTraThuocDAO.getChiTietPhieuBanThuoc(maHD);
+        } else {
+            data = chiTietTraThuocDAO.getChiTietPhieuDatHang(maHD);
+        }
         if (data.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Không thể tải chi tiết hóa đơn. Vui lòng kiểm tra mã hóa đơn.");
             return;
         }
         for (Object[] row : data) {
             Object[] newRow = new Object[5];
-            newRow[0] = row[0]; // maThuoc (now retrieved from the database)
+            newRow[0] = row[0]; // maThuoc
             newRow[1] = row[1]; // tenThuoc
             newRow[2] = row[2]; // soLuong
             newRow[3] = row[3]; // donGiaBan
@@ -528,11 +582,33 @@ public class Frame_Thuoc_GiaoDich_TraThuoc extends JPanel {
         }
         btnLuuPhieuTra.setEnabled(false);
     }
-
+    
+    
     private void nhapSoLuongTra(int row) {
         String maThuoc = tableChiTiet.getValueAt(row, 0).toString();
         String tenThuoc = tableChiTiet.getValueAt(row, 1).toString();
-        int soLuongBan = Integer.parseInt(tableChiTiet.getValueAt(row, 2).toString());
+        
+        // Lấy mã hóa đơn và loại hóa đơn
+        String maHD = txtMaHoaDon.getText().trim();
+        String loaiHoaDon = (String) comboBoxLoaiHoaDon.getSelectedItem();
+        boolean isBanThuoc = loaiHoaDon.equals("Hóa đơn bán thuốc");
+        
+        // Lấy số lượng mua ban đầu
+        int soLuongBan = chiTietTraThuocDAO.getSoLuongMuaBanDau(maHD, maThuoc, isBanThuoc);
+        if (soLuongBan == 0) {
+            JOptionPane.showMessageDialog(this, "Không tìm thấy thông tin mua ban đầu cho thuốc này!");
+            return;
+        }
+        
+        // Lấy tổng số lượng đã trả
+        int tongSoLuongDaTra = chiTietTraThuocDAO.getTongSoLuongDaTra(maHD, maThuoc);
+        
+        // Kiểm tra số lượng còn lại
+        int soLuongConLai = soLuongBan - tongSoLuongDaTra;
+        if (soLuongConLai <= 0) {
+            JOptionPane.showMessageDialog(this, "Thuốc này đã được trả đủ số lượng, không thể trả thêm!");
+            return;
+        }
         
         // Lấy đơn giá từ tableChiTiet và loại bỏ dấu chấm phân cách hàng nghìn
         String donGiaStr = tableChiTiet.getValueAt(row, 3).toString().replace("đ", "").replace(",", "");
@@ -544,14 +620,14 @@ public class Frame_Thuoc_GiaoDich_TraThuoc extends JPanel {
             return;
         }
 
-        Dialog_ChiTietTraThuoc dialog = new Dialog_ChiTietTraThuoc(null, maThuoc, tenThuoc, soLuongBan);
+        Dialog_ChiTietTraThuoc dialog = new Dialog_ChiTietTraThuoc(null, maThuoc, tenThuoc, soLuongConLai);
         dialog.setVisible(true);
 
         if (dialog.isConfirmed()) {
             int soLuongTra = dialog.getSoLuongTra();
             double thanhTien = soLuongTra * donGia;
 
-            // Thêm dòng vào tableChiTietTra, sử dụng String.format thay vì DecimalFormat
+            // Thêm dòng vào tableChiTietTra
             modelChiTietTra.addRow(new Object[] {
                 maThuoc,
                 tenThuoc,
@@ -585,8 +661,9 @@ public class Frame_Thuoc_GiaoDich_TraThuoc extends JPanel {
         String maKH = txtMaKH.getText().trim();
         String ngayTra = new SimpleDateFormat("dd/MM/yyyy").format(txtNgayTra.getDate());
         String lyDoTra = comboLyDoTra.getSelectedItem().toString();
+        String loaiHoaDon = (String) comboBoxLoaiHoaDon.getSelectedItem();
 
-        boolean success = traThuocDAO.luuPhieuTra(maPhieuTra, maHoaDon, maNV, maKH, ngayTra, lyDoTra);
+        boolean success = traThuocDAO.luuPhieuTra(maPhieuTra, maHoaDon, maNV, maKH, ngayTra, lyDoTra, loaiHoaDon.equals("Hóa đơn bán thuốc"));
         if (!success) {
             JOptionPane.showMessageDialog(this, "Lưu phiếu trả thất bại");
             return;
@@ -597,7 +674,13 @@ public class Frame_Thuoc_GiaoDich_TraThuoc extends JPanel {
             for (int i = 0; i < tableChiTietTra.getRowCount(); i++) {
                 int soLuongTra = Integer.parseInt(tableChiTietTra.getValueAt(i, 2).toString());
                 String maThuoc = tableChiTietTra.getValueAt(i, 0).toString();
-                traThuocDAO.capNhatSoLuongTon(maThuoc, soLuongTra);
+                traThuocDAO.capNhatSoLuong(maThuoc, soLuongTra);
+            }
+            // Lưu phiếu thu chi
+            success = taiChinhDAO.luuPhieuThu(maNV, ngayTra, "Tiền mặt", "Trả thuốc", maPhieuTra);
+            if (!success) {
+                JOptionPane.showMessageDialog(this, "Lưu phiếu thu chi thất bại!");
+                return;
             }
             JOptionPane.showMessageDialog(this, "Lưu phiếu trả thành công");
             resetForm();

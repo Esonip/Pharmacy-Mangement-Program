@@ -297,9 +297,9 @@ public class NhaCungCapDAO {
 	public List<Object[]> getTopNhaCungCapByImportQuantity(int topK, String year, String month) {
 		List<Object[]> data = new ArrayList<>();
 		StringBuilder sql = new StringBuilder("SELECT TOP " + topK
-				+ " ncc.maNCC, ncc.tenNCC, COUNT(pn.maPN) as soGiaoDich, SUM(ctpn.soLuong) as tongSoLuong "
-				+ "FROM NhaCungCap ncc " + "LEFT JOIN PhieuNhap pn ON ncc.maNCC = pn.maNCC "
-				+ "LEFT JOIN ChiTietPhieuNhap ctpn ON pn.maPN = ctpn.maPN " + "WHERE pn.ngayNhap IS NOT NULL ");
+				+ " ncc.maNCC, ncc.tenNCC, COUNT(pn.maPNT) as soGiaoDich, SUM(ctpn.soLuong) as tongSoLuong "
+				+ "FROM NhaCungCap ncc " + "LEFT JOIN PhieuNhapThuoc pn ON ncc.maNCC = pn.maNCC "
+				+ "LEFT JOIN ChiTietPhieuNhapThuoc ctpn ON pn.maPNT = ctpn.maPNT " + "WHERE pn.ngayNhap IS NOT NULL ");
 		List<Object> params = new ArrayList<>();
 
 		// Xử lý điều kiện lọc theo thời gian

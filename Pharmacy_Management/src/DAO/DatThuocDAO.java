@@ -109,30 +109,56 @@ public class DatThuocDAO {
 	}
 
 	public boolean luuPhieuDatHang(String maPDH, String ngayLap, String ngayGiao, String maNV, String maKH, String trangThai,
-			String phuongThucThanhToan) throws ParseException {
-		String sql = "INSERT INTO PhieuDatThuoc (maPDT, ngayDat, ngayGiao, maNV, maKH, trangThai, phuongThucThanhToan) VALUES (?, ?, ?, ?, ?, ?, ?)";
-		try (Connection conn = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
-				PreparedStatement pstmt = conn.prepareStatement(sql)) {
-			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-			java.util.Date parsed1 = sdf.parse(ngayLap);
-			java.sql.Date dat = new java.sql.Date(parsed1.getTime());
-			java.util.Date parsed2 = sdf.parse(ngayGiao);
-			java.sql.Date nhap = new java.sql.Date(parsed2.getTime());
+	        String phuongThucThanhToan) throws ParseException {
+	    String selectSql = "SELECT COUNT(*) FROM PhieuDatThuoc WHERE maPDT = ?";
+	    String updateSql = "UPDATE PhieuDatThuoc SET ngayDat = ?, ngayGiao = ?, maNV = ?, maKH = ?, trangThai = ?, phuongThucThanhToan = ? WHERE maPDT = ?";
+	    String insertSql = "INSERT INTO PhieuDatThuoc (maPDT, ngayDat, ngayGiao, maNV, maKH, trangThai, phuongThucThanhToan) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-			pstmt.setString(1, maPDH);
-			pstmt.setDate(2, dat);
-			pstmt.setDate(3, nhap);
-			pstmt.setString(4, maNV);
-			pstmt.setString(5, maKH);
-			pstmt.setString(6, trangThai);
-			pstmt.setString(7, phuongThucThanhToan);
-			pstmt.executeUpdate();
-			return true;
-		} catch (SQLException e) {
-			e.printStackTrace();
-			JOptionPane.showMessageDialog(null, "Lỗi khi lưu phiếu đặt hàng: " + e.getMessage());
-		}
-		return false;
+	    try (Connection conn = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
+	         PreparedStatement selectStmt = conn.prepareStatement(selectSql)) {
+
+	    	// Kiểm tra xem mã hóa đơn đã tồn tại hay chưa
+	        selectStmt.setString(1, maPDH);
+	        ResultSet rs = selectStmt.executeQuery();
+	        rs.next();
+	        boolean exists = rs.getInt(1) > 0;
+
+	        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+	        java.util.Date parsed1 = sdf.parse(ngayLap);
+	        java.sql.Date dat = new java.sql.Date(parsed1.getTime());
+	        java.util.Date parsed2 = sdf.parse(ngayGiao);
+	        java.sql.Date nhap = new java.sql.Date(parsed2.getTime());
+
+	        if (exists) {
+	            try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
+	                updateStmt.setDate(1, dat);
+	                updateStmt.setDate(2, nhap);
+	                updateStmt.setString(3, maNV);
+	                updateStmt.setString(4, maKH);
+	                updateStmt.setString(5, trangThai);
+	                updateStmt.setString(6, phuongThucThanhToan);
+	                updateStmt.setString(7, maPDH);
+	                updateStmt.executeUpdate();
+	                return true;
+	            }
+	        } else {
+	            try (PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
+	                insertStmt.setString(1, maPDH);
+	                insertStmt.setDate(2, dat);
+	                insertStmt.setDate(3, nhap);
+	                insertStmt.setString(4, maNV);
+	                insertStmt.setString(5, maKH);
+	                insertStmt.setString(6, trangThai);
+	                insertStmt.setString(7, phuongThucThanhToan);
+	                insertStmt.executeUpdate();
+	                return true;
+	            }
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        JOptionPane.showMessageDialog(null, "Lỗi khi lưu phiếu đặt thuốc: " + e.getMessage());
+	    }
+	    return false;
 	}
 
 }

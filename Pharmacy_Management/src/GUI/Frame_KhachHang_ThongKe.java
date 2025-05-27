@@ -18,6 +18,13 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.general.DefaultPieDataset;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 import DAO.KhachHangDAO;
 
@@ -329,7 +336,7 @@ public class Frame_KhachHang_ThongKe extends JPanel {
 
         // Button events
         btnThongKe.addActionListener(e -> thongKeKhachHang());
-        btnXuatBaoCao.addActionListener(e -> JOptionPane.showMessageDialog(this, "Chức năng xuất báo cáo chưa được triển khai!"));
+        btnXuatBaoCao.addActionListener(e -> xuatExcel());
 
         // Load initial charts
         updateCharts();
@@ -473,7 +480,67 @@ public class Frame_KhachHang_ThongKe extends JPanel {
             JOptionPane.showMessageDialog(this, "Lỗi khi cập nhật biểu đồ: " + e.getMessage());
         }
     }
+    
+    
+    private void xuatExcel() {
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("ThongKeKhachHang");
 
+        // Tạo tiêu đề cho sheet
+        Row headerRow = sheet.createRow(0);
+        String[] headers = {"STT", "Mã khách hàng", "Tên khách hàng", "Số giao dịch", "Doanh thu", "Trung bình"};
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+        }
+
+        // Điền dữ liệu từ bảng vào sheet
+        DefaultTableModel tableModel = (DefaultTableModel) tableKhachHang.getModel();
+        int rowCount = tableModel.getRowCount();
+        for (int i = 0; i < rowCount; i++) {
+            Row row = sheet.createRow(i + 1);
+            for (int j = 0; j < tableModel.getColumnCount(); j++) {
+                Object value = tableModel.getValueAt(i, j);
+                Cell cell = row.createCell(j);
+                if (value != null) {
+                    if (j == 4 || j == 5) { // Cột Doanh thu và Trung bình
+                        String valueStr = value.toString().replaceAll("[^0-9.]", "");
+                        try {
+                            double number = Double.parseDouble(valueStr);
+                            cell.setCellValue(number);
+                        } catch (NumberFormatException e) {
+                            cell.setCellValue(value.toString());
+                        }
+                    } else {
+                        cell.setCellValue(value.toString());
+                    }
+                } else {
+                    cell.setCellValue("");
+                }
+            }
+        }
+
+        // Tự động điều chỉnh kích thước cột
+        for (int i = 0; i < headers.length; i++) {
+            sheet.autoSizeColumn(i);
+        }
+
+        // Ghi workbook vào file Excel
+        try (FileOutputStream fileOut = new FileOutputStream("ThongKeKhachHang.xlsx")) {
+            workbook.write(fileOut);
+            JOptionPane.showMessageDialog(this, "Xuất file Excel thành công!");
+        } catch (IOException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Xuất file Excel thất bại!");
+        } finally {
+            try {
+                workbook.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    
     public static void main(String[] args) {
         EventQueue.invokeLater(() -> {
             try {

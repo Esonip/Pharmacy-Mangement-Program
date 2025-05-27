@@ -133,141 +133,152 @@ public class HoaDonBanThuocDAO {
 	}
 	
 	// Thống kê hóa đơn theo tuần
-    public List<Object[]> thongKeTheoTuan(int nam, int thang, int tuan) {
-        List<Object[]> data = new ArrayList<>();
-        String sql;
-        int ngayBatDau, ngayKetThuc;
-        switch (tuan) {
-            case 1:
-                ngayBatDau = 1;
-                ngayKetThuc = 7;
-                break;
-            case 2:
-                ngayBatDau = 8;
-                ngayKetThuc = 14;
-                break;
-            case 3:
-                ngayBatDau = 15;
-                ngayKetThuc = 21;
-                break;
-            case 4:
-                ngayBatDau = 22;
-                ngayKetThuc = 28;
-                break;
-            default:
-                return data; // Bỏ tuần 5
-        }
-        sql = "SELECT h.maPBT, h.maNV, h.maKH, h.ngayLap, h.tongTien " +
-              "FROM PhieuBanThuoc h WHERE YEAR(h.ngayLap) = ? AND MONTH(h.ngayLap) = ? " +
-              "AND DAY(h.ngayLap) BETWEEN ? AND ?";
-        try (Connection conn = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, nam);
-            stmt.setInt(2, thang);
-            stmt.setInt(3, ngayBatDau);
-            stmt.setInt(4, ngayKetThuc);
-            ResultSet rs = stmt.executeQuery();
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+	public List<Object[]> thongKeTheoTuan(int nam, int thang, int tuan) {
+	    List<Object[]> data = new ArrayList<>();
+	    String sql;
+	    int ngayBatDau, ngayKetThuc;
+	    switch (tuan) {
+	        case 1:
+	            ngayBatDau = 1;
+	            ngayKetThuc = 7;
+	            break;
+	        case 2:
+	            ngayBatDau = 8;
+	            ngayKetThuc = 14;
+	            break;
+	        case 3:
+	            ngayBatDau = 15;
+	            ngayKetThuc = 21;
+	            break;
+	        case 4:
+	            ngayBatDau = 22;
+	            ngayKetThuc = 28;
+	            break;
+	        default:
+	            return data; // Bỏ tuần 5
+	    }
+	    sql = "SELECT h.maPBT, h.maNV, h.maKH, h.ngayLap, SUM(ct.soLuong * ct.donGiaBan) AS tongTien " +
+	          "FROM PhieuBanThuoc h " +
+	          "LEFT JOIN ChiTietPhieuBanThuoc ct ON h.maPBT = ct.maPBT " +
+	          "WHERE YEAR(h.ngayLap) = ? AND MONTH(h.ngayLap) = ? " +
+	          "AND DAY(h.ngayLap) BETWEEN ? AND ? AND h.trangThai = N'Đã thanh toán' " +
+	          "GROUP BY h.maPBT, h.maNV, h.maKH, h.ngayLap";
+	    try (Connection conn = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
+	         PreparedStatement stmt = conn.prepareStatement(sql)) {
+	        stmt.setInt(1, nam);
+	        stmt.setInt(2, thang);
+	        stmt.setInt(3, ngayBatDau);
+	        stmt.setInt(4, ngayKetThuc);
+	        ResultSet rs = stmt.executeQuery();
+	        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
-            while (rs.next()) {
-                String ngayLap = sdf.format(rs.getDate("ngayLap"));
-                double tongTienValue = rs.getDouble("tongTien");
-                String tongTien = String.format("%,.0f VNĐ", tongTienValue);
-                Object[] row = { rs.getString("maPBT"), ngayLap, rs.getString("maKH"), tongTien };
-                data.add(row);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Lỗi khi thống kê theo tuần: " + e.getMessage());
-        }
-        return data;
-    }
+	        while (rs.next()) {
+	            String ngayLap = sdf.format(rs.getDate("ngayLap"));
+	            double tongTienValue = rs.getDouble("tongTien");
+	            String tongTien = String.format("%,.0f VNĐ", tongTienValue);
+	            Object[] row = { rs.getString("maPBT"), ngayLap, rs.getString("maKH"), tongTien };
+	            data.add(row);
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        JOptionPane.showMessageDialog(null, "Lỗi khi thống kê theo tuần: " + e.getMessage());
+	    }
+	    return data;
+	}
 
-    // Thống kê hóa đơn theo tháng trong năm
-    public List<Object[]> thongKeTheoThang(int nam) {
-        List<Object[]> data = new ArrayList<>();
-        String sql = "SELECT MONTH(h.ngayLap) AS thang, COUNT(h.maPBT) AS soHoaDon, SUM(h.tongTien) AS tongDoanhThu " +
-                     "FROM PhieuBanThuoc h WHERE YEAR(h.ngayLap) = ? GROUP BY MONTH(h.ngayLap) ORDER BY thang";
-        try (Connection conn = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, nam);
-            ResultSet rs = stmt.executeQuery();
+	// Thống kê hóa đơn theo tháng trong năm
+	public List<Object[]> thongKeTheoThang(int nam) {
+	    List<Object[]> data = new ArrayList<>();
+	    String sql = "SELECT MONTH(h.ngayLap) AS thang, COUNT(DISTINCT h.maPBT) AS soHoaDon, SUM(ct.soLuong * ct.donGiaBan) AS tongDoanhThu " +
+	                 "FROM PhieuBanThuoc h " +
+	                 "LEFT JOIN ChiTietPhieuBanThuoc ct ON h.maPBT = ct.maPBT " +
+	                 "WHERE YEAR(h.ngayLap) = ? AND h.trangThai = N'Đã thanh toán' " +
+	                 "GROUP BY MONTH(h.ngayLap) ORDER BY thang";
+	    try (Connection conn = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
+	         PreparedStatement stmt = conn.prepareStatement(sql)) {
+	        stmt.setInt(1, nam);
+	        ResultSet rs = stmt.executeQuery();
 
-            while (rs.next()) {
-                String thang = String.format("Tháng %d", rs.getInt("thang"));
-                String soHoaDon = String.valueOf(rs.getInt("soHoaDon"));
-                double tongDoanhThuValue = rs.getDouble("tongDoanhThu");
-                String tongDoanhThu = String.format("%,.0f VNĐ", tongDoanhThuValue);
-                Object[] row = { thang, soHoaDon, tongDoanhThu };
-                data.add(row);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Lỗi khi thống kê theo tháng: " + e.getMessage());
-        }
-        return data;
-    }
+	        while (rs.next()) {
+	            String thang = String.format("Tháng %d", rs.getInt("thang"));
+	            String soHoaDon = String.valueOf(rs.getInt("soHoaDon"));
+	            double tongDoanhThuValue = rs.getDouble("tongDoanhThu");
+	            String tongDoanhThu = String.format("%,.0f VNĐ", tongDoanhThuValue);
+	            Object[] row = { thang, soHoaDon, tongDoanhThu };
+	            data.add(row);
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        JOptionPane.showMessageDialog(null, "Lỗi khi thống kê theo tháng: " + e.getMessage());
+	    }
+	    return data;
+	}
 
-    // Thống kê hóa đơn theo quý trong năm
-    public List<Object[]> thongKeTheoQuy(int nam) {
-        List<Object[]> data = new ArrayList<>();
-        String sql = "SELECT CASE " +
-                     "WHEN MONTH(h.ngayLap) IN (1,2,3) THEN 'Quý 1' " +
-                     "WHEN MONTH(h.ngayLap) IN (4,5,6) THEN 'Quý 2' " +
-                     "WHEN MONTH(h.ngayLap) IN (7,8,9) THEN 'Quý 3' " +
-                     "ELSE 'Quý 4' END AS quy, " +
-                     "COUNT(h.maPBT) AS soHoaDon, SUM(h.tongTien) AS tongDoanhThu " +
-                     "FROM PhieuBanThuoc h WHERE YEAR(h.ngayLap) = ? GROUP BY CASE " +
-                     "WHEN MONTH(h.ngayLap) IN (1,2,3) THEN 'Quý 1' " +
-                     "WHEN MONTH(h.ngayLap) IN (4,5,6) THEN 'Quý 2' " +
-                     "WHEN MONTH(h.ngayLap) IN (7,8,9) THEN 'Quý 3' " +
-                     "ELSE 'Quý 4' END ORDER BY quy";
-        try (Connection conn = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, nam);
-            ResultSet rs = stmt.executeQuery();
+	// Thống kê hóa đơn theo quý trong năm
+	public List<Object[]> thongKeTheoQuy(int nam) {
+	    List<Object[]> data = new ArrayList<>();
+	    String sql = "SELECT CASE " +
+	                 "WHEN MONTH(h.ngayLap) IN (1,2,3) THEN 'Quý 1' " +
+	                 "WHEN MONTH(h.ngayLap) IN (4,5,6) THEN 'Quý 2' " +
+	                 "WHEN MONTH(h.ngayLap) IN (7,8,9) THEN 'Quý 3' " +
+	                 "ELSE 'Quý 4' END AS quy, " +
+	                 "COUNT(DISTINCT h.maPBT) AS soHoaDon, SUM(ct.soLuong * ct.donGiaBan) AS tongDoanhThu " +
+	                 "FROM PhieuBanThuoc h " +
+	                 "LEFT JOIN ChiTietPhieuBanThuoc ct ON h.maPBT = ct.maPBT " +
+	                 "WHERE YEAR(h.ngayLap) = ? AND h.trangThai = N'Đã thanh toán' " +
+	                 "GROUP BY CASE " +
+	                 "WHEN MONTH(h.ngayLap) IN (1,2,3) THEN 'Quý 1' " +
+	                 "WHEN MONTH(h.ngayLap) IN (4,5,6) THEN 'Quý 2' " +
+	                 "WHEN MONTH(h.ngayLap) IN (7,8,9) THEN 'Quý 3' " +
+	                 "ELSE 'Quý 4' END ORDER BY quy";
+	    try (Connection conn = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
+	         PreparedStatement stmt = conn.prepareStatement(sql)) {
+	        stmt.setInt(1, nam);
+	        ResultSet rs = stmt.executeQuery();
 
-            while (rs.next()) {
-                String quy = rs.getString("quy");
-                String soHoaDon = String.valueOf(rs.getInt("soHoaDon"));
-                double tongDoanhThuValue = rs.getDouble("tongDoanhThu");
-                String tongDoanhThu = String.format("%,.0f VNĐ", tongDoanhThuValue);
-                Object[] row = { quy, soHoaDon, tongDoanhThu };
-                data.add(row);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Lỗi khi thống kê theo quý: " + e.getMessage());
-        }
-        return data;
-    }
+	        while (rs.next()) {
+	            String quy = rs.getString("quy");
+	            String soHoaDon = String.valueOf(rs.getInt("soHoaDon"));
+	            double tongDoanhThuValue = rs.getDouble("tongDoanhThu");
+	            String tongDoanhThu = String.format("%,.0f VNĐ", tongDoanhThuValue);
+	            Object[] row = { quy, soHoaDon, tongDoanhThu };
+	            data.add(row);
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        JOptionPane.showMessageDialog(null, "Lỗi khi thống kê theo quý: " + e.getMessage());
+	    }
+	    return data;
+	}
 
-    // Thống kê hóa đơn theo năm (chọn khoảng năm)
-    public List<Object[]> thongKeTheoNam(int tuNam, int denNam) {
-        List<Object[]> data = new ArrayList<>();
-        String sql = "SELECT YEAR(h.ngayLap) AS nam, COUNT(h.maPBT) AS soHoaDon, SUM(h.tongTien) AS tongDoanhThu " +
-                     "FROM PhieuBanThuoc h WHERE YEAR(h.ngayLap) BETWEEN ? AND ? " +
-                     "GROUP BY YEAR(h.ngayLap) ORDER BY nam";
-        try (Connection conn = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, tuNam);
-            stmt.setInt(2, denNam);
-            ResultSet rs = stmt.executeQuery();
+	// Thống kê hóa đơn theo năm (chọn khoảng năm)
+	public List<Object[]> thongKeTheoNam(int tuNam, int denNam) {
+	    List<Object[]> data = new ArrayList<>();
+	    String sql = "SELECT YEAR(h.ngayLap) AS nam, COUNT(DISTINCT h.maPBT) AS soHoaDon, SUM(ct.soLuong * ct.donGiaBan) AS tongDoanhThu " +
+	                 "FROM PhieuBanThuoc h " +
+	                 "LEFT JOIN ChiTietPhieuBanThuoc ct ON h.maPBT = ct.maPBT " +
+	                 "WHERE YEAR(h.ngayLap) BETWEEN ? AND ? AND h.trangThai = N'Đã thanh toán' " +
+	                 "GROUP BY YEAR(h.ngayLap) ORDER BY nam";
+	    try (Connection conn = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
+	         PreparedStatement stmt = conn.prepareStatement(sql)) {
+	        stmt.setInt(1, tuNam);
+	        stmt.setInt(2, denNam);
+	        ResultSet rs = stmt.executeQuery();
 
-            while (rs.next()) {
-                String nam = String.valueOf(rs.getInt("nam"));
-                String soHoaDon = String.valueOf(rs.getInt("soHoaDon"));
-                double tongDoanhThuValue = rs.getDouble("tongDoanhThu");
-                String tongDoanhThu = String.format("%,.0f VNĐ", tongDoanhThuValue);
-                Object[] row = { nam, soHoaDon, tongDoanhThu };
-                data.add(row);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Lỗi khi thống kê theo năm: " + e.getMessage());
-        }
-        return data;
-    }
+	        while (rs.next()) {
+	            String nam = String.valueOf(rs.getInt("nam"));
+	            String soHoaDon = String.valueOf(rs.getInt("soHoaDon"));
+	            double tongDoanhThuValue = rs.getDouble("tongDoanhThu");
+	            String tongDoanhThu = String.format("%,.0f VNĐ", tongDoanhThuValue);
+	            Object[] row = { nam, soHoaDon, tongDoanhThu };
+	            data.add(row);
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        JOptionPane.showMessageDialog(null, "Lỗi khi thống kê theo năm: " + e.getMessage());
+	    }
+	    return data;
+	}
 
     // Thống kê tỷ lệ trạng thái hóa đơn
     public Map<String, Double> thongKeTrangThai(String fromDate, String toDate) {

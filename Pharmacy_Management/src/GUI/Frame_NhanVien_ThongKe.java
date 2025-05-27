@@ -7,6 +7,14 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.Calendar;
 import java.util.List;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 import DAO.NhanVienDAO;
 
 public class Frame_NhanVien_ThongKe extends JPanel {
@@ -249,7 +257,7 @@ public class Frame_NhanVien_ThongKe extends JPanel {
 
         // Button events
         btnThongKe.addActionListener(e -> performStatistics());
-        btnXuatBaoCao.addActionListener(e -> JOptionPane.showMessageDialog(this, "Chức năng xuất báo cáo chưa được triển khai"));
+        btnXuatBaoCao.addActionListener(e -> xuatExcel());
 
         // Initialize default state
         cboLoaiThongKe.setSelectedIndex(0);
@@ -331,6 +339,77 @@ public class Frame_NhanVien_ThongKe extends JPanel {
         txtTrungBinh.setText(String.format("%d ngày", tongNhanVien > 0 ? tongNgayLam / tongNhanVien : 0));
     }
 
+    private void xuatExcel() {
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("ThongKeNhanVien");
+
+        // Tạo hàng tiêu đề
+        Row headerRow = sheet.createRow(0);
+        String[] headers;
+        String selectedType = cboLoaiThongKe.getSelectedItem().toString();
+        if (selectedType.equals("Ngày đi làm")) {
+            headers = new String[]{"Mã nhân viên", "Tên nhân viên", "Số ngày làm"};
+        } else {
+            headers = new String[]{"Mã nhân viên", "Tên nhân viên", "Số giao dịch", "Doanh thu", "Trung bình"};
+        }
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+        }
+
+        // Ghi dữ liệu từ bảng vào sheet
+        DefaultTableModel tableModel = (DefaultTableModel) tableNhanVien.getModel();
+        int rowCount = tableModel.getRowCount();
+        for (int i = 0; i < rowCount; i++) {
+            Row row = sheet.createRow(i + 1);
+            for (int j = 0; j < tableModel.getColumnCount(); j++) {
+                Object value = tableModel.getValueAt(i, j);
+                Cell cell = row.createCell(j);
+                if (value != null) {
+                    if (selectedType.equals("Top doanh số") && (j == 3 || j == 4)) { // Cột Doanh thu và Trung bình
+                        String valueStr = value.toString().replaceAll("[^0-9.]", "");
+                        try {
+                            double number = Double.parseDouble(valueStr);
+                            cell.setCellValue(number);
+                        } catch (NumberFormatException e) {
+                            cell.setCellValue(value.toString());
+                        }
+                    } else if (selectedType.equals("Ngày đi làm") && j == 2) { // Cột Số ngày làm
+                        try {
+                            cell.setCellValue(Integer.parseInt(value.toString()));
+                        } catch (NumberFormatException e) {
+                            cell.setCellValue(value.toString());
+                        }
+                    } else {
+                        cell.setCellValue(value.toString());
+                    }
+                } else {
+                    cell.setCellValue("");
+                }
+            }
+        }
+
+        // Tự đông điều chỉnh kích thước cột
+        for (int i = 0; i < headers.length; i++) {
+            sheet.autoSizeColumn(i);
+        }
+
+        // Ghi workbook vào file Excel
+        try (FileOutputStream fileOut = new FileOutputStream("ThongKeNhanVien.xlsx")) {
+            workbook.write(fileOut);
+            JOptionPane.showMessageDialog(this, "Xuất file Excel thành công!");
+        } catch (IOException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Xuất file Excel thất bại!");
+        } finally {
+            try {
+                workbook.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    
     public static void main(String[] args) {
         EventQueue.invokeLater(() -> {
             try {

@@ -20,6 +20,7 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
+
 import com.toedter.calendar.JDateChooser;
 
 import javax.swing.JTextArea;
@@ -44,9 +45,24 @@ import DAO.TraNhapThuocDAO;
 
 public class Frame_Thuoc_GiaoDich_TraNhapThuoc extends JPanel {
 
-private static final long serialVersionUID = 1L;
-private JPanel contentPane;
+	private static final long serialVersionUID = 1L;
+	private JPanel contentPane;
 
+	/**
+	 * Launch the application.
+	 */
+//	public static void main(String[] args) {
+//		EventQueue.invokeLater(new Runnable() {
+//			public void run() {
+//				try {
+//					Frame_Thuoc_GiaoDich_TraNhapThuoc frame = new Frame_Thuoc_GiaoDich_TraNhapThuoc();
+//					frame.setVisible(true);
+//				} catch (Exception e) {
+//					e.printStackTrace();
+//				}
+//			}
+//		});
+//	}
 	private final Color MAIN_COLOR = new Color(254, 222, 192);
 	private JTextField txtNhapTimKiem;
 	private JTable tableDanhSachPhieuNhap;
@@ -161,7 +177,7 @@ private JPanel contentPane;
         		new Object[][] {},
         		new String[] {
 					"Mã PNT", "Mã NV", "Mã NCC", "Ngày Nhập", "Phương Thức"
-}
+				}
         		);
         tableDanhSachPhieuNhap.setModel(modelDanhSachPhieuNhap);
         tableDanhSachPhieuNhap.getTableHeader().setFont(new Font("Arial", Font.BOLD, 16));
@@ -447,8 +463,8 @@ private JPanel contentPane;
 				traThuoc();
 			} catch (ParseException | IOException e1) {
 				e1.printStackTrace();
-}
-});
+			}
+		});
         panelThaoTac.add(btnTraThuoc);
         
         btnXoa = new JButton("Xóa");
@@ -473,7 +489,7 @@ private JPanel contentPane;
             }
         });
   
-}
+	}
 	
 	//Hàm tìm kiếm phiếu nhập
 	private void timKiemPhieuNhap() {
@@ -484,9 +500,6 @@ private JPanel contentPane;
             return;
         }
 
-	/**
-	 * Create the frame.
-	 */
         while (modelDanhSachPhieuNhap.getRowCount() > 0) {
         	modelDanhSachPhieuNhap.removeRow(0);
         }
@@ -525,7 +538,7 @@ private JPanel contentPane;
 				modelChiTietPhieuNhap.addRow(row);
 			}
 		}
-}
+	}
 	// Hàm xóa dữ liệu trong form
 	private void xoaDuLieuForm() {
 		txtMaPhieuNhap.setText("");
@@ -691,8 +704,8 @@ private JPanel contentPane;
 		boolean luu = false;
 		// Tiền mặt
 		if (phuongThucThanhToan.equals("Tiền mặt")) {
-			inPhieuTraNhapThuoc(maTra, maNV, maNCC, ngayLap, liDoTra);
-			if(Dialog_InPhieuTraNhapThuoc.isPrinting()) {
+			inPhieuTraNhapThuoc(maTra, ngayLap, formattedTongTienDouble, maNV, maNCC, "Đã thanh toán", phuongThucThanhToan);
+			if(Dialog_InPhieu_TraNhapThuoc.isPrinting()) {
 				luu = traNhapThuocDAO.luuPhieuTraNhapThuoc(maTra, maPhieuNhap, maNV, maNCC, date, liDoTra);
 			}else {
 				JOptionPane.showMessageDialog(this, "Thanh toán tiền mặt bị hủy");
@@ -720,7 +733,7 @@ private JPanel contentPane;
 		else {
 			hienThiQRCode(maTra, formattedTongTienDouble); 
 			if (Dialog_InQRCode.getResult()) {
-				inPhieuTraNhapThuoc(maTra, maNV, maNCC, ngayLap, liDoTra);
+				inPhieuTraNhapThuoc(maTra, ngayLap, formattedTongTienDouble, maNV, maNCC, "Đã thanh toán", phuongThucThanhToan);
 				luu = traNhapThuocDAO.luuPhieuTraNhapThuoc(maTra, maPhieuNhap, maNV, maNCC, date, liDoTra);
 				if (luu) {
 					luu = luuChiTietPhieuTraNhapThuoc(maTra, model);
@@ -745,7 +758,7 @@ private JPanel contentPane;
 	}
 	
 	//
-	private void inPhieuTraNhapThuoc(String maPNT, String maNV, String maNCC, String ngayTra, String lyDoTra) {
+	private void inPhieuTraNhapThuoc(String maPNT, String ngayLap, double tongTien, String maNV, String maNCC, String trangThaiStr, String phuongThucThanhToanStr) {
 		// TODO Auto-generated method stub
 		try {
 			List<Object[]> data = new ArrayList<>();
@@ -762,8 +775,8 @@ private JPanel contentPane;
 				data.add(row);
 			}
 
-			Dialog_InPhieuTraNhapThuoc inPTNT = new Dialog_InPhieuTraNhapThuoc(null, maPNT, maNV, maNCC, ngayTra,
-					lyDoTra, data);
+			Dialog_InPhieu_TraNhapThuoc inPTNT = new Dialog_InPhieu_TraNhapThuoc(null, maPNT, ngayLap, tongTien, maNV, maNCC,
+					trangThaiStr, phuongThucThanhToanStr, data);
 			inPTNT.setVisible(true);
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(this, "Lỗi khi in hóa đơn: " + e.getMessage());
@@ -798,7 +811,7 @@ private JPanel contentPane;
 	// Hàm hiển thị QR Code
 	private void hienThiQRCode(String maTNT, double tongTien) {
 		try {
-			Dialog_InQRCode_PhieuTraNhapThuoc inQRCode = new Dialog_InQRCode_PhieuTraNhapThuoc(null, maTNT, tongTien);
+			Dialog_InQRCode inQRCode = new Dialog_InQRCode(null, maTNT, tongTien);
 			inQRCode.setVisible(true);
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(this, "Lỗi khi hiển thị QR Code: " + e.getMessage());

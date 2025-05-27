@@ -403,8 +403,8 @@ public class ThuocDAO {
 	public List<Object[]> thongKeTheoThang(int nam, int thang) {
 		List<Object[]> data = new ArrayList<>();
 		String sql = "SELECT t.maThuoc, t.tenThuoc, SUM(ct.soLuong) AS soLuongBan, SUM(ct.soLuong * ct.donGiaBan) AS doanhThu, t.soLuongTon "
-				+ "FROM Thuoc t LEFT JOIN ChiTietHoaDon ct ON t.maThuoc = ct.maThuoc "
-				+ "JOIN HoaDon h ON ct.maHD = h.maHD " + "WHERE YEAR(h.ngayLap) = ? AND MONTH(h.ngayLap) = ? "
+				+ "FROM Thuoc t LEFT JOIN ChiTietPhieuBanThuoc ct ON t.maThuoc = ct.maThuoc "
+				+ "JOIN PhieuBanThuoc h ON ct.maPBT = h.maPBT " + "WHERE YEAR(h.ngayLap) = ? AND MONTH(h.ngayLap) = ? "
 				+ "GROUP BY t.maThuoc, t.tenThuoc, t.soLuongTon";
 		try (Connection con = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
 				PreparedStatement stmt = con.prepareStatement(sql)) {
@@ -433,8 +433,8 @@ public class ThuocDAO {
 	public List<Object[]> thongKeTheoNam(int nam) {
 		List<Object[]> data = new ArrayList<>();
 		String sql = "SELECT t.maThuoc, t.tenThuoc, SUM(ct.soLuong) AS soLuongBan, SUM(ct.soLuong * ct.donGiaBan) AS doanhThu, t.soLuongTon "
-				+ "FROM Thuoc t LEFT JOIN ChiTietHoaDon ct ON t.maThuoc = ct.maThuoc "
-				+ "JOIN HoaDon h ON ct.maHD = h.maHD " + "WHERE YEAR(h.ngayLap) = ? "
+				+ "FROM Thuoc t LEFT JOIN ChiTietPhieuBanThuoc ct ON t.maThuoc = ct.maThuoc "
+				+ "JOIN PhieuBanThuoc h ON ct.maPBT = h.maPBT " + "WHERE YEAR(h.ngayLap) = ? "
 				+ "GROUP BY t.maThuoc, t.tenThuoc, t.soLuongTon";
 		try (Connection con = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
 				PreparedStatement stmt = con.prepareStatement(sql)) {
@@ -462,8 +462,8 @@ public class ThuocDAO {
 	public List<Object[]> thongKeTheoKhoangThoiGian(String tuNgay, String denNgay) {
 		List<Object[]> data = new ArrayList<>();
 		String sql = "SELECT t.maThuoc, t.tenThuoc, SUM(ct.soLuong) AS soLuongBan, SUM(ct.soLuong * ct.donGiaBan) AS doanhThu, t.soLuongTon "
-				+ "FROM Thuoc t LEFT JOIN ChiTietHoaDon ct ON t.maThuoc = ct.maThuoc "
-				+ "JOIN HoaDon h ON ct.maHD = h.maHD " + "WHERE CAST(h.ngayLap AS DATE) BETWEEN ? AND ? "
+				+ "FROM Thuoc t LEFT JOIN ChiTietPhieuBanThuoc ct ON t.maThuoc = ct.maThuoc "
+				+ "JOIN PhieuBanThuoc h ON ct.maPBT = h.maPBT " + "WHERE CAST(h.ngayLap AS DATE) BETWEEN ? AND ? "
 				+ "GROUP BY t.maThuoc, t.tenThuoc, t.soLuongTon";
 		try (Connection con = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
 				PreparedStatement stmt = con.prepareStatement(sql)) {
@@ -492,7 +492,7 @@ public class ThuocDAO {
 	public Map<String, Double> thongKeDoanhThuTheoLoaiThuoc(String fromDate, String toDate) {
 		Map<String, Double> result = new HashMap<>();
 		String sql = "SELECT t.tenThuoc, SUM(ct.soLuong * ct.donGiaBan) AS doanhThu "
-				+ "FROM Thuoc t JOIN ChiTietHoaDon ct ON t.maThuoc = ct.maThuoc " + "JOIN HoaDon h ON ct.maHD = h.maHD "
+				+ "FROM Thuoc t JOIN ChiTietPhieuBanThuoc ct ON t.maThuoc = ct.maThuoc " + "JOIN PhieuBanThuoc h ON ct.maPBT = h.maPBT "
 				+ "WHERE CAST(h.ngayLap AS DATE) BETWEEN ? AND ? " + "GROUP BY t.tenThuoc";
 		try (Connection con = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
 				PreparedStatement stmt = con.prepareStatement(sql)) {
@@ -524,7 +524,7 @@ public class ThuocDAO {
 	public Map<String, Double> thongKeSoLuongBanTheoLoaiThuoc(String fromDate, String toDate) {
 		Map<String, Double> result = new HashMap<>();
 		String sql = "SELECT t.tenThuoc, SUM(ct.soLuong) AS soLuongBan "
-				+ "FROM Thuoc t JOIN ChiTietHoaDon ct ON t.maThuoc = ct.maThuoc " + "JOIN HoaDon h ON ct.maHD = h.maHD "
+				+ "FROM Thuoc t JOIN ChiTietPhieuBanThuoc ct ON t.maThuoc = ct.maThuoc " + "JOIN PhieuBanThuoc h ON ct.maPBT = h.maPBT "
 				+ "WHERE CAST(h.ngayLap AS DATE) BETWEEN ? AND ? " + "GROUP BY t.tenThuoc";
 		try (Connection con = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
 				PreparedStatement stmt = con.prepareStatement(sql)) {

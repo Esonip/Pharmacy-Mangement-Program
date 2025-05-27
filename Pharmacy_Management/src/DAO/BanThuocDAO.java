@@ -75,7 +75,7 @@ public class BanThuocDAO {
 		return data;
 	}
 
-	public String getLastMaHoaDon() {
+	public String getLastMaPhieuBanThuoc() {
 		String sql = "SELECT MAX(maPBT) FROM PhieuBanThuoc";
 		try (Connection conn = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
 				PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -93,36 +93,62 @@ public class BanThuocDAO {
 		return "PBT000";
 	}
 
-	public boolean luuHoaDon(String maHD, String ngayLap, String maNV, String maKH, String trangThai,
-			String phuongThucThanhToan) throws ParseException {
-		String sql = "INSERT INTO PhieuBanThuoc (maPBT, ngayLap, maNV, maKH, trangThai, phuongThucThanhToan) VALUES (?, ?, ?, ?, ?, ?)";
-		try (Connection conn = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
-				PreparedStatement pstmt = conn.prepareStatement(sql)) {
-			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-			java.util.Date parsed = sdf.parse(ngayLap);
-			java.sql.Date datesql = new java.sql.Date(parsed.getTime());
+	public boolean luuPhieuBanThuoc(String maHD, String ngayLap, String maNV, String maKH, String trangThai,
+	        String phuongThucThanhToan) throws ParseException {
+	    String selectSql = "SELECT COUNT(*) FROM PhieuBanThuoc WHERE maPBT = ?";
+	    String updateSql = "UPDATE PhieuBanThuoc SET ngayLap = ?, maNV = ?, maKH = ?, trangThai = ?, phuongThucThanhToan = ? WHERE maPBT = ?";
+	    String insertSql = "INSERT INTO PhieuBanThuoc (maPBT, ngayLap, maNV, maKH, trangThai, phuongThucThanhToan) VALUES (?, ?, ?, ?, ?, ?)";
 
-			pstmt.setString(1, maHD);
-			pstmt.setDate(2, datesql);
-			pstmt.setString(3, maNV);
-			pstmt.setString(4, maKH);
-			pstmt.setString(5, trangThai);
-			pstmt.setString(6, phuongThucThanhToan);
-			pstmt.executeUpdate();
-			return true;
-		} catch (SQLException e) {
-			e.printStackTrace();
-			JOptionPane.showMessageDialog(null, "Lỗi khi lưu hóa đơn: " + e.getMessage());
-		}
-		return false;
+	    try (Connection conn = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
+	         PreparedStatement selectStmt = conn.prepareStatement(selectSql)) {
+
+	        // Kiểm tra xem mã hóa đơn đã tồn tại hay chưa
+	        selectStmt.setString(1, maHD);
+	        ResultSet rs = selectStmt.executeQuery();
+	        rs.next();
+	        boolean exists = rs.getInt(1) > 0;
+
+	        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+	        java.util.Date parsed = sdf.parse(ngayLap);
+	        java.sql.Date datesql = new java.sql.Date(parsed.getTime());
+
+	        if (exists) {
+	            try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
+	                updateStmt.setDate(1, datesql);
+	                updateStmt.setString(2, maNV);
+	                updateStmt.setString(3, maKH);
+	                updateStmt.setString(4, trangThai);
+	                updateStmt.setString(5, phuongThucThanhToan);
+	                updateStmt.setString(6, maHD);
+	                updateStmt.executeUpdate();
+	                return true;
+	            }
+	        } else {
+	            try (PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
+	                insertStmt.setString(1, maHD);
+	                insertStmt.setDate(2, datesql);
+	                insertStmt.setString(3, maNV);
+	                insertStmt.setString(4, maKH);
+	                insertStmt.setString(5, trangThai);
+	                insertStmt.setString(6, phuongThucThanhToan);
+	                insertStmt.executeUpdate();
+	                return true;
+	            }
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        JOptionPane.showMessageDialog(null, "Lỗi khi lưu hóa đơn: " + e.getMessage());
+	    }
+	    return false;
 	}
 
 	public boolean capNhatSoLuongTon(String maThuoc, int soLuong) {
-		String sql = "UPDATE Thuoc SET soLuongTon = soLuongTon - ? WHERE maThuoc = ?";
+		String sql = "UPDATE Thuoc SET soLuongTon = soLuongTon - ?, soLuongThucTe = soLuongThucTe - ? WHERE maThuoc = ?";
 		try (Connection conn = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
 				PreparedStatement stmt = conn.prepareStatement(sql)) {
 			stmt.setInt(1, soLuong);
-			stmt.setString(2, maThuoc);
+			stmt.setInt(2, soLuong);
+			stmt.setString(3, maThuoc);
 			return stmt.executeUpdate() > 0;
 		} catch (SQLException e) {
 			e.printStackTrace();

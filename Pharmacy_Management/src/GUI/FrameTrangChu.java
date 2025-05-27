@@ -447,7 +447,7 @@ public class FrameTrangChu extends JFrame {
 		btn_NCC_DanhSachNCC.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				resetMenuColors();
-				btnKhachHang.setForeground(Color.RED);
+				btnNCC.setForeground(Color.RED);
 				frame_NCC_DanhSachNCC = new Frame_NCC_DanhSachNCC();
 				getContentPane().removeAll();
 				getContentPane().add(menuBar, BorderLayout.NORTH);
