@@ -30,7 +30,6 @@ public class Frame_NhanVien_ThongKe extends JPanel {
     private JSpinner spnTopK;
     private NhanVienDAO nhanVienDAO;
 
-    // Define colors from Frame_KhachHang_ThongKe
     private final Color MAIN_COLOR = new Color(254, 222, 192);
     private final Color HEADER_COLOR = new Color(251, 203, 150);
     private final Color BUTTON_COLOR = new Color(249, 187, 118);

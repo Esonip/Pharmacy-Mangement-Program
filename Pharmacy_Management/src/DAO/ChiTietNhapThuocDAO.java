@@ -55,8 +55,8 @@ public class ChiTietNhapThuocDAO {
             for (int i = 0; i < model.getRowCount(); i++) {
                 pstmt.setString(1, maPNT);
                 pstmt.setString(2, model.getValueAt(i, 0).toString()); // maThuoc
-                pstmt.setInt(3, Integer.parseInt(model.getValueAt(i, 2).toString())); // soLuong
-                String donGiaStr = model.getValueAt(i, 3).toString().replace("đ", "").replace(",", "");
+                pstmt.setInt(3, Integer.parseInt(model.getValueAt(i, 7).toString())); // soLuong
+                String donGiaStr = model.getValueAt(i, 5).toString().replace("đ", "").replace(",", "");
                 pstmt.setDouble(4, Double.parseDouble(donGiaStr)); // donGiaNhap
                 pstmt.addBatch();
             }

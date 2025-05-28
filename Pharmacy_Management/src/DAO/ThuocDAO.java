@@ -58,8 +58,7 @@ public class ThuocDAO {
 		}
 	}
 
-	public boolean themThuoc(String maThuoc, String tenThuoc, String donViTinh, String donGiaNhap, String donGiaBan,
-			String hanSuDung, String hamLuong, String soLuongTon, String soLuongThucTe) throws ParseException {
+	public boolean themThuoc(String maThuoc, String tenThuoc, String donViTinh, String donGiaNhap, String donGiaBan,String hanSuDung, String hamLuong, String soLuongTon, String soLuongThucTe) throws ParseException {
 		String sql = "INSERT INTO Thuoc VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
@@ -665,6 +664,22 @@ public class ThuocDAO {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "Lỗi khi lấy đơn giá nhập: " + e.getMessage());
         }
-        return 0.0; // Return 0 if not found or error occurs
+        return 0.0; 
+    }
+	
+	public double getDonGiaBan(String maThuoc) {
+        String sql = "SELECT donGiaBan FROM Thuoc WHERE maThuoc = ?";
+        try (Connection con = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setString(1, maThuoc);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getDouble("donGiaBan");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Lỗi khi lấy đơn giá bán: " + e.getMessage());
+        }
+        return 0.0; 
     }
 }

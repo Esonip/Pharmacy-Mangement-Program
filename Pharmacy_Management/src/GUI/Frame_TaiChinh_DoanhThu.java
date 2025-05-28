@@ -45,7 +45,6 @@ public class Frame_TaiChinh_DoanhThu extends JPanel {
     private ChartPanel chartPanelDoanhThu;
     private DecimalFormat df;
 
-    // Define colors from Frame_GiaoDich_NhapThuoc
     private final Color MAIN_COLOR = new Color(254, 222, 192);
     private final Color HEADER_COLOR = new Color(251, 203, 150);
     private final Color BUTTON_COLOR = new Color(249, 187, 118);
@@ -56,7 +55,7 @@ public class Frame_TaiChinh_DoanhThu extends JPanel {
     private final Color SELECTED_COLOR = new Color(255, 239, 213);
 
     public Frame_TaiChinh_DoanhThu() {
-        // Set up DecimalFormat for Vietnamese locale
+        // Đặt định dạng số tiền VNĐ
         DecimalFormatSymbols symbols = new DecimalFormatSymbols(new Locale("vi", "VN"));
         symbols.setGroupingSeparator(',');
         symbols.setDecimalSeparator('.');
@@ -300,7 +299,7 @@ public class Frame_TaiChinh_DoanhThu extends JPanel {
                 new Font("Arial", Font.BOLD, 12), TEXT_COLOR));
         add(chartPanelDoanhThu);
 
-        // Event for cboLoaiThongKe
+        // Sự kiện cho JComboBox
         cboLoaiThongKe.addActionListener(e -> {
             String selectedOption = cboLoaiThongKe.getSelectedItem().toString();
             switch (selectedOption) {
@@ -349,14 +348,14 @@ public class Frame_TaiChinh_DoanhThu extends JPanel {
             pnlFilter.repaint();
         });
 
-        // Initialize default state
-        cboLoaiThongKe.setSelectedIndex(0); // Set default to "Tuần"
+        // Cài đặt mặc định cho các JComboBox
+        cboLoaiThongKe.setSelectedIndex(0); // Đặt mặc định là "Tuần"
 
-        // Button events
+        // Button sự kiện
         btnThongKe.addActionListener(e -> thongKeHoaDon());
         btnXuatBaoCao.addActionListener(e -> xuatExcel());
 
-        // Load initial charts
+        // Tải dữ liệu ban đầu
         updateCharts();
     }
 
@@ -398,7 +397,7 @@ public class Frame_TaiChinh_DoanhThu extends JPanel {
                     break;
             }
 
-            // Update table and calculate totals
+            // Cập nhật dữ liệu vào bảng
             if (data != null && !data.isEmpty()) {
                 for (Object[] row : data) {
                     modelHoaDon.addRow(row);
@@ -424,11 +423,11 @@ public class Frame_TaiChinh_DoanhThu extends JPanel {
                 JOptionPane.showMessageDialog(this, "Không có dữ liệu để thống kê!");
             }
 
-            // Update summary with proper formatting
+            // Cập nhật tổng số hóa đơn và doanh thu
             txtTongHoaDon.setText(String.valueOf(tongHoaDon));
             txtTongDoanhThu.setText(df.format(tongDoanhThu));
 
-            // Update charts
+            // Cập nhật biểu đồ
             updateCharts();
 
         } catch (Exception e) {

@@ -38,7 +38,7 @@ public class Frame_Thuoc_ThongKe extends JPanel {
     private JTextField txtTongDoanhThu;
     private ThuocDAO thuocDAO = new ThuocDAO();
 
-    // Define colors from Frame_GiaoDich_NhapThuoc
+    // Các màu sắc sử dụng trong giao diện
     private final Color MAIN_COLOR = new Color(254, 222, 192);
     private final Color HEADER_COLOR = new Color(251, 203, 150);
     private final Color BUTTON_COLOR = new Color(249, 187, 118);
@@ -66,7 +66,7 @@ public class Frame_Thuoc_ThongKe extends JPanel {
         lblTitle.setForeground(TEXT_COLOR);
         pnlTitle.add(lblTitle, BorderLayout.CENTER);
 
-        // Filter Panel
+        // Panel dùng để lọc và thống kê
         JPanel pnlFilter = new JPanel();
         pnlFilter.setBounds(10, 70, 509, 274);
         pnlFilter.setBackground(MAIN_COLOR);
@@ -76,7 +76,7 @@ public class Frame_Thuoc_ThongKe extends JPanel {
         add(pnlFilter);
         pnlFilter.setLayout(null);
 
-        // Filter Row 1
+        // Hàng lọc 1
         JLabel lblLoaiThongKe = new JLabel("Loại thống kê:");
         lblLoaiThongKe.setForeground(TEXT_COLOR);
         lblLoaiThongKe.setFont(new Font("Arial", Font.PLAIN, 16));
@@ -125,7 +125,7 @@ public class Frame_Thuoc_ThongKe extends JPanel {
         cboThang.setBounds(119, 110, 380, 30);
         pnlFilter.add(cboThang);
 
-        // Filter Row 2
+        // hàng lọc 2
         JLabel lblTuNgay = new JLabel("Từ ngày:");
         lblTuNgay.setForeground(TEXT_COLOR);
         lblTuNgay.setFont(new Font("Arial", Font.PLAIN, 16));
@@ -344,7 +344,7 @@ public class Frame_Thuoc_ThongKe extends JPanel {
         });
 
         // Initialize default state
-        cboLoaiThongKe.setSelectedIndex(0); // Set default to "Tháng"
+        cboLoaiThongKe.setSelectedIndex(0); // đặt mặc định là "Tháng"
 
         // Button events
         btnThongKe.addActionListener(e -> thongKeThuoc());

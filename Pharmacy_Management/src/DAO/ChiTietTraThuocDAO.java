@@ -135,7 +135,7 @@ public class ChiTietTraThuocDAO {
         return 0;
     }
     
- // Lấy số lượng mua ban đầu từ ChiTietPhieuBanThuoc hoặc ChiTietPhieuDatThuoc
+    // Lấy số lượng mua ban đầu từ ChiTietPhieuBanThuoc hoặc ChiTietPhieuDatThuoc
     public int getSoLuongMuaBanDau(String maHD, String maThuoc, boolean isBanThuoc) {
         String sql = isBanThuoc ?
             "SELECT ct.soLuong " +

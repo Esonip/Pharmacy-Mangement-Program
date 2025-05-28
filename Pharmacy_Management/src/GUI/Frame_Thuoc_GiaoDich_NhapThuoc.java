@@ -11,12 +11,12 @@ import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import com.toedter.calendar.JDateChooser;
+
 import java.awt.*;
-import java.awt.Color;
-import java.awt.Font;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -46,6 +46,8 @@ public class Frame_Thuoc_GiaoDich_NhapThuoc extends JPanel {
     private NhaCungCapDAO nhaCungCapDAO = new NhaCungCapDAO();
     private TaiChinhDAO taiChinhDAO = new TaiChinhDAO();
     private String maNV;
+    private String maThuocKeTiep;
+    private JTextField txtMaThuoc; // Added class-level field
 
     // Các thành phần hiển thị thông tin chi tiết thuốc trong panel_ChonThuoc
     private JLabel lblChiTietMaThuoc;
@@ -65,6 +67,9 @@ public class Frame_Thuoc_GiaoDich_NhapThuoc extends JPanel {
     private JLabel lblChiTietSoLuongTon;
     private JTextField txtChiTietSoLuongTon;
 
+    // JDateChooser cho Hạn Sử Dụng
+    private JDateChooser dateChooserHanSuDung;
+
     // Panel Chọn Thuốc Nhập
     private JPanel panel_ChonThuoc;
 
@@ -77,6 +82,7 @@ public class Frame_Thuoc_GiaoDich_NhapThuoc extends JPanel {
         setInitialValues();
     }
 
+    @SuppressWarnings("serial")
     private void initialize() {
         JPanel pnlBackground = new JPanel();
         pnlBackground.setBounds(0, 0, 1559, 771);
@@ -100,7 +106,7 @@ public class Frame_Thuoc_GiaoDich_NhapThuoc extends JPanel {
         panel_PhieuNhap.add(lblMaPhieuNhap);
 
         txtMaPhieuNhap = new JTextField();
-        txtMaPhieuNhap.setFont(new Font("Segoe UI", Font.PLAIN, 20));
+        txtMaPhieuNhap.setFont(new Font("Segoe UI", Font.PLAIN, 17));
         txtMaPhieuNhap.setBounds(186, 38, 372, 43);
         txtMaPhieuNhap.setEditable(false);
         panel_PhieuNhap.add(txtMaPhieuNhap);
@@ -111,7 +117,7 @@ public class Frame_Thuoc_GiaoDich_NhapThuoc extends JPanel {
         panel_PhieuNhap.add(lblNgayNhap);
 
         txtNgayNhap = new JTextField();
-        txtNgayNhap.setFont(new Font("Segoe UI", Font.PLAIN, 20));
+        txtNgayNhap.setFont(new Font("Helvetica", Font.PLAIN, 16));
         txtNgayNhap.setBounds(186, 93, 372, 43);
         txtNgayNhap.setEditable(false);
         panel_PhieuNhap.add(txtNgayNhap);
@@ -132,7 +138,7 @@ public class Frame_Thuoc_GiaoDich_NhapThuoc extends JPanel {
         panel_PhieuNhap.add(lblHinhThucThanhToan);
 
         cboHinhThucThanhToan = new JComboBox<>(new String[]{"Tiền mặt", "Chuyển khoản"});
-        cboHinhThucThanhToan.setFont(new Font("Segoe UI", Font.PLAIN, 20));
+        cboHinhThucThanhToan.setFont(new Font("Segoe UI", Font.PLAIN, 17));
         cboHinhThucThanhToan.setBounds(186, 203, 372, 43);
         panel_PhieuNhap.add(cboHinhThucThanhToan);
 
@@ -142,7 +148,7 @@ public class Frame_Thuoc_GiaoDich_NhapThuoc extends JPanel {
         panel_PhieuNhap.add(lblTongTien);
 
         txtTongTien = new JTextField("0đ");
-        txtTongTien.setFont(new Font("Segoe UI", Font.PLAIN, 20));
+        txtTongTien.setFont(new Font("Segoe UI", Font.PLAIN, 17));
         txtTongTien.setBounds(186, 258, 372, 43);
         txtTongTien.setEditable(false);
         panel_PhieuNhap.add(txtTongTien);
@@ -180,94 +186,135 @@ public class Frame_Thuoc_GiaoDich_NhapThuoc extends JPanel {
         // Khu vực tìm kiếm và nhập liệu thuốc (bên trái)
         JPanel panelNhapThuoc = new JPanel();
         panelNhapThuoc.setBackground(new Color(220, 128, 78));
-        panelNhapThuoc.setBounds(20, 20, 581, 280);
+        panelNhapThuoc.setBounds(22, 20, 701, 280);
         panelNhapThuoc.setBorder(BorderFactory.createTitledBorder(
                 new LineBorder(Color.WHITE, 1), "Nhập Thuốc",
                 0, 0, new Font("Segoe UI", Font.PLAIN, 12)));
         panelNhapThuoc.setLayout(null);
         panel_ChonThuoc.add(panelNhapThuoc);
 
+        JLabel lblMaThuoc = new JLabel("Mã Thuốc:");
+        lblMaThuoc.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        lblMaThuoc.setBounds(20, 30, 100, 30);
+        panelNhapThuoc.add(lblMaThuoc);
+
+        txtMaThuoc = new JTextField();
+        txtMaThuoc.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        txtMaThuoc.setBounds(151, 30, 524, 30);
+        txtMaThuoc.setEditable(false);
+        panelNhapThuoc.add(txtMaThuoc);
+
         JLabel lblTenThuoc = new JLabel("Tên Thuốc:");
         lblTenThuoc.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        lblTenThuoc.setBounds(20, 30, 100, 30);
+        lblTenThuoc.setBounds(20, 80, 100, 30);
         panelNhapThuoc.add(lblTenThuoc);
 
         txtTimKiemThuoc = new JTextField();
         txtTimKiemThuoc.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        txtTimKiemThuoc.setBounds(151, 30, 289, 30);
+        txtTimKiemThuoc.setBounds(151, 80, 240, 30);
         panelNhapThuoc.add(txtTimKiemThuoc);
 
         JButton btnTimThuoc = new JButton("Tìm");
         btnTimThuoc.setIcon(new ImageIcon("icon\\find.png"));
         btnTimThuoc.setFont(new Font("Times New Roman", Font.BOLD, 16));
-        btnTimThuoc.setBounds(450, 30, 121, 30);
-        btnTimThuoc.addActionListener(e -> timThuoc());
+        btnTimThuoc.setBounds(403, 82, 120, 30);
+        btnTimThuoc.addActionListener(e -> {
+            timThuoc();
+            String selectedThuoc = (String) cboThuoc.getSelectedItem();
+            if (selectedThuoc != null && !selectedThuoc.equals("Không tìm thấy thuốc")) {
+                txtMaThuoc.setText(maThuocKeTiep);
+            } else {
+                txtMaThuoc.setText("");
+            }
+        });
         panelNhapThuoc.add(btnTimThuoc);
 
         JButton btnReset = new JButton("Reset");
         btnReset.setIcon(new ImageIcon("icon\\refresh.png"));
         btnReset.setFont(new Font("Times New Roman", Font.BOLD, 16));
-        btnReset.setBounds(450, 80, 121, 30);
-        btnReset.addActionListener(e -> resetThuoc());
+        btnReset.setBounds(540, 82, 135, 30);
+        btnReset.addActionListener(e -> {
+            resetThuoc();
+            txtMaThuoc.setText(maThuocKeTiep);
+        });
         panelNhapThuoc.add(btnReset);
 
         JLabel lblThuoc = new JLabel("Thuốc:");
         lblThuoc.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        lblThuoc.setBounds(20, 80, 100, 30);
+        lblThuoc.setBounds(20, 130, 100, 30);
         panelNhapThuoc.add(lblThuoc);
 
         cboThuoc = new JComboBox<>();
         cboThuoc.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        cboThuoc.setBounds(151, 80, 289, 30);
-        cboThuoc.addActionListener(e -> updateDonGia());
+        cboThuoc.setBounds(151, 130, 240, 30);
+        cboThuoc.addActionListener(e -> {
+            updateDonGia();
+            String selectedThuoc = (String) cboThuoc.getSelectedItem();
+            if (selectedThuoc != null && !selectedThuoc.equals("Không tìm thấy thuốc")) {
+                txtMaThuoc.setText(maThuocKeTiep);
+            } else {
+                txtMaThuoc.setText("");
+            }
+        });
         panelNhapThuoc.add(cboThuoc);
+
+        JLabel lblHanSuDung = new JLabel("Hạn Sử Dụng:");
+        lblHanSuDung.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        lblHanSuDung.setBounds(413, 130, 125, 30);
+        panelNhapThuoc.add(lblHanSuDung);
+
+        dateChooserHanSuDung = new JDateChooser();
+        dateChooserHanSuDung.setDateFormatString("dd/MM/yyyy");
+        dateChooserHanSuDung.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        dateChooserHanSuDung.setBounds(540, 130, 135, 30);
+        panelNhapThuoc.add(dateChooserHanSuDung);
 
         JLabel lblDonGia = new JLabel("Đơn Giá Nhập:");
         lblDonGia.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        lblDonGia.setBounds(20, 129, 125, 30);
+        lblDonGia.setBounds(403, 180, 125, 30);
         panelNhapThuoc.add(lblDonGia);
 
         txtDonGiaNhap = new JTextField("0đ");
         txtDonGiaNhap.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        txtDonGiaNhap.setBounds(151, 129, 420, 30);
-        txtDonGiaNhap.setEditable(false);
+        txtDonGiaNhap.setBounds(540, 180, 135, 30);
         panelNhapThuoc.add(txtDonGiaNhap);
 
         JLabel lblSoLuong = new JLabel("Số Lượng:");
         lblSoLuong.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        lblSoLuong.setBounds(20, 179, 100, 30);
+        lblSoLuong.setBounds(20, 180, 100, 30);
         panelNhapThuoc.add(lblSoLuong);
 
         spinnerSoLuong = new JSpinner(new SpinnerNumberModel(1, 1, 1000, 1));
         spinnerSoLuong.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        spinnerSoLuong.setBounds(151, 180, 289, 30);
+        spinnerSoLuong.setBounds(151, 180, 240, 30);
         panelNhapThuoc.add(spinnerSoLuong);
 
         JButton btnThemThuoc = new JButton("Thêm");
         btnThemThuoc.setIcon(new ImageIcon("icon\\add.png"));
-        btnThemThuoc.setFont(new Font("Times New Roman", Font.BOLD, 16));
-        btnThemThuoc.setBounds(446, 181, 125, 30);
-        btnThemThuoc.addActionListener(e -> themThuoc());
+        btnThemThuoc.setFont(new Font("Times New Roman", Font.BOLD, 20));
+        btnThemThuoc.setBounds(151, 223, 185, 44);
+        btnThemThuoc.addActionListener(e -> {
+            try {
+                String hanSuDung = dateChooserHanSuDung.getDate() != null ?
+                    new SimpleDateFormat("dd/MM/yyyy").format(dateChooserHanSuDung.getDate()) : "";
+                themThuoc(hanSuDung);
+            } catch (java.text.ParseException ex) {
+                JOptionPane.showMessageDialog(this, "Lỗi định dạng hạn sử dụng: " + ex.getMessage());
+            }
+        });
         panelNhapThuoc.add(btnThemThuoc);
 
-        JButton btnThemThuocMoi = new JButton("Thêm Thuốc Mới");
-        btnThemThuocMoi.setIcon(new ImageIcon("icon\\medicine.png"));
-        btnThemThuocMoi.setFont(new Font("Times New Roman", Font.BOLD, 16));
-        btnThemThuocMoi.setBounds(151, 237, 203, 30);
-        btnThemThuocMoi.addActionListener(e -> themThuocMoi());
-        panelNhapThuoc.add(btnThemThuocMoi);
-
-        JButton btnNhapTuExcel = new JButton("Nhập từ Excel");
+        JButton btnNhapTuExcel = new JButton("Nhập");
         btnNhapTuExcel.setIcon(new ImageIcon("icon\\excel.png"));
-        btnNhapTuExcel.setFont(new Font("Times New Roman", Font.BOLD, 16));
-        btnNhapTuExcel.setBounds(364, 237, 203, 30);
+        btnNhapTuExcel.setFont(new Font("Times New Roman", Font.BOLD, 20));
+        btnNhapTuExcel.setBounds(348, 223, 185, 44);
         btnNhapTuExcel.addActionListener(e -> nhapTuExcel());
         panelNhapThuoc.add(btnNhapTuExcel);
 
         // Khu vực thông tin chi tiết thuốc (phần còn lại của panel)
         JPanel panelChiTietThuoc = new JPanel();
         panelChiTietThuoc.setBackground(new Color(220, 128, 78));
-        panelChiTietThuoc.setBounds(609, 20, 879, 280);
+        panelChiTietThuoc.setBounds(733, 20, 770, 280);
         panelChiTietThuoc.setBorder(BorderFactory.createTitledBorder(
                 new LineBorder(Color.WHITE, 1), "Thông Tin Chi Tiết Thuốc",
                 0, 0, new Font("Segoe UI", Font.PLAIN, 12)));
@@ -276,89 +323,89 @@ public class Frame_Thuoc_GiaoDich_NhapThuoc extends JPanel {
 
         lblChiTietMaThuoc = new JLabel("Mã thuốc:");
         lblChiTietMaThuoc.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        lblChiTietMaThuoc.setBounds(20, 30, 131, 25);
+        lblChiTietMaThuoc.setBounds(22, 30, 131, 25);
         panelChiTietThuoc.add(lblChiTietMaThuoc);
 
         txtChiTietMaThuoc = new JTextField();
         txtChiTietMaThuoc.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtChiTietMaThuoc.setBounds(161, 30, 308, 25);
+        txtChiTietMaThuoc.setBounds(163, 30, 220, 25);
         txtChiTietMaThuoc.setEditable(false);
         panelChiTietThuoc.add(txtChiTietMaThuoc);
 
         lblChiTietTenThuoc = new JLabel("Tên thuốc:");
         lblChiTietTenThuoc.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        lblChiTietTenThuoc.setBounds(20, 79, 131, 25);
+        lblChiTietTenThuoc.setBounds(22, 79, 131, 25);
         panelChiTietThuoc.add(lblChiTietTenThuoc);
 
         txtChiTietTenThuoc = new JTextField();
         txtChiTietTenThuoc.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtChiTietTenThuoc.setBounds(161, 79, 308, 25);
+        txtChiTietTenThuoc.setBounds(163, 79, 220, 25);
         txtChiTietTenThuoc.setEditable(false);
         panelChiTietThuoc.add(txtChiTietTenThuoc);
 
         lblChiTietDonViTinh = new JLabel("Đơn vị tính:");
         lblChiTietDonViTinh.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        lblChiTietDonViTinh.setBounds(20, 127, 131, 25);
+        lblChiTietDonViTinh.setBounds(22, 127, 131, 25);
         panelChiTietThuoc.add(lblChiTietDonViTinh);
 
         txtChiTietDonViTinh = new JTextField();
         txtChiTietDonViTinh.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtChiTietDonViTinh.setBounds(161, 127, 308, 25);
+        txtChiTietDonViTinh.setBounds(163, 127, 220, 25);
         txtChiTietDonViTinh.setEditable(false);
         panelChiTietThuoc.add(txtChiTietDonViTinh);
 
         lblChiTietDonGiaNhap = new JLabel("Đơn giá nhập:");
         lblChiTietDonGiaNhap.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        lblChiTietDonGiaNhap.setBounds(20, 178, 131, 25);
+        lblChiTietDonGiaNhap.setBounds(22, 178, 131, 25);
         panelChiTietThuoc.add(lblChiTietDonGiaNhap);
 
         txtChiTietDonGiaNhap = new JTextField();
         txtChiTietDonGiaNhap.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtChiTietDonGiaNhap.setBounds(161, 178, 308, 25);
+        txtChiTietDonGiaNhap.setBounds(163, 178, 220, 25);
         txtChiTietDonGiaNhap.setEditable(false);
         panelChiTietThuoc.add(txtChiTietDonGiaNhap);
 
         lblChiTietDonGiaBan = new JLabel("Đơn giá bán:");
         lblChiTietDonGiaBan.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        lblChiTietDonGiaBan.setBounds(20, 228, 131, 25);
+        lblChiTietDonGiaBan.setBounds(22, 228, 131, 25);
         panelChiTietThuoc.add(lblChiTietDonGiaBan);
 
         txtChiTietDonGiaBan = new JTextField();
         txtChiTietDonGiaBan.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtChiTietDonGiaBan.setBounds(161, 228, 308, 25);
+        txtChiTietDonGiaBan.setBounds(163, 228, 220, 25);
         txtChiTietDonGiaBan.setEditable(false);
         panelChiTietThuoc.add(txtChiTietDonGiaBan);
 
         lblChiTietHanSuDung = new JLabel("Hạn sử dụng:");
         lblChiTietHanSuDung.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        lblChiTietHanSuDung.setBounds(479, 30, 148, 25);
+        lblChiTietHanSuDung.setBounds(395, 30, 148, 25);
         panelChiTietThuoc.add(lblChiTietHanSuDung);
 
         txtChiTietHanSuDung = new JTextField();
         txtChiTietHanSuDung.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtChiTietHanSuDung.setBounds(637, 30, 200, 25);
+        txtChiTietHanSuDung.setBounds(553, 30, 200, 25);
         txtChiTietHanSuDung.setEditable(false);
         panelChiTietThuoc.add(txtChiTietHanSuDung);
 
         lblChiTietHamLuong = new JLabel("Hàm lượng:");
         lblChiTietHamLuong.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        lblChiTietHamLuong.setBounds(479, 79, 148, 25);
+        lblChiTietHamLuong.setBounds(395, 79, 148, 25);
         panelChiTietThuoc.add(lblChiTietHamLuong);
 
         txtChiTietHamLuong = new JTextField();
         txtChiTietHamLuong.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtChiTietHamLuong.setBounds(637, 79, 200, 25);
+        txtChiTietHamLuong.setBounds(553, 79, 200, 25);
         txtChiTietHamLuong.setEditable(false);
         panelChiTietThuoc.add(txtChiTietHamLuong);
 
         lblChiTietSoLuongTon = new JLabel("Số lượng tồn:");
         lblChiTietSoLuongTon.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        lblChiTietSoLuongTon.setBounds(479, 127, 148, 25);
+        lblChiTietSoLuongTon.setBounds(395, 127, 148, 25);
         panelChiTietThuoc.add(lblChiTietSoLuongTon);
 
         txtChiTietSoLuongTon = new JTextField();
         txtChiTietSoLuongTon.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtChiTietSoLuongTon.setBounds(637, 127, 200, 25);
+        txtChiTietSoLuongTon.setBounds(553, 127, 200, 25);
         txtChiTietSoLuongTon.setEditable(false);
         panelChiTietThuoc.add(txtChiTietSoLuongTon);
 
@@ -382,7 +429,8 @@ public class Frame_Thuoc_GiaoDich_NhapThuoc extends JPanel {
         header.setFont(new Font("Segoe UI", Font.BOLD, 16));
         modelThuocNhap = new DefaultTableModel(
                 new Object[][]{},
-                new String[]{"Mã Thuốc", "Tên Thuốc", "Số Lượng", "Đơn Giá Nhập", "Thành Tiền"}) {
+                new String[]{"Mã Thuốc", "Tên Thuốc", "Đơn Vị Tính", "HSD", "Hàm Lượng", 
+                             "ĐGN", "ĐGB", "Số Lượng", "Thành Tiền"}) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
@@ -403,6 +451,10 @@ public class Frame_Thuoc_GiaoDich_NhapThuoc extends JPanel {
         txtNgayNhap.setText(new SimpleDateFormat("dd/MM/yyyy").format(new Date()));
         txtTongTien.setText("0đ");
         clearChiTietThuoc();
+        // Khởi tạo mã thuốc mới dựa trên mã cuối cùng trong database
+        String lastMaThuoc = thuocDAO.getLastMaThuoc();
+        maThuocKeTiep = generateMaThuocKeTiep(lastMaThuoc);
+        txtMaThuoc.setText(maThuocKeTiep);
     }
 
     private void loadData() {
@@ -423,7 +475,6 @@ public class Frame_Thuoc_GiaoDich_NhapThuoc extends JPanel {
 
     private void timThuoc() {
         String keyword = txtTimKiemThuoc.getText().trim();
-        // Chỉ tìm kiếm theo tenThuoc, không tìm theo maThuoc hay soLuongTon
         List<Object[]> results = thuocDAO.timKiemThuoc("", keyword, "");
         Vector<String> thuocItems = new Vector<>();
 
@@ -433,6 +484,7 @@ public class Frame_Thuoc_GiaoDich_NhapThuoc extends JPanel {
             cboThuoc.setModel(new DefaultComboBoxModel<>(thuocItems));
             txtDonGiaNhap.setText("0đ");
             clearChiTietThuoc();
+            txtMaThuoc.setText("");
             return;
         }
 
@@ -454,6 +506,7 @@ public class Frame_Thuoc_GiaoDich_NhapThuoc extends JPanel {
         }
         cboThuoc.setModel(new DefaultComboBoxModel<>(thuocItems));
         updateDonGia();
+        txtMaThuoc.setText(maThuocKeTiep);
     }
 
     private void updateDonGia() {
@@ -463,7 +516,6 @@ public class Frame_Thuoc_GiaoDich_NhapThuoc extends JPanel {
             double donGia = thuocDAO.getDonGiaNhap(maThuoc);
             txtDonGiaNhap.setText(String.format("%,.0fđ", donGia));
 
-            // Cập nhật thông tin chi tiết thuốc khi chọn từ combobox
             List<Object[]> results = thuocDAO.timKiemThuoc(maThuoc, "", "");
             if (!results.isEmpty()) {
                 Object[] thuoc = results.get(0);
@@ -476,138 +528,120 @@ public class Frame_Thuoc_GiaoDich_NhapThuoc extends JPanel {
                 txtChiTietHamLuong.setText((String) thuoc[6]);
                 txtChiTietSoLuongTon.setText(String.valueOf(thuoc[7] != null ? thuoc[7] : "0"));
             }
+            txtMaThuoc.setText(maThuocKeTiep);
         } else {
             txtDonGiaNhap.setText("0đ");
             clearChiTietThuoc();
+            txtMaThuoc.setText("");
         }
     }
 
-    private void themThuoc() {
+    private void themThuoc(String hanSuDung) throws java.text.ParseException {
         String selectedThuoc = (String) cboThuoc.getSelectedItem();
         if (selectedThuoc == null || selectedThuoc.equals("Không tìm thấy thuốc")) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn thuốc hoặc thêm thuốc mới!");
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn thuốc!");
             return;
         }
-        String maThuoc = selectedThuoc.split(" - ")[0];
+        if (hanSuDung == null || hanSuDung.trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Hạn sử dụng không được để trống!");
+            return;
+        }
+        String error = Dialog_ChiTietThuoc.kiemTraNhap.validateHSD(hanSuDung);
+        if (error != null) {
+            JOptionPane.showMessageDialog(this, "Hạn sử dụng không hợp lệ! Vui lòng nhập theo định dạng dd/MM/yyyy.");
+            return;
+        }
+
+        // Kiểm tra hạn sử dụng
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        Date hsdDate = sdf.parse(hanSuDung);
+        Date currentDate = new Date();
+        if (!hsdDate.after(currentDate)) {
+            JOptionPane.showMessageDialog(this, "Hạn sử dụng phải sau ngày hiện tại!");
+            return;
+        }
+
+        String donGiaNhapStr = txtDonGiaNhap.getText().trim().replace("đ", "").replace(",", "");
+        if (donGiaNhapStr.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Đơn giá nhập không được để trống!");
+            return;
+        }
+        error = Dialog_ChiTietThuoc.kiemTraNhap.validateDonGiaNhap(donGiaNhapStr);
+        if (error != null) {
+            JOptionPane.showMessageDialog(this, "Đơn giá nhập không hợp lệ! Vui lòng nhập số nguyên.");
+            return;
+        }
+
         String tenThuoc = selectedThuoc.split(" - ")[1];
+        String maThuocBase = selectedThuoc.split(" - ")[0];
         int soLuong = (int) spinnerSoLuong.getValue();
-        double donGia = thuocDAO.getDonGiaNhap(maThuoc);
-        double thanhTien = soLuong * donGia;
+        double donGiaNhap = Double.parseDouble(donGiaNhapStr);
+        double donGiaBan = thuocDAO.getDonGiaBan(maThuocBase);
+        String donViTinh = "";
+        String hamLuong = "";
 
-        for (int i = 0; i < modelThuocNhap.getRowCount(); i++) {
-            if (modelThuocNhap.getValueAt(i, 0).equals(maThuoc)) {
-                int soLuongCu = Integer.parseInt(modelThuocNhap.getValueAt(i, 2).toString());
-                int soLuongMoi = soLuongCu + soLuong;
-                modelThuocNhap.setValueAt(soLuongMoi, i, 2);
-                modelThuocNhap.setValueAt(String.format("%,.0fđ", soLuongMoi * donGia), i, 4);
-                updateTongTien();
-                return;
-            }
-        }
-
-        modelThuocNhap.addRow(new Object[]{
-                maThuoc, tenThuoc, soLuong,
-                String.format("%,.0fđ", donGia),
-                String.format("%,.0fđ", thanhTien)
-        });
-        updateTongTien();
-    }
-
-    private void themThuocMoi() {
-        String lastMaThuoc = thuocDAO.getLastMaThuoc();
-        String newMaThuoc = generateNextMaThuoc(lastMaThuoc);
-        Dialog_ChiTietThuoc dialog = new Dialog_ChiTietThuoc(null, false);
-        dialog.hienThiMaThuoc(newMaThuoc);
-        dialog.setVisible(true);
-        // Sau khi dialog đóng, làm mới danh sách thuốc
-        loadData();
-    }
-
-    private String generateNextMaThuoc(String lastMaThuoc) {
-        if (lastMaThuoc == null || lastMaThuoc.isEmpty() || !lastMaThuoc.startsWith("T")) {
-            return "T001";
-        }
-        String numPart = lastMaThuoc.substring(1);
-        int num = Integer.parseInt(numPart) + 1;
-        return String.format("T%03d", num);
-    }
-
-    private void clearChiTietThuoc() {
-        txtChiTietMaThuoc.setText("");
-        txtChiTietTenThuoc.setText("");
-        txtChiTietDonViTinh.setText("");
-        txtChiTietDonGiaNhap.setText("");
-        txtChiTietDonGiaBan.setText("");
-        txtChiTietHanSuDung.setText("");
-        txtChiTietHamLuong.setText("");
-        txtChiTietSoLuongTon.setText("");
-    }
-
-    private void resetThuoc() {
-        loadData();
-        clearChiTietThuoc();
-        txtTimKiemThuoc.setText("");
-        txtDonGiaNhap.setText("0đ");
-    }
-
-    private void updateTongTien() {
-        double tongTien = 0;
-        for (int i = 0; i < modelThuocNhap.getRowCount(); i++) {
-            String thanhTienStr = modelThuocNhap.getValueAt(i, 4).toString().replace("đ", "").replace(",", "");
-            tongTien += Double.parseDouble(thanhTienStr);
-        }
-        txtTongTien.setText(String.format("%,.0fđ", tongTien));
-    }
-
-  
-    private void luuPhieuNhap() {
-        if (modelThuocNhap.getRowCount() == 0) {
-            JOptionPane.showMessageDialog(this, "Danh sách thuốc nhập trống!");
-            return;
-        }
-        String maPhieuNhap = txtMaPhieuNhap.getText().trim();
-        String ngayNhap = txtNgayNhap.getText().trim();
-        String maNCC = cboNhaCungCap.getSelectedItem() != null ? cboNhaCungCap.getSelectedItem().toString().split(" - ")[0] : "";
-        String hinhThucThanhToan = cboHinhThucThanhToan.getSelectedItem().toString();
-
-        if (maPhieuNhap.isEmpty() || ngayNhap.isEmpty() || maNCC.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin!");
-            return;
-        }
-
-        boolean success = NhapThuocDAO.luuPhieuNhap(maPhieuNhap, maNV, maNCC, ngayNhap, hinhThucThanhToan, 0);
-        if (!success) {
-            JOptionPane.showMessageDialog(this, "Lưu phiếu nhập thất bại!");
-            return;
-        }
-
-        success = chiTietNhapThuocDAO.luuChiTietPhieuNhap(maPhieuNhap, modelThuocNhap);
-        if (success) {
-            for (int i = 0; i < modelThuocNhap.getRowCount(); i++) {
-                String maThuoc = modelThuocNhap.getValueAt(i, 0).toString();
-                int soLuong = Integer.parseInt(modelThuocNhap.getValueAt(i, 2).toString());
-                NhapThuocDAO.capNhatSoLuongTon(maThuoc, soLuong);
-            }
-            // Lưu phiếu thu chi
-            success = taiChinhDAO.luuPhieuThu(maNV, ngayNhap, hinhThucThanhToan, "Nhập thuốc", maPhieuNhap);
-            if (!success) {
-                JOptionPane.showMessageDialog(this, "Lưu phiếu thu chi thất bại!");
-                return;
-            }
-            JOptionPane.showMessageDialog(this, "Lưu phiếu nhập thành công!");
-            resetForm();
+        List<Object[]> thuocList = thuocDAO.timKiemThuoc(maThuocBase, "", "");
+        if (!thuocList.isEmpty()) {
+            Object[] thuoc = thuocList.get(0);
+            donViTinh = (String) thuoc[2];
+            hamLuong = (String) thuoc[6];
         } else {
-            JOptionPane.showMessageDialog(this, "Lưu chi tiết phiếu nhập thất bại!");
+            JOptionPane.showMessageDialog(this, "Không tìm thấy thông tin thuốc!");
+            return;
         }
-    }
 
-    private void resetForm() {
-        setInitialValues();
-        cboNhaCungCap.setSelectedIndex(0);
-        cboHinhThucThanhToan.setSelectedIndex(0);
-        modelThuocNhap.setRowCount(0);
-        txtTimKiemThuoc.setText("");
-        loadData();
+        String maThuocMoi = maThuocKeTiep;
+
+        // Kiểm tra xem thuốc có trùng với row nào trong bảng không
+        boolean found = false;
+        for (int i = 0; i < modelThuocNhap.getRowCount(); i++) {
+            String tableTenThuoc = modelThuocNhap.getValueAt(i, 1).toString();
+            String tableDonViTinh = modelThuocNhap.getValueAt(i, 2).toString();
+            String tableHanSuDung = modelThuocNhap.getValueAt(i, 3).toString();
+            String tableHamLuong = modelThuocNhap.getValueAt(i, 4).toString();
+            String tableDonGiaNhap = modelThuocNhap.getValueAt(i, 5).toString();
+            String tableDonGiaBan = modelThuocNhap.getValueAt(i, 6).toString();
+            int tableSoLuong = Integer.parseInt(modelThuocNhap.getValueAt(i, 7).toString());
+
+            if (tenThuoc.equalsIgnoreCase(tableTenThuoc) &&
+                donViTinh.equalsIgnoreCase(tableDonViTinh) &&
+                hanSuDung.equals(tableHanSuDung) &&
+                hamLuong.equalsIgnoreCase(tableHamLuong) &&
+                String.format("%,.0fđ", donGiaNhap).equals(tableDonGiaNhap) &&
+                String.format("%,.0fđ", donGiaBan).equals(tableDonGiaBan) &&
+                soLuong == tableSoLuong) {
+                int soLuongCu = Integer.parseInt(modelThuocNhap.getValueAt(i, 7).toString());
+                int soLuongMoi = soLuongCu + soLuong;
+                modelThuocNhap.setValueAt(soLuongMoi, i, 7);
+                modelThuocNhap.setValueAt(String.format("%,.0fđ", soLuongMoi * donGiaNhap), i, 8);
+                found = true;
+                break;
+            }
+        }
+
+        if (!found) {
+            double thanhTien = soLuong * donGiaNhap;
+            modelThuocNhap.addRow(new Object[]{
+                maThuocMoi,
+                tenThuoc,
+                donViTinh,
+                hanSuDung,
+                hamLuong,
+                String.format("%,.0fđ", donGiaNhap),
+                String.format("%,.0fđ", donGiaBan),
+                soLuong,
+                String.format("%,.0fđ", thanhTien)
+            });
+            // Tăng mã thuốc mới cho lần thêm tiếp theo
+            maThuocKeTiep = generateMaThuocKeTiep(maThuocKeTiep);
+        }
+
+        // Reset toàn bộ thông tin trong "Nhập Thuốc"
+        resetNhapThuoc();
+        // Cập nhật txtMaThuoc với mã thuốc mới
+        txtMaThuoc.setText(maThuocKeTiep);
+
+        updateTongTien();
     }
 
     private void nhapTuExcel() {
@@ -641,7 +675,7 @@ public class Frame_Thuoc_GiaoDich_NhapThuoc extends JPanel {
                 return;
             }
 
-            // Tìm và chọn nhà cung cấp trong cboNhaCungCap
+            // Cập nhật combo box Nhà Cung Cấp
             boolean nccFound = false;
             for (int i = 0; i < cboNhaCungCap.getItemCount(); i++) {
                 String item = cboNhaCungCap.getItemAt(i);
@@ -660,7 +694,7 @@ public class Frame_Thuoc_GiaoDich_NhapThuoc extends JPanel {
             // Kiểm tra header (dòng thứ 2, index 1)
             Row headerRow = sheet.getRow(1);
             if (headerRow == null || !isValidHeader(headerRow)) {
-                JOptionPane.showMessageDialog(this, "File Excel không đúng định dạng! Cần các cột: Mã Thuốc, Tên Thuốc, Số Lượng, Đơn Giá Nhập");
+                JOptionPane.showMessageDialog(this, "File Excel không đúng định dạng! Cần các cột: Mã Thuốc, Tên Thuốc, Đơn Vị Tính, Hạn Sử Dụng, Hàm Lượng, Đơn Giá Nhập, Đơn Giá Bán, Số Lượng");
                 return;
             }
 
@@ -672,65 +706,165 @@ public class Frame_Thuoc_GiaoDich_NhapThuoc extends JPanel {
                 try {
                     String maThuoc = getCellValueAsString(row.getCell(0));
                     String tenThuoc = getCellValueAsString(row.getCell(1));
-                    Cell soLuongCell = row.getCell(2);
-                    Cell donGiaCell = row.getCell(3);
+                    String donViTinh = getCellValueAsString(row.getCell(2));
+                    String hanSuDung = getCellValueAsString(row.getCell(3));
+                    String hamLuong = getCellValueAsString(row.getCell(4));
+                    Cell donGiaNhapCell = row.getCell(5);
+                    Cell donGiaBanCell = row.getCell(6);
+                    Cell soLuongCell = row.getCell(7);
 
                     // Kiểm tra dữ liệu hợp lệ
-                    if (maThuoc == null || maThuoc.trim().isEmpty()) {
-                        JOptionPane.showMessageDialog(this, "Dòng " + (i + 1) + ": Mã Thuốc không được để trống!");
-                        continue;
-                    }
                     if (tenThuoc == null || tenThuoc.trim().isEmpty()) {
                         JOptionPane.showMessageDialog(this, "Dòng " + (i + 1) + ": Tên Thuốc không được để trống!");
+                        continue;
+                    }
+                    if (donViTinh == null || donViTinh.trim().isEmpty()) {
+                        JOptionPane.showMessageDialog(this, "Dòng " + (i + 1) + ": Đơn Vị Tính không được để trống!");
+                        continue;
+                    }
+                    if (hanSuDung == null || hanSuDung.trim().isEmpty()) {
+                        JOptionPane.showMessageDialog(this, "Dòng " + (i + 1) + ": Hạn Sử Dụng không được để trống!");
+                        continue;
+                    }
+                    if (hamLuong == null || hamLuong.trim().isEmpty()) {
+                        JOptionPane.showMessageDialog(this, "Dòng " + (i + 1) + ": Hàm Lượng không được để trống!");
                         continue;
                     }
                     if (soLuongCell == null || soLuongCell.getCellType() != CellType.NUMERIC) {
                         JOptionPane.showMessageDialog(this, "Dòng " + (i + 1) + ": Số Lượng phải là số!");
                         continue;
                     }
-                    if (donGiaCell == null || donGiaCell.getCellType() != CellType.NUMERIC) {
+                    if (donGiaNhapCell == null || donGiaNhapCell.getCellType() != CellType.NUMERIC) {
                         JOptionPane.showMessageDialog(this, "Dòng " + (i + 1) + ": Đơn Giá Nhập phải là số!");
+                        continue;
+                    }
+                    if (donGiaBanCell == null || donGiaBanCell.getCellType() != CellType.NUMERIC) {
+                        JOptionPane.showMessageDialog(this, "Dòng " + (i + 1) + ": Đơn Giá Bán phải là số!");
                         continue;
                     }
 
                     int soLuong = (int) soLuongCell.getNumericCellValue();
-                    double donGia = donGiaCell.getNumericCellValue();
+                    double donGiaNhap = donGiaNhapCell.getNumericCellValue();
+                    double donGiaBan = donGiaBanCell.getNumericCellValue();
 
                     if (soLuong <= 0) {
                         JOptionPane.showMessageDialog(this, "Dòng " + (i + 1) + ": Số Lượng phải là số dương!");
                         continue;
                     }
-                    if (donGia <= 0) {
+                    if (donGiaNhap <= 0) {
                         JOptionPane.showMessageDialog(this, "Dòng " + (i + 1) + ": Đơn Giá Nhập phải là số dương!");
                         continue;
                     }
-
-                    // Kiểm tra thuốc có tồn tại trong cơ sở dữ liệu
-                    List<Object[]> thuocList = thuocDAO.timKiemThuoc(maThuoc, tenThuoc, "");
-                    if (thuocList.isEmpty()) {
-                        JOptionPane.showMessageDialog(this, "Dòng " + (i + 1) + ": Thuốc " + maThuoc + " - " + tenThuoc + " không tồn tại trong hệ thống!");
+                    if (donGiaBan <= 0) {
+                        JOptionPane.showMessageDialog(this, "Dòng " + (i + 1) + ": Đơn Giá Bán phải là số dương!");
                         continue;
                     }
 
-                    // Thêm hoặc cập nhật vào bảng
+                    // Kiểm tra hạn sử dụng
+                    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+                    Date hsdDate = sdf.parse(hanSuDung);
+                    Date currentDate = new Date();
+                    if (!hsdDate.after(currentDate)) {
+                        JOptionPane.showMessageDialog(this, "Dòng " + (i + 1) + ": Hạn sử dụng phải sau ngày hiện tại!");
+                        continue;
+                    }
+
+                    String error = Dialog_ChiTietThuoc.kiemTraNhap.validateTenThuoc(tenThuoc);
+                    if (error != null) {
+                        JOptionPane.showMessageDialog(this, "Dòng " + (i + 1) + ": " + error);
+                        continue;
+                    }
+                    error = Dialog_ChiTietThuoc.kiemTraNhap.validateDonViTinh(donViTinh);
+                    if (error != null) {
+                        JOptionPane.showMessageDialog(this, "Dòng " + (i + 1) + ": " + error);
+                        continue;
+                    }
+                    error = Dialog_ChiTietThuoc.kiemTraNhap.validateHamLuong(hamLuong);
+                    if (error != null) {
+                        JOptionPane.showMessageDialog(this, "Dòng " + (i + 1) + ": " + error);
+                        continue;
+                    }
+                    error = Dialog_ChiTietThuoc.kiemTraNhap.validateDonGiaNhap(String.valueOf((long) donGiaNhap));
+                    if (error != null) {
+                        JOptionPane.showMessageDialog(this, "Dòng " + (i + 1) + ": " + error);
+                        continue;
+                    }
+                    error = Dialog_ChiTietThuoc.kiemTraNhap.validateDonGiaBan(String.valueOf((long) donGiaBan));
+                    if (error != null) {
+                        JOptionPane.showMessageDialog(this, "Dòng " + (i + 1) + ": " + error);
+                        continue;
+                    }
+                    error = Dialog_ChiTietThuoc.kiemTraNhap.validateSLTon(String.valueOf(soLuong));
+                    if (error != null) {
+                        JOptionPane.showMessageDialog(this, "Dòng " + (i + 1) + ": " + error);
+                        continue;
+                    }
+                    error = Dialog_ChiTietThuoc.kiemTraNhap.validateSLTT(String.valueOf(soLuong));
+                    if (error != null) {
+                        JOptionPane.showMessageDialog(this, "Dòng " + (i + 1) + ": " + error);
+                        continue;
+                    }
+                    error = Dialog_ChiTietThuoc.kiemTraNhap.validateHSD(hanSuDung);
+                    if (error != null) {
+                        JOptionPane.showMessageDialog(this, "Dòng " + (i + 1) + ": " + error);
+                        continue;
+                    }
+
+                    String maThuocMoi;
+                    List<Object[]> thuocList = thuocDAO.timKiemThuoc("", tenThuoc, "");
+                    boolean thuocExists = false;
+
+                    for (Object[] thuoc : thuocList) {
+                        String dbTenThuoc = (String) thuoc[1];
+                        String dbDonViTinh = (String) thuoc[2];
+                        String dbHamLuong = (String) thuoc[6];
+                        if (tenThuoc.equalsIgnoreCase(dbTenThuoc) &&
+                            donViTinh.equalsIgnoreCase(dbDonViTinh) &&
+                            hamLuong.equalsIgnoreCase(dbHamLuong)) {
+                            thuocExists = true;
+                            break;
+                        }
+                    }
+
+                    // Nếu mã thuốc trống hoặc thuốc đã tồn tại, sử dụng mã thuốc mới từ maThuocKeTiep
+                    if (maThuoc == null || maThuoc.trim().isEmpty() || thuocExists || thuocDAO.isDuplicateMaThuoc(maThuoc)) {
+                        maThuocMoi = maThuocKeTiep;
+                        maThuocKeTiep = generateMaThuocKeTiep(maThuocKeTiep);
+                    } else {
+                        maThuocMoi = maThuoc;
+                        String maThuocError = Dialog_ChiTietThuoc.kiemTraNhap.validateMaThuoc(maThuocMoi);
+                        if (maThuocError != null) {
+                            JOptionPane.showMessageDialog(this, "Dòng " + (i + 1) + ": " + maThuocError);
+                            continue;
+                        }
+                    }
+
+                    // Kiểm tra xem thuốc đã tồn tại trong bảng chưa (dựa trên mã thuốc và hạn sử dụng)
                     boolean found = false;
                     for (int j = 0; j < modelThuocNhap.getRowCount(); j++) {
-                        if (modelThuocNhap.getValueAt(j, 0).equals(maThuoc)) {
-                            int soLuongCu = Integer.parseInt(modelThuocNhap.getValueAt(j, 2).toString());
+                        if (modelThuocNhap.getValueAt(j, 0).equals(maThuocMoi) &&
+                            modelThuocNhap.getValueAt(j, 3).equals(hanSuDung)) {
+                            int soLuongCu = Integer.parseInt(modelThuocNhap.getValueAt(j, 7).toString());
                             int soLuongMoi = soLuongCu + soLuong;
-                            modelThuocNhap.setValueAt(soLuongMoi, j, 2);
-                            modelThuocNhap.setValueAt(String.format("%,.0fđ", soLuongMoi * donGia), j, 4);
+                            modelThuocNhap.setValueAt(soLuongMoi, j, 7);
+                            modelThuocNhap.setValueAt(String.format("%,.0fđ", soLuongMoi * donGiaNhap), j, 8);
                             found = true;
                             break;
                         }
                     }
 
                     if (!found) {
-                        double thanhTien = soLuong * donGia;
+                        double thanhTien = soLuong * donGiaNhap;
                         modelThuocNhap.addRow(new Object[]{
-                                maThuoc, tenThuoc, soLuong,
-                                String.format("%,.0fđ", donGia),
-                                String.format("%,.0fđ", thanhTien)
+                            maThuocMoi,
+                            tenThuoc,
+                            donViTinh,
+                            hanSuDung,
+                            hamLuong,
+                            String.format("%,.0fđ", donGiaNhap),
+                            String.format("%,.0fđ", donGiaBan),
+                            soLuong,
+                            String.format("%,.0fđ", thanhTien)
                         });
                     }
                 } catch (Exception e) {
@@ -740,6 +874,8 @@ public class Frame_Thuoc_GiaoDich_NhapThuoc extends JPanel {
             }
 
             updateTongTien();
+            // Cập nhật txtMaThuoc với mã thuốc mới sau khi nhập Excel
+            txtMaThuoc.setText(maThuocKeTiep);
             JOptionPane.showMessageDialog(this, "Đã nhập dữ liệu từ file Excel thành công!");
 
         } catch (IOException e) {
@@ -747,8 +883,159 @@ public class Frame_Thuoc_GiaoDich_NhapThuoc extends JPanel {
         }
     }
 
+    private String generateMaThuocKeTiep(String lastMaThuoc) {
+        if (lastMaThuoc == null || lastMaThuoc.isEmpty() || !lastMaThuoc.startsWith("T")) {
+            return "T001";
+        }
+        String numPart = lastMaThuoc.substring(1);
+        int num = Integer.parseInt(numPart) + 1;
+        return String.format("T%03d", num);
+    }
+
+    private void clearChiTietThuoc() {
+        txtChiTietMaThuoc.setText("");
+        txtChiTietTenThuoc.setText("");
+        txtChiTietDonViTinh.setText("");
+        txtChiTietDonGiaNhap.setText("");
+        txtChiTietDonGiaBan.setText("");
+        txtChiTietHanSuDung.setText("");
+        txtChiTietHamLuong.setText("");
+        txtChiTietSoLuongTon.setText("");
+    }
+
+    private void resetThuoc() {
+        loadData();
+        clearChiTietThuoc();
+        txtTimKiemThuoc.setText("");
+        txtDonGiaNhap.setText("0đ");
+        dateChooserHanSuDung.setDate(null);
+        txtMaThuoc.setText(maThuocKeTiep);
+    }
+
+    private void resetNhapThuoc() {
+        txtTimKiemThuoc.setText("");
+        cboThuoc.setSelectedIndex(-1);
+        txtDonGiaNhap.setText("0đ");
+        spinnerSoLuong.setValue(1);
+        dateChooserHanSuDung.setDate(null);
+        txtMaThuoc.setText(maThuocKeTiep);
+    }
+
+    private void updateTongTien() {
+        double tongTien = 0;
+        for (int i = 0; i < modelThuocNhap.getRowCount(); i++) {
+            Object thanhTienObj = modelThuocNhap.getValueAt(i, 8);
+            if (thanhTienObj != null) {
+                String thanhTienStr = thanhTienObj.toString().replace("đ", "").replace(",", "");
+                try {
+                    tongTien += Double.parseDouble(thanhTienStr);
+                } catch (NumberFormatException e) {
+                    // Skip invalid values
+                }
+            }
+        }
+        txtTongTien.setText(String.format("%,.0fđ", tongTien));
+    }
+
+    private void luuPhieuNhap() {
+        if (modelThuocNhap.getRowCount() == 0) {
+            JOptionPane.showMessageDialog(this, "Danh sách thuốc nhập trống!");
+            return;
+        }
+        String maPhieuNhap = txtMaPhieuNhap.getText().trim();
+        String ngayNhap = txtNgayNhap.getText().trim();
+        String maNCC = cboNhaCungCap.getSelectedItem() != null ? cboNhaCungCap.getSelectedItem().toString().split(" - ")[0] : "";
+        String hinhThucThanhToan = cboHinhThucThanhToan.getSelectedItem().toString();
+
+        if (maPhieuNhap.isEmpty() || ngayNhap.isEmpty() || maNCC.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin!");
+            return;
+        }
+
+        // Lưu phiếu nhập
+        boolean success = NhapThuocDAO.luuPhieuNhap(maPhieuNhap, maNV, maNCC, ngayNhap, hinhThucThanhToan, 0);
+        if (!success) {
+            JOptionPane.showMessageDialog(this, "Lưu phiếu nhập thất bại!");
+            return;
+        }
+
+        // Lưu từng thuốc vào cơ sở dữ liệu và cập nhật số lượng tồn
+        for (int i = 0; i < modelThuocNhap.getRowCount(); i++) {
+            String maThuoc = modelThuocNhap.getValueAt(i, 0).toString();
+            String tenThuoc = modelThuocNhap.getValueAt(i, 1).toString();
+            String donViTinh = modelThuocNhap.getValueAt(i, 2).toString();
+            String hanSuDung = modelThuocNhap.getValueAt(i, 3).toString();
+            String hamLuong = modelThuocNhap.getValueAt(i, 4).toString();
+            String donGiaNhapStr = modelThuocNhap.getValueAt(i, 5).toString().replace("đ", "").replace(",", "");
+            String donGiaBanStr = modelThuocNhap.getValueAt(i, 6).toString().replace("đ", "").replace(",", "");
+            Object soLuongObj = modelThuocNhap.getValueAt(i, 7);
+
+            try {
+                int soLuong = Integer.parseInt(soLuongObj.toString());
+
+                // Thêm thuốc vào cơ sở dữ liệu
+                success = thuocDAO.themThuoc(
+                    maThuoc,
+                    tenThuoc,
+                    donViTinh,
+                    donGiaNhapStr,
+                    donGiaBanStr,
+                    hanSuDung,
+                    hamLuong,
+                    String.valueOf(soLuong),
+                    String.valueOf(soLuong)
+                );
+                if (!success) {
+                    JOptionPane.showMessageDialog(this, "Thêm thuốc " + maThuoc + " vào cơ sở dữ liệu thất bại!");
+                    return;
+                }
+
+                // Cập nhật số lượng tồn
+                NhapThuocDAO.capNhatSoLuongTon(maThuoc, soLuong);
+            } catch (NumberFormatException | java.text.ParseException e) {
+                JOptionPane.showMessageDialog(this, "Dữ liệu tại dòng " + (i + 1) + " không hợp lệ: " + e.getMessage());
+                return;
+            }
+        }
+
+        // Lưu chi tiết phiếu nhập
+        success = chiTietNhapThuocDAO.luuChiTietPhieuNhap(maPhieuNhap, modelThuocNhap);
+        if (!success) {
+            JOptionPane.showMessageDialog(this, "Lưu chi tiết phiếu nhập thất bại!");
+            return;
+        }
+
+        // Lưu phiếu thu chi
+        success = taiChinhDAO.luuPhieuThu(maNV, ngayNhap, hinhThucThanhToan, "Nhập thuốc", maPhieuNhap);
+        if (!success) {
+            JOptionPane.showMessageDialog(this, "Lưu phiếu thu chi thất bại!");
+            return;
+        }
+
+        JOptionPane.showMessageDialog(this, "Lưu phiếu nhập thành công!");
+        resetForm();
+    }
+
+    private void resetForm() {
+        setInitialValues();
+        cboNhaCungCap.setSelectedIndex(0);
+        cboHinhThucThanhToan.setSelectedIndex(0);
+        modelThuocNhap.setRowCount(0);
+        txtTimKiemThuoc.setText("");
+        loadData();
+    }
+
     private boolean isValidHeader(Row headerRow) {
-        String[] expectedHeaders = {"Mã Thuốc", "Tên Thuốc", "Số Lượng", "Đơn Giá Nhập"};
+        String[] expectedHeaders = {
+            "Mã Thuốc", 
+            "Tên Thuốc", 
+            "Đơn Vị Tính", 
+            "Hạn Sử Dụng", 
+            "Hàm Lượng", 
+            "Đơn Giá Nhập", 
+            "Đơn Giá Bán", 
+            "Số Lượng"
+        };
         if (headerRow.getPhysicalNumberOfCells() < expectedHeaders.length) {
             return false;
         }

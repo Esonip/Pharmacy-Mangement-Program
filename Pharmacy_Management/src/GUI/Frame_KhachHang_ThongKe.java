@@ -89,7 +89,7 @@ public class Frame_KhachHang_ThongKe extends JPanel {
         lblLoaiThongKe.setBounds(10, 30, 150, 30);
         pnlFilter.add(lblLoaiThongKe);
 
-        cboLoaiThongKe = new JComboBox<>(new String[] {"Ngày", "Tháng", "Năm", "Khoảng thời gian"});
+        cboLoaiThongKe = new JComboBox<>(new String[] {"Tháng", "Năm", "Khoảng thời gian"});
         cboLoaiThongKe.setBackground(Color.WHITE);
         cboLoaiThongKe.setForeground(TEXT_COLOR);
         cboLoaiThongKe.setFont(new Font("Arial", Font.PLAIN, 16));
@@ -110,7 +110,7 @@ public class Frame_KhachHang_ThongKe extends JPanel {
         cboNam.setSelectedItem(String.valueOf(currentYear));
         cboNam.setBackground(Color.WHITE);
         cboNam.setForeground(TEXT_COLOR);
-        cboNam.setFont(new Font("Arial", Font.PLAIN, 16)); // Fixed typo: setFontew -> setFont
+        cboNam.setFont(new Font("Arial", Font.PLAIN, 16)); 
         cboNam.setBounds(119, 70, 370, 30);
         pnlFilter.add(cboNam);
 
@@ -275,7 +275,7 @@ public class Frame_KhachHang_ThongKe extends JPanel {
         txtTrungBinh.setBounds(171, 110, 328, 30);
         pnlThongTin.add(txtTrungBinh);
 
-        // Chart Panel for phân bố khách hàng theo độ tuổi
+        // Chart Panel của phân bố khách hàng theo độ tuổi
         chartPanelDoTuoi = new ChartPanel(null);
         chartPanelDoTuoi.setBounds(539, 422, 450, 300);
         chartPanelDoTuoi.setBorder(new TitledBorder(new LineBorder(PANEL_BORDER_COLOR, 1),
@@ -283,7 +283,7 @@ public class Frame_KhachHang_ThongKe extends JPanel {
                 new Font("Arial", Font.BOLD, 12), TEXT_COLOR));
         add(chartPanelDoTuoi);
 
-        // Chart Panel for phân bố giao dịch theo phương thức thanh toán (biểu đồ mới)
+        // Chart Panel của phân bố giao dịch theo phương thức thanh toán (biểu đồ mới)
         chartPanelPhuongThuc = new ChartPanel(null);
         chartPanelPhuongThuc.setBounds(1030, 422, 450, 300);
         chartPanelPhuongThuc.setBorder(new TitledBorder(new LineBorder(PANEL_BORDER_COLOR, 1),
@@ -291,11 +291,10 @@ public class Frame_KhachHang_ThongKe extends JPanel {
                 new Font("Arial", Font.BOLD, 12), TEXT_COLOR));
         add(chartPanelPhuongThuc);
 
-        // Event for cboLoaiThongKe
+        // Sự kiện chọn loại thống kê
         cboLoaiThongKe.addActionListener(e -> {
             String selectedOption = cboLoaiThongKe.getSelectedItem().toString();
-            switch (selectedOption) {
-                case "Ngày":
+            switch (selectedOption) {                
                 case "Tháng":
                     lblNam.setVisible(true);
                     cboNam.setVisible(true);
@@ -331,14 +330,14 @@ public class Frame_KhachHang_ThongKe extends JPanel {
             pnlFilter.repaint();
         });
 
-        // Initialize default state
-        cboLoaiThongKe.setSelectedIndex(0); // Set default to "Ngày"
+        // Đặt mặc định cho các lựa chọn
+        cboLoaiThongKe.setSelectedIndex(0); // Set default to "Tháng"
 
-        // Button events
+        // Button sự kiện
         btnThongKe.addActionListener(e -> thongKeKhachHang());
         btnXuatBaoCao.addActionListener(e -> xuatExcel());
 
-        // Load initial charts
+        // Tải các dữ liệu ban đầu
         updateCharts();
     }
 
@@ -353,14 +352,6 @@ public class Frame_KhachHang_ThongKe extends JPanel {
         SimpleDateFormat sdfSQL = new SimpleDateFormat("yyyy-MM-dd");
         try {
             switch (loaiThongKe) {
-                case "Ngày":
-                    if (dateChooserTuNgay.getDate() == null) {
-                        JOptionPane.showMessageDialog(this, "Vui lòng chọn ngày!");
-                        return;
-                    }
-                    String ngaySQL = sdfSQL.format(dateChooserTuNgay.getDate());
-                    data = khachHangDAO.thongKeTheoNgay(ngaySQL);
-                    break;
                 case "Tháng":
                     int namThang = Integer.parseInt(cboNam.getSelectedItem().toString());
                     int thang = Integer.parseInt(cboThang.getSelectedItem().toString());
@@ -421,13 +412,7 @@ public class Frame_KhachHang_ThongKe extends JPanel {
 
         try {
             String loaiThongKe = cboLoaiThongKe.getSelectedItem().toString();
-            if (loaiThongKe.equals("Ngày")) {
-                if (dateChooserTuNgay.getDate() != null) {
-                    tuNgay = sdfSQL.format(dateChooserTuNgay.getDate());
-                    denNgay = tuNgay;
-                    System.out.println("Khoảng thời gian (theo ngày): " + tuNgay + " đến " + denNgay);
-                }
-            } else if (loaiThongKe.equals("Tháng")) {
+            if (loaiThongKe.equals("Tháng")) {
                 int nam = Integer.parseInt(cboNam.getSelectedItem().toString());
                 int thang = Integer.parseInt(cboThang.getSelectedItem().toString());
                 tuNgay = String.format("%d-%02d-01", nam, thang);
@@ -450,7 +435,7 @@ public class Frame_KhachHang_ThongKe extends JPanel {
             }
 
             // Chart phân bố khách hàng theo độ tuổi
-            Map<String, Double> doTuoiData = khachHangDAO.thongKeTheoDoTuoi();
+            Map<String, Double> doTuoiData = khachHangDAO.thongKeTheoDoTuoiTheoKhoangThoiGian(tuNgay, denNgay);
             DefaultPieDataset doTuoiDataset = new DefaultPieDataset();
             if (doTuoiData.isEmpty()) {
                 doTuoiDataset.setValue("Không có dữ liệu", 100.0);
@@ -541,18 +526,4 @@ public class Frame_KhachHang_ThongKe extends JPanel {
         }
     }
     
-    public static void main(String[] args) {
-        EventQueue.invokeLater(() -> {
-            try {
-                JFrame frame = new JFrame("Thống Kê Khách Hàng");
-                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                frame.setSize(1550, 878);
-                frame.setContentPane(new Frame_KhachHang_ThongKe());
-                frame.setLocationRelativeTo(null);
-                frame.setVisible(true);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-    }
 }

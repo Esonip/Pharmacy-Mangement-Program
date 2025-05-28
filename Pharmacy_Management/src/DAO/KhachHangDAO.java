@@ -465,6 +465,51 @@ public class KhachHangDAO {
 		}
 		return result;
 	}
+	
+	// Thống kê phân bố khách hàng theo độ tuổi trong khoảng thời gian
+	public Map<String, Double> thongKeTheoDoTuoiTheoKhoangThoiGian(String fromDate, String toDate) {
+	    Map<String, Double> result = new HashMap<>();
+	    String sql = "SELECT DATEDIFF(YEAR, k.ngaySinh, GETDATE()) AS tuoi, COUNT(DISTINCT k.maKH) AS soLuong " +
+	                 "FROM KhachHang k " +
+	                 "JOIN PhieuBanThuoc h ON k.maKH = h.maKH " +
+	                 "WHERE CAST(h.ngayLap AS DATE) BETWEEN ? AND ? AND h.trangThai = N'Đã thanh toán' " +
+	                 "GROUP BY DATEDIFF(YEAR, k.ngaySinh, GETDATE())";
+	    try (Connection conn = ConnectDB.getConnection("DB_QuanLyNhaThuoc");
+	         PreparedStatement pstmt = conn.prepareStatement(sql)) {
+	        pstmt.setString(1, fromDate);
+	        pstmt.setString(2, toDate);
+	        ResultSet rs = pstmt.executeQuery();
+
+	        int total = 0;
+	        Map<String, Integer> counts = new HashMap<>();
+	        while (rs.next()) {
+	            int tuoi = rs.getInt("tuoi");
+	            int soLuong = rs.getInt("soLuong");
+	            String nhomTuoi;
+	            if (tuoi < 20) {
+	                nhomTuoi = "<20";
+	            } else if (tuoi <= 30) {
+	                nhomTuoi = "20-30";
+	            } else if (tuoi <= 40) {
+	                nhomTuoi = "30-40";
+	            } else {
+	                nhomTuoi = ">40";
+	            }
+
+	            counts.put(nhomTuoi, counts.getOrDefault(nhomTuoi, 0) + soLuong);
+	            total += soLuong;
+	        }
+
+	        for (Map.Entry<String, Integer> entry : counts.entrySet()) {
+	            double percentage = (entry.getValue() * 100.0) / total;
+	            result.put(entry.getKey(), percentage);
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        JOptionPane.showMessageDialog(null, "Lỗi khi thống kê theo độ tuổi trong khoảng thời gian: " + e.getMessage());
+	    }
+	    return result;
+	}
 
 	// Thống kê phân bố giao dịch theo phương thức thanh toán
 	public Map<String, Double> thongKePhuongThucThanhToanKhachHang(String fromDate, String toDate) {
